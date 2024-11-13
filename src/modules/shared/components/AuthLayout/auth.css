@@ -1,0 +1,21 @@
+.auth-container {
+  background-image: url(/public/authpic.jpg);
+  background-position: center center;
+
+  background-size: cover;
+}
+.bgOverlay {
+  background: linear-gradient(
+    51deg,
+    rgba(55, 140, 47, 0.63) -22.39%,
+    rgba(0, 0, 0, 0.62) 61.76%
+  );
+}
+
+.input-group {
+  background-color: #f7f7f7 !important;
+  height: 48px;
+}
+input {
+  background-color: transparent !important;
+}

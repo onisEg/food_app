@@ -1,0 +1,6 @@
+.notFound{
+    background-image: url(/public/Not\ Found.svg);
+    background-size: cover;
+    background-position: bottom center;
+    height: 100vh;
+}

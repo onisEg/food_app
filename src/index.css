@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+:root {
+  --greeen: #009247;
+  --greeen-subtle: #f0ffef;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* ======================== */
+
+.sidebar-container .ps-sidebar-container {
+  background-color: #1f263e;
+  color: white;
+  height: 100vh;
+  border-radius: 0 50px 0 0;
+}
+
+.sidebar-container .ps-menu-button {
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    background-color: rgba(0, 146, 77, 0.1) !important;
+    border-left: 5px solid #009247;
+  }
+}
+.css-1wvake5 {
+  border: 0 !important;
+}

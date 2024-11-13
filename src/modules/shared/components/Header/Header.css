@@ -1,0 +1,8 @@
+.header-container {
+  background-image: url(/public/headerBg.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  border-radius: 10px;
+  transition: all 3s ease-in-out;
+}
