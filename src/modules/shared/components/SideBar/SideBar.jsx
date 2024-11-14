@@ -13,12 +13,12 @@ export default function SideBar() {
     <div className="sidebar-container">
       <Sidebar collapsed={isCollapse}>
         <Menu>
-          <div onClick={toggleCollpase} className="my-4 text-center ">
-            <img
-              src="/fivicon.png"
-              className="img-fluid w-50"
-              alt="logo"
-            />{" "}
+          <div
+            onClick={toggleCollpase}
+            className="my-4 text-center cursor-pointer "
+            style={{ cursor: "pointer" }}
+          >
+            <img src="/fivicon.png" className="img-fluid w-50" alt="logo" />{" "}
           </div>
 
           <MenuItem
@@ -40,7 +40,7 @@ export default function SideBar() {
             Recipes
           </MenuItem>
           <MenuItem
-            icon={<i className="bi bi-calendar-week"></i>}
+            icon={<i className="bi bi-columns-gap"></i>}
             component={<Link to="/dashboard/categories" />}
           >
             Categories

@@ -59,13 +59,12 @@ export default function CategoriesList() {
             </tr>
           </thead>
           <tbody>
-            
             <tr>
               <td scope="row">Noodles with Sushi</td>
               <td>img</td>
               <td>350.99</td>
               <td>Rice-cack with noodles</td>
-              <td>@mdo</td>
+              <td>20</td>
               <td className="">
                 <i className="bi bi-trash mx-3 text-danger"></i>
                 <i className="bi bi-pencil-square text-warning"></i>
