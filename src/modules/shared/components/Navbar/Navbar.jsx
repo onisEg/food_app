@@ -18,7 +18,7 @@ export default function Navbar({ loginData }) {
           />
         </div>
         <div className="px-4 d-flex justify-content-evenly align-items-center  col-md-2 col ">
-          <img className="" src="/public/Ellipse235.png" alt="" />
+          <img className="" src="Ellipse235.png" alt="" />
           <span className="text-capitalize">
             {loginData?.userName || "userName"}
           </span>

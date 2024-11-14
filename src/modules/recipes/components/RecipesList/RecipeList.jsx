@@ -10,7 +10,7 @@ export default function RecipeList() {
         description={
           "You can now add your items that any user can order it from the Application and you can edit"
         }
-        headerImg={"/public/resipes.svg"}
+        headerImg={"/resipes.svg"}
       />
       <div className="d-flex justify-content-between align-content-center my-4">
         <div className="d-flex flex-column ">

@@ -2,7 +2,8 @@ import "./login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { axiosInstance, USERS_URL } from "../../../../services/urls/urls";
+import {USERS_URL} from "../../../../services/api/urls";
+import { axiosInstance } from "../../../../services/api/index";
 export default function Login({ saveLoginData }) {
   let navigate = useNavigate();
   let {
@@ -37,7 +38,7 @@ export default function Login({ saveLoginData }) {
             <i className="bi bi-envelope-at"></i>
           </span>
           <input
-            type="text"
+            type="email"
             className="form-control"
             placeholder="Enter your E-mail"
             aria-label="email"
@@ -54,7 +55,7 @@ export default function Login({ saveLoginData }) {
         {errors.email && (
           <small className="text-danger ">{errors.email.message}</small>
         )}
-        <small className="text-muted">Ex: anasabdo704@gmail.com</small>
+        <small className="text-muted ">Ex: anasabdo704@gmail.com</small>
         <div className="input-group mt-4">
           <span className="input-group-text" id="basic-addon1">
             <i className="bi bi-lock"></i>

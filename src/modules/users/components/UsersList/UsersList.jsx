@@ -1,4 +1,3 @@
-
 import Header from "../../../shared/components/Header/Header";
 
 export default function UsersList() {
@@ -10,7 +9,7 @@ export default function UsersList() {
         description={
           "We're thrilled to have you here. Explore and enjoy everything we have to offer!"
         }
-        headerImg={"/public/resipes.svg"}
+        headerImg={"/resipes.svg"}
       />
     </>
   );
