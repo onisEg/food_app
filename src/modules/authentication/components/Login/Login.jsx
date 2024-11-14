@@ -1,7 +1,6 @@
 import "./login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { axiosInstance, USERS_URL } from "../../../../services/urls/urls";
 export default function Login({ saveLoginData }) {
@@ -55,7 +54,8 @@ export default function Login({ saveLoginData }) {
         {errors.email && (
           <small className="text-danger ">{errors.email.message}</small>
         )}
-        <div className="input-group mt-3">
+        <small className="text-muted">Ex: anasabdo704@gmail.com</small>
+        <div className="input-group mt-4">
           <span className="input-group-text" id="basic-addon1">
             <i className="bi bi-lock"></i>
           </span>
@@ -73,6 +73,7 @@ export default function Login({ saveLoginData }) {
         {errors.password && (
           <small className="text-danger ">{errors.password.message}</small>
         )}
+        <small className="text-muted">Ex password: Anas@123</small>
         <div className="links d-flex justify-content-between mt-2  ">
           <Link
             className="text-decoration-none text-dark fw-medium"
