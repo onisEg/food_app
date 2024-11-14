@@ -15,7 +15,7 @@ export default function SideBar() {
         <Menu>
           <div onClick={toggleCollpase} className="my-4 text-center ">
             <img
-              src="/public/fivicon.png"
+              src="/fivicon.png"
               className="img-fluid w-50"
               alt="logo"
             />{" "}

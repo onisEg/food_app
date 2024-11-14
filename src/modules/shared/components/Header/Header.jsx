@@ -16,7 +16,7 @@ export default function Header({ title, username, description, headerImg }) {
       <div className="header-img">
         <img
           className="img-fluid"
-          src={headerImg || `/public/header-img.svg`}
+          src={headerImg || `/header-img.svg`}
           alt="header-image"
         />
       </div>

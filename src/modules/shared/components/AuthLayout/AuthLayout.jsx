@@ -10,7 +10,7 @@ export default function AuthLayout() {
             <div className="col-md-6 col-lg-4 col-4 px-5 py-4   bg-white rounded">
               <div className="">
                 <div className="log-container text-center">
-                  <img src="/public/foodapplogo.png" alt="foodlogo" />
+                  <img src="/foodapplogo.png" alt="foodlogo" />
                 </div>
               </div>
               <Outlet />
