@@ -207,7 +207,7 @@ export default function CategoriesList() {
             <Modal.Body>
               <div>
                 <div className="del-img text-center my-4">
-                  <img src="/public/noData.svg" alt="No Data" />
+                  <img src="/noData.svg" alt="No Data" />
                 </div>
                 <p>Are you sure you want to delete this category?</p>
                 <div className="d-flex justify-content-end">
