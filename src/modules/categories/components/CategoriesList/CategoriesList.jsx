@@ -45,12 +45,13 @@ export default function CategoriesList() {
   const onDeleteCategory = async () => {
     try {
       let response = await axiosInstance.delete(
-        `${CATEGORY_URLS.DELETE_CATEGORY}/${selectedCategoryId}`
+        CATEGORY_URLS.DELETE_CATEGORY(selectedCategoryId)
       );
+
       toast.success("Category deleted successfully!");
       console.log(response);
-
       getCategories();
+      setModalShow(false);
     } catch (error) {
       console.error(error);
       toast.error(
