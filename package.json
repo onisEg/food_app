@@ -16,6 +16,7 @@
     "bootstrap-icons": "^1.11.3",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.5",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
     "react-pro-sidebar": "^1.1.0",

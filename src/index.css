@@ -28,3 +28,7 @@ body {
 .css-1wvake5 {
   border: 0 !important;
 }
+
+.bi-trash,.bi-pencil-square{
+  cursor: pointer;
+}

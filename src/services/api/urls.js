@@ -17,7 +17,11 @@ export const USERS_URL = {
 
 //CATEGORY 
 export const CATEGORY_URLS = {
-    GET_CATEGORIES: `/Category/`,
+    GET_CATEGORIES: `/Category`,
+    GET_CATEGORY: (id) => `/Category/${id}`,
+    DELETE_CATEGORY: (id) => `/Category/${id}`,
+    ADD_CATEGORY: `/Category`
+
 }
 
 //RECIPES
