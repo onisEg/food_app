@@ -20,7 +20,9 @@ export const CATEGORY_URLS = {
     GET_CATEGORIES: `/Category`,
     GET_CATEGORY: (id) => `/Category/${id}`,
     DELETE_CATEGORY: (id) => `/Category/${id}`,
-    ADD_CATEGORY: `/Category`
+    ADD_CATEGORY: `/Category`,
+    UPDATE_CATEGORY: (id) => `/Category/${id}`,
+
 
 }
 

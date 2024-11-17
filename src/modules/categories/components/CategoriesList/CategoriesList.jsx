@@ -9,6 +9,8 @@ import { useForm } from "react-hook-form";
 
 export default function CategoriesList() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [editedCategory, setEditedCategory] = useState(null);
+
   const [modalType, setModalType] = useState(""); // "add" or "delete"
   const [modalShow, setModalShow] = useState(false);
   const [categoriesList, setCategoriesList] = useState([]);
@@ -59,7 +61,21 @@ export default function CategoriesList() {
       );
     }
   };
-
+  const onEditCategory = async (data) => {
+    try {
+      let response = await axiosInstance.put(
+        CATEGORY_URLS.UPDATE_CATEGORY(editedCategory.id),
+        data
+      );
+      toast.success(`${response.data.name} updated successfully!`);
+      setModalShow(false);
+      getCategories();
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update category.");
+    }
+  };
+  
   useEffect(() => {
     getCategories();
   }, []);
@@ -146,7 +162,14 @@ export default function CategoriesList() {
                     }}
                     className=" bi bi-trash mx-4 text-danger fa-2x "
                   ></i>
-                  <i className="bi bi-pencil-square text-warning fa-2x"></i>
+                  <i
+                    onClick={() => {
+                      setEditedCategory(category);
+                      setModalType("edit");
+                      setModalShow(true);
+                    }}
+                    className="bi bi-pencil-square text-warning fa-2x"
+                  ></i>
                 </td>
               </tr>
             ))}
@@ -229,6 +252,39 @@ export default function CategoriesList() {
             </Modal.Body>
           </>
         )}
+        {modalType === "edit" && (
+  <>
+    <Modal.Header closeButton>
+      <Modal.Title className="fw-light fs-2">
+        Edit Category
+      </Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <form
+        onSubmit={handleSubmit((data) => onEditCategory(data))}
+      >
+        <div className="input-group icon-input mb-4">
+          <input
+            type="text"
+            defaultValue={editedCategory?.name}
+            className="form-control"
+            placeholder="Category Name"
+            {...register("name", { required: "Field is required" })}
+          />
+        </div>
+        {errors.name && (
+          <small className="text-danger">
+            {errors.name.message}
+          </small>
+        )}
+        <button className="btn btn-lg btn-warning w-100 m-auto">
+          Update
+        </button>
+      </form>
+    </Modal.Body>
+  </>
+)}
+
       </Modal>
     </>
   );
