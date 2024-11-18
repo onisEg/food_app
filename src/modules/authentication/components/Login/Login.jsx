@@ -2,7 +2,7 @@ import "./login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import {USERS_URL} from "../../../../services/api/urls";
+import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
 export default function Login({ saveLoginData }) {
   let navigate = useNavigate();
@@ -18,10 +18,9 @@ export default function Login({ saveLoginData }) {
       toast.success("login success!");
       saveLoginData();
       navigate("/dashboard");
-      // console.log(data);
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.message);
     }
   };
   return (

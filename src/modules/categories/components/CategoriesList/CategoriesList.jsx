@@ -8,16 +8,16 @@ import Modal from "react-bootstrap/Modal";
 import { useForm } from "react-hook-form";
 
 export default function CategoriesList() {
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [editedCategoryId, setEditedCategoryId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [editedCategory, setEditedCategory] = useState(null);
-
   const [modalType, setModalType] = useState(""); // "add" or "delete"
   const [modalShow, setModalShow] = useState(false);
-  const [categoriesList, setCategoriesList] = useState([]);
   let {
     register,
     formState: { errors },
     handleSubmit,
+    reset,
   } = useForm();
 
   const onAddCategory = async (data) => {
@@ -64,18 +64,21 @@ export default function CategoriesList() {
   const onEditCategory = async (data) => {
     try {
       let response = await axiosInstance.put(
-        CATEGORY_URLS.UPDATE_CATEGORY(editedCategory.id),
+        CATEGORY_URLS.UPDATE_CATEGORY(editedCategoryId),
         data
       );
-      toast.success(`${response.data.name} updated successfully!`);
+      toast.success(`${response.data.name} category updated successfully!`);
       setModalShow(false);
+      reset();
       getCategories();
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to update category.");
+      toast.error(
+        error.response?.data?.message || "Failed to update category."
+      );
     }
   };
-  
+
   useEffect(() => {
     getCategories();
   }, []);
@@ -100,6 +103,7 @@ export default function CategoriesList() {
             onClick={() => {
               setModalType("add");
               setModalShow(true);
+              reset();
             }}
             style={{ background: "#009247" }}
             className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
@@ -108,6 +112,7 @@ export default function CategoriesList() {
           </div>
         </div>
       </div>
+
       <div>
         <table className="table table-striped">
           <thead className="my-3">
@@ -164,9 +169,10 @@ export default function CategoriesList() {
                   ></i>
                   <i
                     onClick={() => {
-                      setEditedCategory(category);
+                      setEditedCategoryId(category.id);
                       setModalType("edit");
                       setModalShow(true);
+                      reset();
                     }}
                     className="bi bi-pencil-square text-warning fa-2x"
                   ></i>
@@ -176,6 +182,17 @@ export default function CategoriesList() {
           </tbody>
         </table>
       </div>
+      {(!categoriesList || categoriesList.length === 0) && (
+        <div className="w-100 text-center py-3">
+          <img src="/public/noData.svg" alt="noData" />
+          <h2 className="">No Data!</h2>
+          <p className="text-muted">
+            Are you sure you want to delete this item? If you are sure, just
+            click on delete it.
+          </p>
+        </div>
+      )}
+
       <Modal
         show={modalShow}
         onHide={() => setModalShow(false)}
@@ -253,38 +270,41 @@ export default function CategoriesList() {
           </>
         )}
         {modalType === "edit" && (
-  <>
-    <Modal.Header closeButton>
-      <Modal.Title className="fw-light fs-2">
-        Edit Category
-      </Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      <form
-        onSubmit={handleSubmit((data) => onEditCategory(data))}
-      >
-        <div className="input-group icon-input mb-4">
-          <input
-            type="text"
-            defaultValue={editedCategory?.name}
-            className="form-control"
-            placeholder="Category Name"
-            {...register("name", { required: "Field is required" })}
-          />
-        </div>
-        {errors.name && (
-          <small className="text-danger">
-            {errors.name.message}
-          </small>
+          <>
+            <Modal.Header closeButton>
+              <div>
+                <Modal.Title
+                  className="fw-light fs-2"
+                  id="contained-modal-title-vcenter"
+                >
+                  Edit Category
+                </Modal.Title>
+              </div>
+            </Modal.Header>
+            <Modal.Body>
+              <form onSubmit={handleSubmit(onEditCategory)}>
+                <div className="input-group icon-input mb-4">
+                  <input
+                    type="text"
+                    defaultValue={
+                      categoriesList.find((cat) => cat.id === editedCategoryId)
+                        ?.name
+                    } // عرض اسم الفئة الحالية
+                    className="form-control"
+                    placeholder="Category Name"
+                    {...register("name", { required: "Field is required" })}
+                  />
+                </div>
+                {errors.name && (
+                  <small className="text-danger">{errors.name.message}</small>
+                )}
+                <button className="btn btn-lg btn-warning w-100 m-auto">
+                  Update
+                </button>
+              </form>
+            </Modal.Body>
+          </>
         )}
-        <button className="btn btn-lg btn-warning w-100 m-auto">
-          Update
-        </button>
-      </form>
-    </Modal.Body>
-  </>
-)}
-
       </Modal>
     </>
   );
