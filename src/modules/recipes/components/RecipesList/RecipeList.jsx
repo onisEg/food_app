@@ -3,9 +3,10 @@ import Header from "../../../shared/components/Header/Header";
 import { RECIPE_URLS } from "../../../../services/api/urls";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../../../../services/api";
-import { toast } from "react-toastify";
+
 import Modal from "react-bootstrap/Modal";
 import "./RecipesList.css";
+import toast from "react-hot-toast";
 
 export default function RecipeList() {
   const [recipesList, setRecipesList] = useState([]);

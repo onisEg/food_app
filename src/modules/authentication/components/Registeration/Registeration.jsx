@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
 
 export default function Registeration() {
   let navigate = useNavigate();
@@ -30,6 +30,7 @@ export default function Registeration() {
   };
   return (
     <>
+      
       <div className="title  d-flex flex-column align-items-start mb-4">
         <h3 className="text-center fw-bold">Register</h3>
         <span className="text-muted ">
@@ -49,6 +50,7 @@ export default function Registeration() {
                 className="form-control"
                 placeholder="userName "
                 {...register("userName ", { required: "Field is required" })}
+                
               />
             </div>
             {errors.userName && (

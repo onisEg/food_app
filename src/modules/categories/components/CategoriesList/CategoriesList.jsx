@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import Header from "../../../shared/components/Header/Header";
 import { CATEGORY_URLS } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api";
-import { toast } from "react-toastify";
+
 import "./categoriesList.css";
 import Modal from "react-bootstrap/Modal";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 export default function CategoriesList() {
   const [categoriesList, setCategoriesList] = useState([]);

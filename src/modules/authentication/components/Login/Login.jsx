@@ -1,9 +1,10 @@
 import "./login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
+import toast from "react-hot-toast";
 export default function Login({ saveLoginData }) {
   let navigate = useNavigate();
   let {

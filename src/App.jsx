@@ -7,8 +7,7 @@ import ResetPass from "./modules/authentication/components/ResetPass/ResetPass";
 import ChangePass from "./modules/authentication/components/ChangePass/ChangePass";
 import MasterLayout from "./modules/shared/components/MasterLayout/MasterLayout";
 import ForgetPass from "./modules/authentication/components/ForgetPass/ForgetPass";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import RecipeList from "./modules/recipes/components/RecipesList/RecipeList";
 import RecipeData from "./modules/recipes/components/RecipeData/RecipeData";
 import CategoriesList from "./modules/categories/components/CategoriesList/CategoriesList";
@@ -18,6 +17,7 @@ import { jwtDecode } from "jwt-decode";
 import ProtectedRoute from "./modules/shared/components/ProtectedRoute/ProtectedRoute";
 import UsersList from "./modules/users/components/UsersList/UsersList";
 import Dashboard from "./modules/HomeModule/components/Dashboard/Dashboard";
+import { Toaster } from "react-hot-toast";
 function App() {
   const [loginData, setLoginData] = useState(null);
   let saveLoginData = () => {
@@ -67,8 +67,8 @@ function App() {
   ]);
   return (
     <>
-      <ToastContainer />
       <RouterProvider router={routes}></RouterProvider>
+      <Toaster />
     </>
   );
 }
