@@ -1,6 +1,8 @@
-.notFound {
-  background-image: url(/Not\ Found.svg);
+.notfound-bg {
+  background-image: url("/Not_Found.svg"); /* أو استخدم import لو مش في public */
   background-size: cover;
-  background-position: bottom center;
-  height: 100vh;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  background-color: #ddd;
+  padding: 2rem;
 }

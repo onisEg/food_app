@@ -24,6 +24,9 @@ function App() {
     let decodeedToken = localStorage.getItem("token");
     let encodedToken = jwtDecode(decodeedToken);
     setLoginData(encodedToken);
+    console.log(encodedToken);
+    
+    
   };
 
   useEffect(() => {

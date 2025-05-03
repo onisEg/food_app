@@ -1,7 +1,6 @@
 import "./login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
 import toast from "react-hot-toast";
@@ -9,8 +8,9 @@ export default function Login({ saveLoginData }) {
   let navigate = useNavigate();
   let {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
+    reset
   } = useForm();
   const onSubmit = async (data) => {
     try {
@@ -19,9 +19,10 @@ export default function Login({ saveLoginData }) {
       toast.success("login success!");
       saveLoginData();
       navigate("/dashboard");
+      reset()
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
   return (
@@ -44,7 +45,7 @@ export default function Login({ saveLoginData }) {
             aria-label="email"
             aria-describedby="basic-addon1"
             {...register("email", {
-              required: "Field is required",
+              required: "email is required",
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                 message: "Invalid mail",
@@ -67,12 +68,29 @@ export default function Login({ saveLoginData }) {
             aria-label="password"
             aria-describedby="basic-addon1"
             {...register("password", {
-              required: "Field is required",
+              required: "password is required",
             })}
           />
         </div>
         {errors.password && (
-          <small className="text-danger ">{errors.password.message}</small>
+          <>
+            <small className="text-danger ">{errors.password.message}</small>
+            <div
+              className="alert alert-danger mt-3 p-2"
+              style={{ fontSize: "12px", lineHeight: "1.4" }}
+            >
+              <div className="small">
+                <strong>Password must include:</strong>
+                <ul className="mb-0 ms-3">
+                  <li>a lowercase letter</li>
+                  <li>an uppercase letter</li>
+                  <li>a number</li>
+                  <li>a special character</li>
+                  <li>at least 6 characters</li>
+                </ul>
+              </div>
+            </div>
+          </>
         )}
         <small className="text-muted">Ex password: Anas@123</small>
         <div className="links d-flex justify-content-between mt-2  ">
@@ -87,7 +105,7 @@ export default function Login({ saveLoginData }) {
           </Link>
         </div>
         <button className="btn btn-lg w-100 bg-success text-white mt-4 ">
-          Login
+          {isSubmitting ? "Login..." : "Login"}
         </button>
       </form>
     </>

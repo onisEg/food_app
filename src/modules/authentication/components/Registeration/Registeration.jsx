@@ -1,36 +1,36 @@
 import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-
+import { axiosInstance } from "../../../../services/api";
+import { USERS_URL } from "../../../../services/api/urls";
 
 export default function Registeration() {
   let navigate = useNavigate();
   let {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
-    watch
+    watch,
+    reset,
   } = useForm();
   const onSubmit = async (data) => {
-    console.log(data);
-    
-    // try {
-    //   let response = await axios.post(
-    //     "https://upskilling-egypt.com:3006/api/v1/Users/Login",
-    //     data
-    //   );
-    //   toast.success(response.data.message);
-    //   navigate("/login");
-    //   // console.log(data);
-    // } catch (error) {
-    //   console.log(error);
-    //   toast.error(error.response.data.message);
-    // }
+    try {
+      let response = await axiosInstance.post(USERS_URL.REGISTER, data);
+
+      console.log(data);
+      console.log(response);
+      toast.success("Account created successfully. Please check your email.");
+      reset();
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    }
   };
   return (
     <>
-      
       <div className="title  d-flex flex-column align-items-start mb-4">
         <h3 className="text-center fw-bold">Register</h3>
         <span className="text-muted ">
@@ -48,9 +48,18 @@ export default function Registeration() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="userName "
-                {...register("userName ", { required: "Field is required" })}
-                
+                placeholder="userName"
+                {...register("userName", {
+                  required: "userName is required",
+                  maxLength: {
+                    value: 8,
+                    message: "userName must not exceed 8 characters",
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z]+\d+$/,
+                    message: "userName must have letters and end with numbers",
+                  },
+                })}
               />
             </div>
             {errors.userName && (
@@ -72,7 +81,7 @@ export default function Registeration() {
                   required: "Field is required",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid mail",
+                    message: "Invalid email",
                   },
                 })}
               />
@@ -92,7 +101,7 @@ export default function Registeration() {
                 type="text"
                 className="form-control"
                 placeholder="Country"
-                {...register("country ", { required: "Field is required" })}
+                {...register("country", { required: "country is required" })}
               />
             </div>
             {errors.country && (
@@ -110,7 +119,7 @@ export default function Registeration() {
                 type="text"
                 className="form-control"
                 placeholder="Phone Number"
-                {...register("phoneNumber ", {
+                {...register("phoneNumber", {
                   required: "Field is required",
                   pattern: {
                     value: /^[0-9]{10,15}$/,
@@ -140,7 +149,7 @@ export default function Registeration() {
                   required: "Field is required",
                   minLength: {
                     value: 6,
-                    message: "Password must be at least 6 characters",
+                    message: "password must be at least 6 characters",
                   },
                 })}
               />
@@ -180,8 +189,11 @@ export default function Registeration() {
             Login Now?
           </Link>
         </div>
-        <button type="submit" className="btn btn-lg btn-success w-100 my-2">
-          Register
+        <button
+          disabled={isSubmitting}
+          className="btn btn-lg btn-success w-100 my-2"
+        >
+          {isSubmitting ? "Registering..." : "Register"}
         </button>
       </form>
     </>

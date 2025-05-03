@@ -1,9 +1,8 @@
-import  { useState } from "react";
-import { Sidebar, Menu, MenuItem,} from "react-pro-sidebar";
+import { useState } from "react";
+import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
 
 export default function SideBar() {
-
   const [isCollapse, setIsCollapse] = useState(true);
   let toggleCollpase = () => {
     setIsCollapse(!isCollapse);
@@ -20,7 +19,6 @@ export default function SideBar() {
           >
             <img src="/fivicon.png" className="img-fluid w-50" alt="logo" />{" "}
           </div>
-
           <MenuItem
             icon={<i className="bi bi-house-door"></i>}
             component={<Link to="/dashboard" />}
@@ -28,29 +26,30 @@ export default function SideBar() {
             Home
           </MenuItem>
           <MenuItem
-            icon={<i className="bi bi-people"></i>}
+            icon={<i className="fa-solid fa-users"></i>}
             component={<Link to="/dashboard/users" />}
           >
             Users
           </MenuItem>
           <MenuItem
-            icon={<i className="fa-solid fa-bowl-food"></i>}
+            icon={<i className="fa-solid fa-bowl-rice"></i>}
             component={<Link to="/dashboard/recipes" />}
           >
             Recipes
           </MenuItem>
           <MenuItem
-            icon={<i className="bi bi-columns-gap"></i>}
+            icon={<i className="fa-solid fa-layer-group"></i>}
             component={<Link to="/dashboard/categories" />}
           >
             Categories
           </MenuItem>
-          <MenuItem icon={<i className="bi bi-lock"></i>}>
+          <MenuItem icon={<i className="fa-solid fa-key"></i>}>
             Change Password
           </MenuItem>
           <MenuItem
-            icon={<i className="bi bi-box-arrow-right"></i>}
+            icon={<i className="fa-solid fa-right-from-bracket"></i>}
             component={<Link to="/login" />}
+            onClick={() => localStorage.removeItem("token")}
           >
             Logout
           </MenuItem>

@@ -10,6 +10,7 @@
     rgba(55, 140, 47, 0.63) -22.39%,
     rgba(0, 0, 0, 0.62) 61.76%
   );
+  backdrop-filter: blur(5px);
 }
 
 .input-group {

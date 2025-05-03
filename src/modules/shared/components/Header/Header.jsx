@@ -2,18 +2,22 @@ import "./Header.css";
 
 export default function Header({ title, username, description, headerImg }) {
   return (
-    <div className="header-container d-flex justify-content-evenly align-items-center py-2">
+    <div className="header-container d-flex justify-content-between align-items-center p-md-4">
       <div className="caption text-white ">
         <div className="mb-3 ">
           <span className="h1 ">{title || "Welcome"}</span>
           <span className="fs-3 mx-3 text-capitalize">
-            {username || "UserName"}
+            {username
+              ? username
+                  .replace(/[0-9]/g, "")
+                  .replace(/^\w/, (c) => c.toUpperCase())
+              : "UserName"}
           </span>
         </div>
 
         <p className="">{description}</p>
       </div>
-      <div className="header-img">
+      <div className="header-img ">
         <img
           className="img-fluid"
           src={headerImg || `/header-img.svg`}

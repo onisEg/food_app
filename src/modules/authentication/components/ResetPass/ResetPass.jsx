@@ -4,14 +4,15 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-
 export default function ResetPass() {
   let navigate = useNavigate();
 
   let {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
+    watch,
+    reset,
   } = useForm();
 
   const onSubmit = async (data) => {
@@ -20,14 +21,23 @@ export default function ResetPass() {
         "https://upskilling-egypt.com:3006/api/v1/Users/Reset",
         data
       );
-      console.log("Form data:", data);
+
       toast.success(response.data.message);
+      console.log(response);
+
+      reset();
       navigate("/login");
     } catch (error) {
-      if (error.response) {
-        console.log("Error response:", error.response);
+      console.log(error);
+
+      const errors = error?.response?.data?.additionalInfo?.errors;
+
+      if (errors) {
+        const firstField = Object.keys(errors)[0];
+        const firstError = errors[firstField][0];
+        toast.error(firstError);
       } else {
-        console.log("Error:", error.message);
+        toast.error(error?.response?.data?.message || "Something went wrong");
       }
     }
   };
@@ -72,7 +82,7 @@ export default function ResetPass() {
             aria-label="OTP"
             aria-describedby="basic-addon1"
             {...register("seed", {
-              required: "Field is required",
+              required: "Otb is required",
             })}
           />
         </div>
@@ -113,16 +123,36 @@ export default function ResetPass() {
             aria-describedby="basic-addon1"
             {...register("confirmPassword", {
               required: "Field is required",
+              validate: (value) =>
+                value === watch("password") || "Passwords do not match",
             })}
           />
         </div>
         {errors.confirmPassword && (
-          <small className="text-danger ">
-            {errors.confirmPassword.message}
-          </small>
+          <>
+            <small className="text-danger ">
+              {errors.confirmPassword.message}
+            </small>
+            <div
+              className="alert alert-danger mt-3 p-2"
+              style={{ fontSize: "12px", lineHeight: "1.4" }}
+            >
+              <div className="small">
+                <strong>Password must include:</strong>
+                <ul className="mb-0 ms-3">
+                  <li>a lowercase letter</li>
+                  <li>an uppercase letter</li>
+                  <li>a number</li>
+                  <li>a special character</li>
+                  <li>at least 6 characters</li>
+                </ul>
+              </div>
+            </div>
+          </>
         )}
+
         <button className="btn btn-lg w-100 bg-success text-white mt-4 ">
-          Submit
+          {isSubmitting ? "Submit..." : "Submit"}
         </button>
       </form>
     </>

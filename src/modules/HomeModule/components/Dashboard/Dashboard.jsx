@@ -4,14 +4,14 @@ export default function Dashboard({ loginData }) {
   return (
     <>
       <Header
-        username={loginData?.userName || "Anas !"}
+        username={loginData?.userName || "userName"}
         description={
           "This is a welcoming screen for the entry of the application , you can now see the options"
         }
       />
       <div
         style={{ background: `#F0FFEF` }}
-        className="  py-5 my-4 rounded-3 px-5 d-flex align-items-center justify-content-between"
+        className="  py-5 my-4 rounded-3 px-5 d-flex align-items-center justify-content-between "
       >
         <div>
           <div className="mb-3 ">
