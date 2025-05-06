@@ -150,7 +150,7 @@ export default function RecipeList() {
               <td>
                 <img
                   className="cat-img"
-                  src={recipe.img || "/public/pizza.png"}
+                  src={recipe.img || "/pizza.png"}
                   alt={recipe.name}
                 />
               </td>
