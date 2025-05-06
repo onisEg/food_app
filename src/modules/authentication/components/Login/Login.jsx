@@ -1,25 +1,29 @@
 import "./login.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, replace, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
 import toast from "react-hot-toast";
+import {
+  EMAIL_VALIDATION,
+  PASSWORD_VALIDATION,
+} from "../../../../services/validations";
 export default function Login({ saveLoginData }) {
   let navigate = useNavigate();
   let {
     register,
     formState: { errors, isSubmitting },
     handleSubmit,
-    reset
+    reset,
   } = useForm();
   const onSubmit = async (data) => {
     try {
       let response = await axiosInstance.post(USERS_URL.LOGIN, data);
       localStorage.setItem("token", response.data.token);
-      toast.success("login success!");
       saveLoginData();
-      navigate("/dashboard");
-      reset()
+      toast.success("login success!");
+      navigate("/dashboard", { replace: true });
+      
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -44,13 +48,7 @@ export default function Login({ saveLoginData }) {
             placeholder="Enter your E-mail"
             aria-label="email"
             aria-describedby="basic-addon1"
-            {...register("email", {
-              required: "email is required",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid mail",
-              },
-            })}
+            {...register("email", EMAIL_VALIDATION)}
           />
         </div>
         {errors.email && (
@@ -58,18 +56,16 @@ export default function Login({ saveLoginData }) {
         )}
         <small className="text-muted ">Ex: anasabdo704@gmail.com</small>
         <div className="input-group mt-4">
-          <span className="input-group-text" id="basic-addon1">
+          <span className="input-group-text " id="basic-addon1">
             <i className="bi bi-lock"></i>
           </span>
           <input
             type="password"
-            className="form-control"
+            className="form-control "
             placeholder="Enter your password"
             aria-label="password"
             aria-describedby="basic-addon1"
-            {...register("password", {
-              required: "password is required",
-            })}
+            {...register("password")}
           />
         </div>
         {errors.password && (
@@ -104,8 +100,17 @@ export default function Login({ saveLoginData }) {
             Forgot Password?
           </Link>
         </div>
-        <button className="btn btn-lg w-100 bg-success text-white mt-4 ">
-          {isSubmitting ? "Login..." : "Login"}
+        <button
+          disabled={isSubmitting}
+          className="btn btn-lg w-100 bg-success text-white mt-4 "
+        >
+          {isSubmitting ? (
+            <>
+              <i className="fa-solid fa-spinner fa-spin-pulse"></i>
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
     </>

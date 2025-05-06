@@ -23,6 +23,10 @@ body {
     border-left: 5px solid #009247;
   }
 }
+.active-menu {
+  background-color: rgba(0, 146, 77, 0.1) !important;
+  border-left: 5px solid #009247;
+}
 .css-1wvake5 {
   border: 0 !important;
 }
@@ -49,4 +53,16 @@ textarea,
 button,
 select {
   font-family: "Inter", "PT Serif", sans-serif;
+}
+
+.sr_only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

@@ -297,7 +297,7 @@ export default function RecipeList() {
                     />
                     <label htmlFor="uploadImage" className="text-success">
                       <div>
-                        <i class="bi bi-upload fa-2x"></i>
+                        <i className="bi bi-upload fa-2x"></i>
                       </div>
                       Drag & Drop or{" "}
                       <span className="text-primary">

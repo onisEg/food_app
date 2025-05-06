@@ -2,10 +2,17 @@ import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  EMAIL_VALIDATION,
+  PASSWORD_VALIDATION,
+} from "../../../../services/validations";
+import { axiosInstance } from "../../../../services/api";
+import { USERS_URL } from "../../../../services/api/urls";
 
 export default function ResetPass() {
   let navigate = useNavigate();
+  const location = useLocation();
 
   let {
     register,
@@ -13,23 +20,17 @@ export default function ResetPass() {
     handleSubmit,
     watch,
     reset,
-  } = useForm();
+  } = useForm({ defaultValues: { email: location.state } });
 
   const onSubmit = async (data) => {
     try {
-      let response = await axios.post(
-        "https://upskilling-egypt.com:3006/api/v1/Users/Reset",
-        data
-      );
+      let response = await axiosInstance.post(USERS_URL.RESET, data);
 
       toast.success(response.data.message);
-      console.log(response);
 
       reset();
       navigate("/login");
     } catch (error) {
-      console.log(error);
-
       const errors = error?.response?.data?.additionalInfo?.errors;
 
       if (errors) {
@@ -41,9 +42,20 @@ export default function ResetPass() {
       }
     }
   };
+
+  const password = watch("password") || "";
+
+  const passwordChecks = {
+    lowercase: /[a-z]/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    number: /\d/.test(password),
+    special: /[\W_]/.test(password),
+    length: password.length >= 6,
+  };
+
   return (
     <>
-      <div className="title  d-flex flex-column align-items-start">
+      <div className="title  d-flex flex-column align-items-center">
         <h3 className="text-center fw-bold"> Reset Password</h3>
         <span className="text-muted ">
           <small>Please Enter Your Otp or Check Your Inbox </small>
@@ -57,14 +69,13 @@ export default function ResetPass() {
             <i className="bi bi-envelope-at"></i>
           </span>
           <input
+            disabled={true}
             type="text"
             className="form-control"
             placeholder="Enter your E-mail"
             aria-label="email"
             aria-describedby="basic-addon1"
-            {...register("email", {
-              required: "Field is required",
-            })}
+            {...register("email")}
           />
         </div>
         {errors.email && (
@@ -101,14 +112,9 @@ export default function ResetPass() {
             placeholder="New password"
             aria-label="password"
             aria-describedby="basic-addon1"
-            {...register("password", {
-              required: "Field is required",
-            })}
+            {...register("password", PASSWORD_VALIDATION)}
           />
         </div>
-        {errors.password && (
-          <small className="text-danger ">{errors.password.message}</small>
-        )}
 
         {/* =========== Confirm password ======== */}
         <div className="input-group mt-3">
@@ -129,28 +135,55 @@ export default function ResetPass() {
           />
         </div>
         {errors.confirmPassword && (
-          <>
-            <small className="text-danger ">
-              {errors.confirmPassword.message}
-            </small>
-            <div
-              className="alert alert-danger mt-3 p-2"
-              style={{ fontSize: "12px", lineHeight: "1.4" }}
-            >
-              <div className="small">
-                <strong>Password must include:</strong>
-                <ul className="mb-0 ms-3">
-                  <li>a lowercase letter</li>
-                  <li>an uppercase letter</li>
-                  <li>a number</li>
-                  <li>a special character</li>
-                  <li>at least 6 characters</li>
-                </ul>
-              </div>
-            </div>
-          </>
+          <small className="text-danger">
+            {errors.confirmPassword.message}
+          </small>
         )}
-
+        {(password.length > 0 || errors.password) && (
+          <div className="mt-2">
+            <small className="text-muted d-block">Password must include:</small>
+            <ul
+              className="list-unstyled ms-2 mb-0"
+              style={{ fontSize: "12px" }}
+            >
+              <li
+                className={
+                  passwordChecks.lowercase ? "text-success" : "text-danger"
+                }
+              >
+                {passwordChecks.lowercase ? "✅" : "❌"} a lowercase letter
+              </li>
+              <li
+                className={
+                  passwordChecks.uppercase ? "text-success" : "text-danger"
+                }
+              >
+                {passwordChecks.uppercase ? "✅" : "❌"} an uppercase letter
+              </li>
+              <li
+                className={
+                  passwordChecks.number ? "text-success" : "text-danger"
+                }
+              >
+                {passwordChecks.number ? "✅" : "❌"} a number
+              </li>
+              <li
+                className={
+                  passwordChecks.special ? "text-success" : "text-danger"
+                }
+              >
+                {passwordChecks.special ? "✅" : "❌"} a special character
+              </li>
+              <li
+                className={
+                  passwordChecks.length ? "text-success" : "text-danger"
+                }
+              >
+                {passwordChecks.length ? "✅" : "❌"} at least 6 characters
+              </li>
+            </ul>
+          </div>
+        )}
         <button className="btn btn-lg w-100 bg-success text-white mt-4 ">
           {isSubmitting ? "Submit..." : "Submit"}
         </button>

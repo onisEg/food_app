@@ -1,10 +1,16 @@
 import axios from "axios";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
+import {
+  EMAIL_VALIDATION,
+  PASSWORD_VALIDATION,
+  PHONE_NUMBER_VALIDATION,
+  USER_NAME_VALIDTION,
+} from "../../../../services/validations";
 
 export default function Registeration() {
   let navigate = useNavigate();
@@ -12,9 +18,21 @@ export default function Registeration() {
     register,
     formState: { errors, isSubmitting },
     handleSubmit,
-    watch,
     reset,
-  } = useForm();
+    watch,
+    trigger,
+  } = useForm({ mode: "onChange" });
+
+  const password = watch("password", "");
+
+  const passwordChecks = {
+    lowercase: /[a-z]/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    number: /\d/.test(password),
+    special: /[\W_]/.test(password),
+    length: password.length >= 6,
+  };
+
   const onSubmit = async (data) => {
     try {
       let response = await axiosInstance.post(USERS_URL.REGISTER, data);
@@ -29,6 +47,13 @@ export default function Registeration() {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
+
+  useEffect(() => {
+    if (watch("confirmPassword")) {
+      trigger("confirmPassword");
+    }
+  }, [watch("password"), watch("confirmPassword"), trigger]);
+
   return (
     <>
       <div className="title  d-flex flex-column align-items-start mb-4">
@@ -49,17 +74,7 @@ export default function Registeration() {
                 type="text"
                 className="form-control"
                 placeholder="userName"
-                {...register("userName", {
-                  required: "userName is required",
-                  maxLength: {
-                    value: 8,
-                    message: "userName must not exceed 8 characters",
-                  },
-                  pattern: {
-                    value: /^[a-zA-Z]+\d+$/,
-                    message: "userName must have letters and end with numbers",
-                  },
-                })}
+                {...register("userName", USER_NAME_VALIDTION)}
               />
             </div>
             {errors.userName && (
@@ -77,13 +92,7 @@ export default function Registeration() {
                 type="email"
                 className="form-control"
                 placeholder="Enter your E-mail"
-                {...register("email", {
-                  required: "Field is required",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email",
-                  },
-                })}
+                {...register("email", EMAIL_VALIDATION)}
               />
             </div>
             {errors.email && (
@@ -119,13 +128,7 @@ export default function Registeration() {
                 type="text"
                 className="form-control"
                 placeholder="Phone Number"
-                {...register("phoneNumber", {
-                  required: "Field is required",
-                  pattern: {
-                    value: /^[0-9]{10,15}$/,
-                    message: "Invalid phone number",
-                  },
-                })}
+                {...register("phoneNumber", PHONE_NUMBER_VALIDATION)}
               />
             </div>
             {errors.phoneNumber && (
@@ -145,17 +148,55 @@ export default function Registeration() {
                 type="password"
                 className="form-control"
                 placeholder="Password"
-                {...register("password", {
-                  required: "Field is required",
-                  minLength: {
-                    value: 6,
-                    message: "password must be at least 6 characters",
-                  },
-                })}
+                {...register("password", PASSWORD_VALIDATION)}
               />
             </div>
-            {errors.password && (
-              <small className="text-danger">{errors.password.message}</small>
+            {(password.length > 0 || errors.password) && (
+              <div className="mt-2">
+                <small className="text-muted d-block">
+                  Password must include:
+                </small>
+                <ul
+                  className="list-unstyled ms-2 mb-0"
+                  style={{ fontSize: "12px" }}
+                >
+                  <li
+                    className={
+                      passwordChecks.lowercase ? "text-success" : "text-danger"
+                    }
+                  >
+                    {passwordChecks.lowercase ? "✅" : "❌"} a lowercase letter
+                  </li>
+                  <li
+                    className={
+                      passwordChecks.uppercase ? "text-success" : "text-danger"
+                    }
+                  >
+                    {passwordChecks.uppercase ? "✅" : "❌"} an uppercase letter
+                  </li>
+                  <li
+                    className={
+                      passwordChecks.number ? "text-success" : "text-danger"
+                    }
+                  >
+                    {passwordChecks.number ? "✅" : "❌"} a number
+                  </li>
+                  <li
+                    className={
+                      passwordChecks.special ? "text-success" : "text-danger"
+                    }
+                  >
+                    {passwordChecks.special ? "✅" : "❌"} a special character
+                  </li>
+                  <li
+                    className={
+                      passwordChecks.length ? "text-success" : "text-danger"
+                    }
+                  >
+                    {passwordChecks.length ? "✅" : "❌"} at least 6 characters
+                  </li>
+                </ul>
+              </div>
             )}
           </div>
 
@@ -193,7 +234,13 @@ export default function Registeration() {
           disabled={isSubmitting}
           className="btn btn-lg btn-success w-100 my-2"
         >
-          {isSubmitting ? "Registering..." : "Register"}
+          {isSubmitting ? (
+            <>
+              <i className="fa-solid fa-spinner fa-spin-pulse"></i>
+            </>
+          ) : (
+            "Register"
+          )}
         </button>
       </form>
     </>

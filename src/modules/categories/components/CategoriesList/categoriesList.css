@@ -1,25 +1,40 @@
-
-  th {
-    background-color: #E2E5EB !important;
-    padding: 30px 10px !important; 
-    font-weight: 500;
-    color: #1F263E;
-   font-size: 16px;
-   text-transform: capitalize;
+th {
+  background-color: #e2e5eb !important;
+  padding: 30px 10px !important;
+  font-weight: 500;
+  color: #1f263e;
+  font-size: 16px;
+  text-transform: capitalize;
   
-   
-  }
-  th:first-child {
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
-  }
-  
-  th:last-child {
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
-  }
-    
+}
+thead th {
+  text-align: center;
+}
+th:first-child {
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
 
-  .cat-img{
-    width: 5rem;
-  }
+th:last-child {
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+.cat-img {
+  width: 5rem;
+}
+
+.table-striped-reversed tbody tr:nth-child(odd) td {
+  background-color: #fff !important;
+}
+
+.table-striped-reversed tbody tr:nth-child(even) td {
+  background-color: #f8f9fb !important;
+}
+tbody, td, tfoot, th, thead, tr{
+  border-style: none !important;
+}
+td {
+  vertical-align: middle !important;
+  text-align: center;
+}

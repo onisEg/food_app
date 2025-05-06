@@ -1,38 +1,30 @@
-import axios from "axios";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-
+import { axiosInstance } from "../../../../services/api";
+import { USERS_URL } from "../../../../services/api/urls";
+import { EMAIL_VALIDATION } from "../../../../services/validations";
 
 export default function ForgetPass() {
   let navigate = useNavigate();
   let {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
+    reset,
   } = useForm();
   const onSubmit = async (data) => {
     try {
-      let response = await axios.post(
-        "https://upskilling-egypt.com:3006/api/v1/Users/Reset/Request",
-        data
-      );
+      let response = await axiosInstance.post(USERS_URL.RESET_REQUEST, data);
       toast.success(response.data.message);
-      navigate("/resetpass");
+      reset();
+      navigate("/resetpass",{state:data.email});
       console.log(response);
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
   return (
@@ -57,13 +49,7 @@ export default function ForgetPass() {
             placeholder="Enter your email"
             aria-label="email"
             aria-describedby="basic-addon1"
-            {...register("email", {
-              required: "Field is required",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid mail",
-              },
-            })}
+            {...register("email", EMAIL_VALIDATION)}
           />
         </div>
         {errors.email && (
@@ -78,8 +64,8 @@ export default function ForgetPass() {
           </Link>
         </div>
 
-        <button className="btn btn-lg w-100 bg-success text-white mt-4 ">
-          Submit
+        <button disabled={isSubmitting} className="btn btn-lg w-100 bg-success text-white mt-4 ">
+          {isSubmitting ? "Submiting" : "Submit"}
         </button>
       </form>
     </>

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-export default function SideBar() {
+export default function SideBar({ setLoginData }) {
+  const location = useLocation();
   const [isCollapse, setIsCollapse] = useState(true);
   let toggleCollpase = () => {
     setIsCollapse(!isCollapse);
@@ -20,26 +21,30 @@ export default function SideBar() {
             <img src="/fivicon.png" className="img-fluid w-50" alt="logo" />{" "}
           </div>
           <MenuItem
+            className={location.pathname === "dashboard" ? "active-menu" : ""}
             icon={<i className="bi bi-house-door"></i>}
-            component={<Link to="/dashboard" />}
+            component={<Link to="dashboard" />}
           >
             Home
           </MenuItem>
           <MenuItem
+            className={location.pathname === "/users" ? "active-menu" : ""}
             icon={<i className="fa-solid fa-users"></i>}
-            component={<Link to="/dashboard/users" />}
+            component={<Link to="/users" />}
           >
             Users
           </MenuItem>
           <MenuItem
+            className={location.pathname === "/recipes" ? "active-menu" : ""}
             icon={<i className="fa-solid fa-bowl-rice"></i>}
-            component={<Link to="/dashboard/recipes" />}
+            component={<Link to="/recipes" />}
           >
             Recipes
           </MenuItem>
           <MenuItem
+            className={location.pathname === "/categories" ? "active-menu" : ""}
             icon={<i className="fa-solid fa-layer-group"></i>}
-            component={<Link to="/dashboard/categories" />}
+            component={<Link to="/categories" />}
           >
             Categories
           </MenuItem>
@@ -49,7 +54,10 @@ export default function SideBar() {
           <MenuItem
             icon={<i className="fa-solid fa-right-from-bracket"></i>}
             component={<Link to="/login" />}
-            onClick={() => localStorage.removeItem("token")}
+            onClick={() => {
+              localStorage.removeItem("token");
+              setLoginData(null);
+            }}
           >
             Logout
           </MenuItem>

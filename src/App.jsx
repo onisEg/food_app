@@ -4,7 +4,7 @@ import AuthLayout from "./modules/shared/components/AuthLayout/AuthLayout";
 import Login from "./modules/authentication/components/Login/Login";
 import Registeration from "./modules/authentication/components/Registeration/Registeration";
 import ResetPass from "./modules/authentication/components/ResetPass/ResetPass";
-import ChangePass from "./modules/authentication/components/ChangePass/ChangePass";
+
 import MasterLayout from "./modules/shared/components/MasterLayout/MasterLayout";
 import ForgetPass from "./modules/authentication/components/ForgetPass/ForgetPass";
 
@@ -25,8 +25,6 @@ function App() {
     let encodedToken = jwtDecode(decodeedToken);
     setLoginData(encodedToken);
     console.log(encodedToken);
-    
-    
   };
 
   useEffect(() => {
@@ -45,22 +43,20 @@ function App() {
         { path: "login", element: <Login saveLoginData={saveLoginData} /> },
         { path: "register", element: <Registeration /> },
         { path: "resetpass", element: <ResetPass /> },
-        { path: "changepass", element: <ChangePass /> },
         { path: "forgetpass", element: <ForgetPass /> },
       ],
     },
     {
-      path: "/dashboard",
+      path: "",
       element: (
         <ProtectedRoute loginData={loginData}>
-          <MasterLayout loginData={loginData} />
+          <MasterLayout setLoginData={setLoginData} loginData={loginData} />
         </ProtectedRoute>
       ),
       errorElement: <NotFouned />,
       children: [
-        { index: true, element: <Dashboard loginData={loginData} /> },
         { path: "dashboard", element: <Dashboard loginData={loginData} /> },
-        { path: "recipes", element: <RecipeList /> },
+        { path: "recipes", element: <RecipeList loginData={loginData} /> },
         { path: "users", element: <UsersList /> },
         { path: "recipe-data", element: <RecipeData /> },
         { path: "categories", element: <CategoriesList /> },
@@ -68,6 +64,7 @@ function App() {
       ],
     },
   ]);
+
   return (
     <>
       <RouterProvider router={routes}></RouterProvider>

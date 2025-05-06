@@ -1,7 +1,7 @@
 export default function Navbar({ loginData }) {
   return (
     <>
-      <div className="navbar-container d-flex justify-content-between align-items-center px-4 py-3 bg-light rounded-4 gap-3 shadow-sm">
+      <div className="navbar-container d-flex justify-content-between align-items-center px-4 py-3 bg-light rounded-3 gap-3 shadow-sm">
         {/* Search Bar */}
         <div className="input-group w-100 shadow-sm">
           <span className="input-group-text bg-white border-end-0">
@@ -34,7 +34,15 @@ export default function Navbar({ loginData }) {
             </span>
           </div>
           <i className="bi bi-chevron-down fs-5 text-muted"></i>
-          <i className="bi bi-bell fs-5 text-muted"></i>
+          <div className="position-relative">
+            <i className="bi bi-bell fs-5 text-muted"></i>
+
+            {/* notification */}
+            {/* <span
+              className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+              style={{ width: "10px", height: "10px" }}
+            ></span> */}
+          </div>
         </div>
       </div>
     </>
