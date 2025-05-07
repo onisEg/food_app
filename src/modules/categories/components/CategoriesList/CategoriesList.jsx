@@ -11,8 +11,6 @@ import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 
 // ===== COMPONENT =====
 export default function CategoriesList() {
-
-  
   const [categoriesList, setCategoriesList] = useState([]);
   const [editedCategoryId, setEditedCategoryId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
@@ -197,7 +195,7 @@ export default function CategoriesList() {
       {/* Empty Data Message */}
       {categoriesList.length === 0 && (
         <div className="w-100 text-center py-3">
-          <img src="/public/noData.svg" alt="No Data" />
+          <img src="/noData.svg" alt="No Data" />
           <h2>No Data!</h2>
           <p className="text-muted">
             There is no Categories available at the moment.
