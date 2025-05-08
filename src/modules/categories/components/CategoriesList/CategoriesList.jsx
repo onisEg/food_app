@@ -111,7 +111,6 @@ export default function CategoriesList() {
         description="You can now add your items that any user can order it from the Application and you can edit"
         headerImg="/resipes.svg"
       />
-
       {/* Top Section - Title + Add Button */}
       <div className="d-flex justify-content-between align-content-center my-4">
         <div className="d-flex flex-column">
@@ -132,7 +131,6 @@ export default function CategoriesList() {
           </div>
         </div>
       </div>
-
       {/* Table */}
       <div>
         <table className="table table-striped-reversed">
@@ -189,22 +187,8 @@ export default function CategoriesList() {
           </tbody>
         </table>
       </div>
-
       {/* Empty Data Message */}
-<<<<<<< HEAD
-      {categoriesList.length === 0 && (
-        <div className="w-100 text-center py-3">
-          <img src="/noData.svg" alt="No Data" />
-          <h2>No Data!</h2>
-          <p className="text-muted">
-            There is no Categories available at the moment.
-          </p>
-        </div>
-      )}
-=======
-      {!categoriesList && <NoData />}
->>>>>>> update-v2
-
+      {categoriesList.length === 0 && <NoData />}
       {/* Modal delete Logic */}
       <DeleteModal
         show={showDeleteModal}
@@ -215,9 +199,7 @@ export default function CategoriesList() {
         }
         title="Delete Category"
       />
-
       {/* Modal add & edit Logic */}
-
       <Modal
         show={showFormModal}
         onHide={() => setShowFormModal(false)}
