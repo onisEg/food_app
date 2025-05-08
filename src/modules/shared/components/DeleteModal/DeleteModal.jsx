@@ -27,7 +27,7 @@ export default function DeleteModal({
               className="btn btn-lg px-5 btn-outline-danger me-2 fw-bold"
               onClick={onConfirm}
             >
-              Delete this item
+              {title} {itemName}
             </button>
           </div>
         </div>

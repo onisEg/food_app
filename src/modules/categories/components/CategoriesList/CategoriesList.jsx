@@ -9,6 +9,9 @@ import toast from "react-hot-toast";
 import "./categoriesList.css";
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 
+import ActionBtn from "../../../shared/components/ActionBtn/ActionBtn";
+import NoData from "../../../shared/components/noData/NoData";
+
 // ===== COMPONENT =====
 export default function CategoriesList() {
   const [categoriesList, setCategoriesList] = useState([]);
@@ -20,7 +23,7 @@ export default function CategoriesList() {
 
   const {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
     reset,
   } = useForm();
@@ -83,8 +86,8 @@ export default function CategoriesList() {
       await axiosInstance.delete(
         CATEGORY_URLS.DELETE_CATEGORY(selectedCategoryId)
       );
-      toast.success("Category Deleted Successfully");
       setShowDeleteModal(false);
+      toast.success("Category Deleted Successfully");
       getCategories();
     } catch (error) {
       console.error(error);
@@ -160,31 +163,26 @@ export default function CategoriesList() {
                   {new Date(category.modificationDate).toLocaleString("en-GB")}
                 </td>
                 <td className="d-flex gap-2 justify-content-center">
-                  <button
-                    className="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
-                    title="Delete"
-                    style={{ width: "3rem", height: "3rem" }}
-                    onClick={() => {
-                      setSelectedCategoryId(category.id);
-                      setShowDeleteModal(true);
-                    }}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
-
-                  <button
-                    className="btn btn-outline-warning rounded-circle d-flex align-items-center justify-content-center"
-                    title="Edit"
-                    style={{ width: "3rem", height: "3rem" }}
+                  <ActionBtn
                     onClick={() => {
                       setEditedCategoryId(category.id);
                       setModalType("edit");
                       setShowFormModal(true);
                       reset();
                     }}
-                  >
-                    <i className="bi bi-pencil-square"></i>
-                  </button>
+                    btnColor={"warning"}
+                    icon={"bi bi-pencil-square"}
+                    title={"Edit"}
+                  />
+                  <ActionBtn
+                    onClick={() => {
+                      setSelectedCategoryId(category.id);
+                      setShowDeleteModal(true);
+                    }}
+                    btnColor={"danger"}
+                    icon={"bi bi-trash"}
+                    title={"Delete"}
+                  />
                 </td>
               </tr>
             ))}
@@ -193,15 +191,7 @@ export default function CategoriesList() {
       </div>
 
       {/* Empty Data Message */}
-      {categoriesList.length === 0 && (
-        <div className="w-100 text-center py-3">
-          <img src="/noData.svg" alt="No Data" />
-          <h2>No Data!</h2>
-          <p className="text-muted">
-            There is no Categories available at the moment.
-          </p>
-        </div>
-      )}
+      {!categoriesList && <NoData />}
 
       {/* Modal delete Logic */}
       <DeleteModal
@@ -251,11 +241,20 @@ export default function CategoriesList() {
               <small className="text-danger">{errors.name.message}</small>
             )}
             <button
+              disabled={isSubmitting}
               className={`btn btn-lg w-100 m-auto mt-4 ${
                 modalType === "add" ? "btn-success" : "btn-warning"
               }`}
             >
-              {modalType === "add" ? "Add" : "Update"}
+              {isSubmitting ? (
+                <>
+                  <i className="fa-solid fa-spinner fa-spin-pulse"></i>
+                </>
+              ) : modalType === "add" ? (
+                "Add"
+              ) : (
+                "Update"
+              )}
             </button>
           </form>
         </Modal.Body>

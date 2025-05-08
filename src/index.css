@@ -66,3 +66,11 @@ select {
   white-space: nowrap;
   border-width: 0;
 }
+
+.img-thumbnail {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  padding: 1px;
+}
+
