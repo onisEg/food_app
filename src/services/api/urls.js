@@ -1,4 +1,4 @@
-
+export const imgBaseURL = "https://upskilling-egypt.com:3006"
 export const baseURL = "https://upskilling-egypt.com:3006/api/v1";
 
 

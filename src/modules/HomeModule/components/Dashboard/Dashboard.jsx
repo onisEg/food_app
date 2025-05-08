@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Header from "../../../shared/components/Header/Header";
 
 export default function Dashboard({ loginData }) {
@@ -24,9 +25,12 @@ export default function Dashboard({ loginData }) {
           </p>
         </div>
         <div>
-          <div className="btn btn-success btn-lg px-5 fw-light">
+          <Link
+            to="/recipes"
+            className="btn btn-success btn-lg px-5 fw-light text-decoration-none"
+          >
             Fill the Recipes <i className="bi bi-arrow-right "></i>
-          </div>
+          </Link>
         </div>
       </div>
     </>
