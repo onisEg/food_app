@@ -11,7 +11,11 @@ export default function SideBar({ setLoginData }) {
 
   return (
     <div className="sidebar-container">
-      <Sidebar collapsed={isCollapse}>
+      <Sidebar
+        collapsed={isCollapse}
+        onMouseEnter={() => setIsCollapse(false)}
+        onMouseLeave={() => setIsCollapse(true)}
+      >
         <Menu>
           <div
             onClick={toggleCollpase}
