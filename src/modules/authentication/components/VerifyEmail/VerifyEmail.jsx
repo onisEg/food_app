@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
-import { EMAIL_VALIDATION } from "../../../../services/validations";
+
 import { ClipLoader } from "react-spinners";
 
 export default function VerifyEmail() {
@@ -16,7 +16,7 @@ export default function VerifyEmail() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm({ defaultValues: { email: location.state } });
 
   const onSubmit = async (data) => {
     if (!email) {
@@ -47,69 +47,72 @@ export default function VerifyEmail() {
 
   return (
     <>
-      <div className="title d-flex flex-column align-items-start">
-        <h3 className="text-center fw-bold">Verify Your Email</h3>
-        <span className="text-muted">
-          A verification code has been sent to: <strong>{email}</strong>
-        </span>
-      </div>
-
-      <form className="py-3" onSubmit={handleSubmit(onSubmit)}>
-        {/* Email Field */}
-        <div className="input-group mt-4">
-          <div className="input-group icon-input">
-            <span className="input-group-text">
-              <i className="bi bi-envelope"></i>
+      <div>
+          <div className="title d-flex flex-column align-items-start">
+            <h3 className="text-center fw-bold">Verify Your Email</h3>
+            <span className="text-muted">
+              A verification code has been sent to: <strong>{email}</strong>
             </span>
-            <input
-              type="email"
-              className="form-control"
-              value={email || "Email"}
-              readOnly
-            />
           </div>
-        </div>
-        {/* Code Input */}
-        <div className="input-group mt-4">
-          <span className="input-group-text">
-            <i className="bi bi-shield-lock"></i>
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter verification code"
-            {...register("code", { required: "Code is required" })}
-          />
-        </div>
-        {errors.code && (
-          <small className="text-danger">{errors.code.message}</small>
-        )}
 
-        <button
-          disabled={isSubmitting}
-          className="btn btn-lg w-100 bg-success text-white mt-4"
-        >
-          {isSubmitting ? <ClipLoader size={20} color="#fff" /> : "Verify"}
-        </button>
-      </form>
-      <div className="mt-3 text-end">
-        <button
-          type="button"
-          className="btn btn-link p-0 text-success"
-          onClick={async () => {
-            try {
-              await axiosInstance.post(USERS_URL.VERIFY_ACCOUNT, {
-                email,
-              });
-              toast.success("Verification code resent!");
-            } catch (err) {
-              toast.error("Failed to resend code.");
-            }
-          }}
-        >
-          Resend Code
-        </button>
+          <form className="py-3" onSubmit={handleSubmit(onSubmit)}>
+            {/* Email Field */}
+            <div className="input-group mt-4">
+              <div className="input-group icon-input">
+                <span className="input-group-text">
+                  <i className="bi bi-envelope"></i>
+                </span>
+                <input
+                  type="email"
+                  className="form-control"
+                  value={email || "Email"}
+                  readOnly
+                />
+              </div>
+            </div>
+            {/* Code Input */}
+            <div className="input-group mt-4">
+              <span className="input-group-text">
+                <i className="bi bi-shield-lock"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter verification code"
+                {...register("code", { required: "Code is required" })}
+              />
+            </div>
+            {errors.code && (
+              <small className="text-danger">{errors.code.message}</small>
+            )}
+
+            <button
+              disabled={isSubmitting}
+              className="btn btn-lg w-100 bg-success text-white mt-4"
+            >
+              {isSubmitting ? <ClipLoader size={20} color="#fff" /> : "Verify"}
+            </button>
+          </form>
+          <div className="mt-3 text-end">
+            <button
+              type="button"
+              className="btn btn-link p-0 text-success"
+              onClick={async () => {
+                try {
+                  await axiosInstance.post(USERS_URL.VERIFY_ACCOUNT, {
+                    email,
+                  });
+                  toast.success("Verification code resent!");
+                } catch (err) {
+                  toast.error("Failed to resend code.");
+                }
+              }}
+            >
+              Resend Code
+            </button>
+          </div>
       </div>
+      
     </>
   );
 }

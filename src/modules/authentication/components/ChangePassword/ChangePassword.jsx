@@ -16,12 +16,12 @@ export default function ChangePassword() {
     watch,
     reset,
   } = useForm();
+
   const onSubmit = async (data) => {
     if (data.newPassword !== data.confirmNewPassword) {
       toast.error("Passwords do not match");
       return;
     }
-
     try {
       const response = await axiosInstance.put(USERS_URL.CHANGE_PASSWORD, {
         oldPassword: data.oldPassword,
@@ -29,10 +29,9 @@ export default function ChangePassword() {
         confirmNewPassword: data.confirmNewPassword,
       });
       console.log(response);
-
       toast.success(response.data.message || "Password changed successfully");
-      reset(); // Clear the form
       navigat("/dashboard");
+      reset(); // Clear the form
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to change password");
     }
