@@ -1,11 +1,9 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFouned from "./modules/shared/components/NotFound/NotFouned";
-import AuthLayout from "./modules/shared/components/AuthLayout/AuthLayout";
 import Login from "./modules/authentication/components/Login/Login";
 import Registeration from "./modules/authentication/components/Registeration/Registeration";
 import ResetPass from "./modules/authentication/components/ResetPass/ResetPass";
 
-import MasterLayout from "./modules/shared/components/MasterLayout/MasterLayout";
 import ForgetPass from "./modules/authentication/components/ForgetPass/ForgetPass";
 
 import RecipeList from "./modules/recipes/components/RecipesList/RecipeList";
@@ -18,13 +16,29 @@ import ProtectedRoute from "./modules/shared/components/ProtectedRoute/Protected
 import UsersList from "./modules/users/components/UsersList/UsersList";
 import Dashboard from "./modules/HomeModule/components/Dashboard/Dashboard";
 import { Toaster } from "react-hot-toast";
+import Profile from "./modules/users/components/Profile/Profile";
+import AuthLayout from "./modules/shared/layouts/AuthLayout/AuthLayout";
+import ChangePassword from "./modules/authentication/components/ChangePassword/ChangePassword";
+import MasterLayout from "./modules/shared/layouts/MasterLayout/MasterLayout";
+import { axiosInstance } from "./services/api";
+import { USERS_URL } from "./services/api/urls";
+import VerifyEmail from "./modules/authentication/components/VerifyEmail/VerifyEmail";
+import Favorites from "./modules/recipes/components/Favorites/Favorites";
 function App() {
   const [loginData, setLoginData] = useState(null);
-  let saveLoginData = () => {
-    let decodeedToken = localStorage.getItem("token");
-    let encodedToken = jwtDecode(decodeedToken);
-    setLoginData(encodedToken);
-    console.log(encodedToken);
+
+  let saveLoginData = async () => {
+    const decodedToken = jwtDecode(localStorage.getItem("token"));
+
+    try {
+      const res = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
+      setLoginData({
+        ...decodedToken,
+        imagePath: res.data.imagePath,
+      });
+    } catch (err) {
+      console.error("Failed to fetch user image", err);
+    }
   };
 
   useEffect(() => {
@@ -44,6 +58,7 @@ function App() {
         { path: "register", element: <Registeration /> },
         { path: "resetpass", element: <ResetPass /> },
         { path: "forgetpass", element: <ForgetPass /> },
+        { path: "verify", element: <VerifyEmail /> },
       ],
     },
     {
@@ -61,6 +76,9 @@ function App() {
         { path: "recipe-data", element: <RecipeData /> },
         { path: "categories", element: <CategoriesList /> },
         { path: "category-data", element: <CategoryData /> },
+        { path: "ChangePassword", element: <ChangePassword /> },
+        { path: "profile", element: <Profile /> },
+        { path: "favorites", element: <Favorites /> },
       ],
     },
   ]);

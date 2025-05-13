@@ -23,7 +23,6 @@ export default function Login({ saveLoginData }) {
       saveLoginData();
       toast.success("login success!");
       navigate("/dashboard", { replace: true });
-      
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -89,9 +88,9 @@ export default function Login({ saveLoginData }) {
           </>
         )}
         <small className="text-muted">Ex password: Anas@123</small>
-        <div className="links d-flex justify-content-between mt-2  ">
+        <div className="links d-flex justify-content-between mt-4  ">
           <Link
-            className="text-decoration-none text-dark fw-medium"
+            className=" text-secondary fw-bold text-decoration-none fw-medium"
             to="/register"
           >
             Register Now?

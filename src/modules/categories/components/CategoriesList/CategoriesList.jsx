@@ -20,6 +20,7 @@ export default function CategoriesList() {
   const [modalType, setModalType] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [searchName, setSearchName] = useState("");
 
   const {
     register,
@@ -30,12 +31,17 @@ export default function CategoriesList() {
 
   // ====== Fetch Categories List ======
   const getCategories = async () => {
-    try {
-      let response = await axiosInstance.get(
-        `${CATEGORY_URLS.GET_CATEGORIES}?pageSize=1000&pageNumber=1`
-      );
-      console.log(response.data.data);
+    const params = {
+      pageSize: 1000,
+      pageNumber: 1,
+    };
 
+    if (searchName) params.name = searchName;
+
+    try {
+      let response = await axiosInstance.get(CATEGORY_URLS.GET_CATEGORIES, {
+        params,
+      });
       setCategoriesList(response.data.data);
     } catch (error) {
       console.error(error);
@@ -100,7 +106,12 @@ export default function CategoriesList() {
   // ====== Lifecycle: Fetch Categories Once on Mount ======
   useEffect(() => {
     getCategories();
-  }, []);
+    const delayDebounce = setTimeout(() => {
+      getCategories();
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchName]);
 
   // ====== Render UI ======
   return (
@@ -118,18 +129,32 @@ export default function CategoriesList() {
           <span className="fs-3">Categories Table Details</span>
           <span>You can check all details</span>
         </div>
-        <div>
-          <div
-            onClick={() => {
-              setModalType("add");
-              setShowFormModal(true);
-              reset();
-            }}
-            style={{ background: "#009247" }}
-            className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
-          >
-            Add New Category
-          </div>
+
+        <div className=" d-flex align-items-center gap-2">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by category name"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+          />
+
+          <i
+            onClick={() => setSearchName("")}
+            className="fa-solid fa-circle-xmark fa-2x pe-auto"
+          ></i>
+        </div>
+
+        <div
+          onClick={() => {
+            setModalType("add");
+            setShowFormModal(true);
+            reset();
+          }}
+          style={{ background: "#009247" }}
+          className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
+        >
+          Add New Category
         </div>
       </div>
 
@@ -157,10 +182,21 @@ export default function CategoriesList() {
                   />
                 </td>
                 <td>
-                  {new Date(category.creationDate).toLocaleString("en-GB")}
+                  {new Date(category.creationDate).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </td>
                 <td>
-                  {new Date(category.modificationDate).toLocaleString("en-GB")}
+                  {new Date(category.modificationDate).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )}
                 </td>
                 <td className="d-flex gap-2 justify-content-center">
                   <ActionBtn

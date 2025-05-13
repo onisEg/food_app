@@ -28,13 +28,13 @@ export const PHONE_NUMBER_VALIDATION = {
 }
 
 export const USER_NAME_VALIDTION = {
-    required: "userName is required",
+    required: "User Name is required",
     maxLength: {
         value: 8,
-        message: "userName must not exceed 8 characters",
+        message: "User Name must not exceed 8 characters",
     },
     pattern: {
         value: /^[a-zA-Z]+\d+$/,
-        message: "userName must have letters and end with numbers",
+        message: "User Name must have letters and end with numbers",
     },
 }

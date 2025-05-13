@@ -73,4 +73,6 @@ select {
   object-fit: cover;
   padding: 1px;
 }
-
+button {
+  transition: all 0.3s ease-in-out;
+}

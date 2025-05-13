@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+import { imgBaseURL } from "../../../../services/api/urls";
+
 export default function Navbar({ loginData }) {
+  const navigate = useNavigate();
   return (
     <>
       <div className="navbar-container d-flex justify-content-between align-items-center px-4 py-3 bg-light rounded-3 gap-3 shadow-sm">
@@ -16,15 +20,24 @@ export default function Navbar({ loginData }) {
         </div>
 
         {/* User Info */}
-        <div className="d-flex align-items-center justify-content-end gap-3 w-25">
-          <div>
+        <div
+          className="d-flex align-items-center justify-content-end gap-3 w-25 cursor-pointer"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate("/profile")} // ← التوجيه
+        >
+          <div className="d-flex">
             <img
-              src="Ellipse235.png"
+              src={
+                loginData?.imagePath
+                  ? `${imgBaseURL}/${loginData?.imagePath}`
+                  : "https://ui-avatars.com/api/?name=User&background=random&size=60"
+              }
               alt="User"
               className="rounded-circle"
               width="40"
               height="40"
             />
+
             <span className="fw-medium text-capitalize p-2">
               {loginData?.userName
                 ? loginData.userName
@@ -36,12 +49,6 @@ export default function Navbar({ loginData }) {
           <i className="bi bi-chevron-down fs-5 text-muted"></i>
           <div className="position-relative">
             <i className="bi bi-bell fs-5 text-muted"></i>
-
-            {/* notification */}
-            {/* <span
-              className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
-              style={{ width: "10px", height: "10px" }}
-            ></span> */}
           </div>
         </div>
       </div>

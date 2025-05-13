@@ -5,6 +5,7 @@ import {
   imgBaseURL,
   RECIPE_URLS,
   TAG,
+  USER_RECIPE_URLS,
 } from "../../../../services/api/urls";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../../../../services/api";
@@ -16,8 +17,7 @@ import toast from "react-hot-toast";
 import NoData from "../../../shared/components/noData/NoData";
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 
-
-export default function RecipeList() {
+export default function RecipeList({ loginData }) {
   const [recipesList, setRecipesList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [editedRecipeId, setEditedRecipeId] = useState(null);
@@ -27,6 +27,12 @@ export default function RecipeList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalType, setModalType] = useState(""); // "add" or "edit" or "delete"
 
+  const [searchName, setSearchName] = useState("");
+  const [searchTagId, setSearchTagId] = useState("");
+  const [searchCategoryId, setSearchCategoryId] = useState("");
+  const [favorites, setFavorites] = useState([]);
+  const isUser = loginData?.roles?.[0] === "User";
+
   let {
     register,
     setValue,
@@ -35,19 +41,76 @@ export default function RecipeList() {
     reset,
   } = useForm();
 
+  //get all favorite
+  const getFavorites = async () => {
+    try {
+      const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
+
+      setFavorites(res.data.data);
+      console.log(favorites);
+    } catch (error) {
+      toast.error("Failed to load favorites");
+      setFavorites([]);
+    }
+  };
+
+  //toggle favorite
+  const toggleFavorite = async (recipeId) => {
+    const existing = Array.isArray(favorites)
+      ? favorites.find((fav) => fav.recipe?.id === recipeId)
+      : null;
+
+    try {
+      if (existing) {
+        await axiosInstance.delete(
+          USER_RECIPE_URLS.DELETE_FAVORITE(existing.id)
+        );
+        setFavorites((prev) =>
+          Array.isArray(prev) ? prev.filter((f) => f.id !== existing.id) : []
+        );
+        toast.success("Removed from favorites");
+      } else {
+        const res = await axiosInstance.post(USER_RECIPE_URLS.ADD_FAVORITE, {
+          recipeId,
+        });
+
+        if (res?.data?.id && res?.data?.recipe?.id) {
+          setFavorites((prev) => [
+            ...(Array.isArray(prev) ? prev : []),
+            res.data,
+          ]);
+          toast.success("Added to favorites");
+        } else {
+          toast.error("Invalid response when adding to favorites");
+        }
+      }
+    } catch (err) {
+      toast.error("Favorite update failed");
+      console.error(err);
+    }
+  };
+
   // Fetch Recipes
   const getRecipes = async () => {
+    const params = {
+      pageSize: 1000,
+      pageNumber: 1,
+    };
+
+    if (searchName) params.name = searchName;
+    if (searchTagId) params.tagId = searchTagId;
+    if (searchCategoryId) params.categoryId = searchCategoryId;
+
     try {
-      let response = await axiosInstance.get(
-        `${RECIPE_URLS.GET_RECIPES}?pageSize=${10}&pageNumber=${1}`
-      );
-      console.log(response?.data?.data);
+      const response = await axiosInstance.get(RECIPE_URLS.GET_RECIPES, {
+        params,
+      });
       setRecipesList(response.data.data);
     } catch (error) {
-      console.error(error);
       toast.error(error.response?.data?.message || "Failed to fetch recipes.");
     }
   };
+
   // ====== Fetch Categories List ======
   const getCategories = async () => {
     try {
@@ -163,7 +226,14 @@ export default function RecipeList() {
     getRecipes();
     getTags();
     getCategories();
-  }, []);
+    getFavorites();
+
+    const delayDebounce = setTimeout(() => {
+      getRecipes();
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchName, searchTagId, searchCategoryId]);
 
   return (
     <>
@@ -210,15 +280,18 @@ export default function RecipeList() {
       <div className="d-flex gap-3 mb-3">
         <input
           type="text"
-          className="form-control form-control-lg"
-          placeholder="Search..."
-          style={{ flex: "5" }} // 2 من 3
+          className="form-control form-control"
+          placeholder="Search by name"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+          style={{ flex: "5" }}
         />
 
         <select
-          className="form-select form-control-lg"
+          className="form-select "
           style={{ flex: "1" }}
-          {...register("tagId")} // لو بتستخدم react-hook-form
+          value={searchTagId}
+          onChange={(e) => setSearchTagId(e.target.value)}
         >
           <option value="">All Tags</option>
           {tags.map((tag) => (
@@ -229,9 +302,10 @@ export default function RecipeList() {
         </select>
 
         <select
-          className="form-select form-control-lg"
+          className="form-select "
           style={{ flex: "1" }}
-          {...register("categoriesIds")}
+          value={searchCategoryId}
+          onChange={(e) => setSearchCategoryId(e.target.value)}
         >
           <option value="">All Categories</option>
           {categoriesList.map((cat) => (
@@ -240,6 +314,18 @@ export default function RecipeList() {
             </option>
           ))}
         </select>
+        <div className="col-auto">
+          <button
+            className="btn  btn-outline-danger"
+            onClick={() => {
+              setSearchName("");
+              setSearchTagId("");
+              setSearchCategoryId("");
+            }}
+          >
+            Clear Filter
+          </button>
+        </div>
       </div>
 
       {/* Recipes Table */}
@@ -253,6 +339,7 @@ export default function RecipeList() {
             <th>Category</th>
             <th>Creation Date</th>
             <th>Modification Date</th>
+            {isUser && <th>Favorite</th>}
             <th>Actions</th>
           </tr>
         </thead>
@@ -290,6 +377,23 @@ export default function RecipeList() {
                 })}
               </td>
               <td>{new Date(recipe.modificationDate).toLocaleDateString()}</td>
+
+              {/* ============= fav ========= */}
+
+              {isUser && (
+                <td>
+                  <i
+                    style={{ cursor: "pointer" }}
+                    className={`bi ${
+                      Array.isArray(favorites) &&
+                      favorites.some((fav) => fav.recipe?.id === recipe.id)
+                        ? "bi-heart-fill text-danger"
+                        : "bi-heart"
+                    }`}
+                    onClick={() => toggleFavorite(recipe.id)}
+                  ></i>
+                </td>
+              )}
               <td>
                 <div className="dropdown">
                   <button

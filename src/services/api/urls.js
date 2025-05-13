@@ -5,8 +5,8 @@ export const baseURL = "https://upskilling-egypt.com:3006/api/v1";
 //USERS URLS 
 export const USERS_URL = {
     LOGIN: `/Users/Login`,
-    REGISTER: `/Users/Register`,
-    CREATE: `/Users/Create`,
+    REGISTER: `/Users/Register`,   // register user
+    CREATE: `/Users/Create`,        //create an admin 
     DELETE: (id) => `/Users/${id}`,
     GET_USER: (id) => `/Users/${id}`,
     RESET_REQUEST: `/Users/Reset/Request`,
@@ -16,7 +16,7 @@ export const USERS_URL = {
     GET_CURRENT_USER: `/Users/currentUser`,
     VERIFY_ACCOUNT: `/Users/verify`,
     GET_CURRENT_USER: `/Users/currentUser`,
-    GET_ALL: `/Users`,
+    GET_ALL_USERS: `/Users`,
     UPDATE_PROFILE: `/Users`,
 }
 

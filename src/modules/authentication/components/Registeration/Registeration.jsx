@@ -41,7 +41,8 @@ export default function Registeration() {
       console.log(response);
       toast.success("Account created successfully. Please check your email.");
       reset();
-      navigate("/login");
+      navigate("/verify", { state: data.email });
+
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Something went wrong");
