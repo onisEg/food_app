@@ -32,6 +32,8 @@ export default function RecipeList({ loginData }) {
   const [searchCategoryId, setSearchCategoryId] = useState("");
   const [favorites, setFavorites] = useState([]);
   const isUser = loginData?.roles?.[0] === "User";
+  const isAdmin = loginData?.roles?.[0] === "Admin";
+  const [isLoading, setIsLoading] = useState(false);
 
   let {
     register,
@@ -41,20 +43,7 @@ export default function RecipeList({ loginData }) {
     reset,
   } = useForm();
 
-  //get all favorite
-  const getFavorites = async () => {
-    try {
-      const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
-
-      setFavorites(res.data.data);
-      console.log(favorites);
-    } catch (error) {
-      toast.error("Failed to load favorites");
-      setFavorites([]);
-    }
-  };
-
-  //toggle favorite
+  //========== toggle favorite
   const toggleFavorite = async (recipeId) => {
     const existing = Array.isArray(favorites)
       ? favorites.find((fav) => fav.recipe?.id === recipeId)
@@ -65,9 +54,7 @@ export default function RecipeList({ loginData }) {
         await axiosInstance.delete(
           USER_RECIPE_URLS.DELETE_FAVORITE(existing.id)
         );
-        setFavorites((prev) =>
-          Array.isArray(prev) ? prev.filter((f) => f.id !== existing.id) : []
-        );
+        await getFavorites(); // هذا يكفي
         toast.success("Removed from favorites");
       } else {
         const res = await axiosInstance.post(USER_RECIPE_URLS.ADD_FAVORITE, {
@@ -75,10 +62,7 @@ export default function RecipeList({ loginData }) {
         });
 
         if (res?.data?.id && res?.data?.recipe?.id) {
-          setFavorites((prev) => [
-            ...(Array.isArray(prev) ? prev : []),
-            res.data,
-          ]);
+          await getFavorites(); // هذا يكفي
           toast.success("Added to favorites");
         } else {
           toast.error("Invalid response when adding to favorites");
@@ -90,8 +74,20 @@ export default function RecipeList({ loginData }) {
     }
   };
 
-  // Fetch Recipes
+  //=======  get all favorite
+  const getFavorites = async () => {
+    try {
+      const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
+      setFavorites(res.data.data);
+      console.log(`favorites: `, favorites);
+    } catch (error) {
+      toast.error("Failed to load favorites");
+      setFavorites([]);
+    }
+  };
+  // ============ get all Recipes
   const getRecipes = async () => {
+    setIsLoading(true);
     const params = {
       pageSize: 1000,
       pageNumber: 1,
@@ -108,6 +104,8 @@ export default function RecipeList({ loginData }) {
       setRecipesList(response.data.data);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch recipes.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,7 +115,7 @@ export default function RecipeList({ loginData }) {
       let response = await axiosInstance.get(
         `${CATEGORY_URLS.GET_CATEGORIES}?pageSize=1000&pageNumber=1`
       );
-      console.log(response.data.data);
+      console.log(`Categories : `, response.data.data);
 
       setCategoriesList(response.data.data);
     } catch (error) {
@@ -127,11 +125,11 @@ export default function RecipeList({ loginData }) {
       );
     }
   };
-  // ====== Fetch Tags  ======
+  // =========== Fetch Tags  ======
   const getTags = async () => {
     try {
       let response = await axiosInstance.get(`${TAG.ALL_TAGS}`);
-      console.log(response.data);
+      console.log(`tags : `, response.data);
       setTags(response.data);
     } catch (error) {
       console.error(error);
@@ -174,7 +172,7 @@ export default function RecipeList({ loginData }) {
     }
   };
 
-  // Edit Recipe
+  //=========== Edit Recipe
   const onEditRecipe = async (data) => {
     const formData = new FormData();
 
@@ -226,14 +224,15 @@ export default function RecipeList({ loginData }) {
     getRecipes();
     getTags();
     getCategories();
-    getFavorites();
+    if (isUser) {
+      getFavorites();
+    }
 
-    const delayDebounce = setTimeout(() => {
-      getRecipes();
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchName, searchTagId, searchCategoryId]);
+    // const delayDebounce = setTimeout(() => {
+    //   getRecipes();
+    // }, 400);
+    // return () => clearTimeout(delayDebounce);
+  }, [searchName, searchTagId, searchCategoryId, isUser]);
 
   return (
     <>
@@ -250,30 +249,34 @@ export default function RecipeList({ loginData }) {
           <span className="fs-3">Recipe Table Details</span>
           <span>You can check all details</span>
         </div>
-        <div>
-          <div
-            onClick={() => {
-              setModalType("add");
-              setModalShow(true);
-              reset({
-                name: "",
-                price: "",
-                tagId: "",
-                categoriesIds: "",
-                description: "",
-                image: null,
-              });
-              if (!tags.length || !categoriesList.length) {
-                toast.error("Please wait for data to load...");
-                return;
-              }
-            }}
-            style={{ background: "#009247" }}
-            className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
-          >
-            Add New Resipe
-          </div>
-        </div>
+        {isAdmin && (
+          <>
+            <div>
+              <div
+                onClick={() => {
+                  setModalType("add");
+                  setModalShow(true);
+                  reset({
+                    name: "",
+                    price: "",
+                    tagId: "",
+                    categoriesIds: "",
+                    description: "",
+                    image: null,
+                  });
+                  if (!tags.length || !categoriesList.length) {
+                    toast.error("Please wait for data to load...");
+                    return;
+                  }
+                }}
+                style={{ background: "#009247" }}
+                className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
+              >
+                Add New Resipe
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* filter ui */}
@@ -344,114 +347,172 @@ export default function RecipeList({ loginData }) {
           </tr>
         </thead>
         <tbody>
-          {recipesList.map((recipe) => (
-            <tr key={recipe.id}>
-              {/* recipeName  */}
-              <td>
-                <div className=" d-flex justify-content-between align-content-center">
-                  <div>{recipe.name} </div>
-                  <span className="badge bg-primary">{recipe.tag.name}</span>
-                </div>
-              </td>
-              {/* recipeImg */}
-              <td>
-                <img
-                  className=" rounded img-thumbnail "
-                  src={
-                    recipe.imagePath ? `${imgBaseURL}/${recipe.imagePath}` : ""
-                  }
-                  alt={recipe.name}
-                />
-              </td>
-              <td className="text-start">
-                {recipe.description.slice(0, 50)}...
-              </td>
-              <td>{recipe.price} EGP</td>
-              <td>{recipe.category?.[0]?.name}</td>
+          {isLoading ? (
+            <>
+              {[...Array(10)].map((_, idx) => (
+                <tr className="placeholder-glow" key={idx}>
+                  <td>
+                    <span className="placeholder col-6"></span>
+                  </td>
+                  <td>
+                    <span
+                      className="placeholder rounded"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        display: "inline-block",
+                      }}
+                    ></span>
+                  </td>
+                  <td>
+                    <span className="placeholder col-7"></span>
+                  </td>
+                  <td>
+                    <span className="placeholder col-3"></span>
+                  </td>
+                  <td>
+                    <span className="placeholder col-4"></span>
+                  </td>
+                  <td>
+                    <span className="placeholder col-5"></span>
+                  </td>
+                  <td>
+                    <span className="placeholder col-6"></span>
+                  </td>
+                  {isUser && (
+                    <td>
+                      <span className="placeholder col-2"></span>
+                    </td>
+                  )}
+                  <td>
+                    <span className="placeholder col-2"></span>
+                  </td>
+                </tr>
+              ))}
+            </>
+          ) : (
+            <>
+              {recipesList.map((recipe) => (
+                <tr key={recipe.id}>
+                  {/* recipeName  */}
+                  <td>
+                    <div className=" d-flex justify-content-between align-content-center">
+                      <div>{recipe.name} </div>
+                      <span className="badge bg-primary">
+                        {recipe.tag.name}
+                      </span>
+                    </div>
+                  </td>
+                  {/* recipeImg */}
+                  <td>
+                    <img
+                      className=" rounded img-thumbnail "
+                      src={
+                        recipe.imagePath
+                          ? `${imgBaseURL}/${recipe.imagePath}`
+                          : ""
+                      }
+                      alt={recipe.name}
+                    />
+                  </td>
+                  <td className="text-start">
+                    {recipe.description.slice(0, 50)}...
+                  </td>
+                  <td>{recipe.price} EGP</td>
+                  <td>{recipe.category?.[0]?.name}</td>
 
-              <td>
-                {new Date(recipe.creationDate).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </td>
-              <td>{new Date(recipe.modificationDate).toLocaleDateString()}</td>
+                  <td>
+                    {new Date(recipe.creationDate).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td>
+                    {new Date(recipe.modificationDate).toLocaleDateString()}
+                  </td>
 
-              {/* ============= fav ========= */}
-
-              {isUser && (
-                <td>
-                  <i
-                    style={{ cursor: "pointer" }}
-                    className={`bi ${
-                      Array.isArray(favorites) &&
-                      favorites.some((fav) => fav.recipe?.id === recipe.id)
-                        ? "bi-heart-fill text-danger"
-                        : "bi-heart"
-                    }`}
-                    onClick={() => toggleFavorite(recipe.id)}
-                  ></i>
-                </td>
-              )}
-              <td>
-                <div className="dropdown">
-                  <button
-                    className="btn  border-0"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <i className="fa-solid fa-ellipsis fa-lg"></i>
-                  </button>
-
-                  <ul className="dropdown-menu dropdown-menu-end shadow  border-0">
-                    <li>
-                      <button className="dropdown-item d-flex align-items-center gap-2 text-success">
-                        <i className="bi bi-eye"></i> View
-                      </button>
-                    </li>
-                    <li>
+                  {/* ============= fav icon ========= */}
+                  {isUser && (
+                    <td>
+                      <i
+                        style={{ cursor: "pointer" }}
+                        className={`bi ${
+                          Array.isArray(favorites) &&
+                          favorites.some((fav) => fav.recipe?.id === recipe.id)
+                            ? "bi-heart-fill text-danger"
+                            : "bi-heart"
+                        }`}
+                        onClick={() => toggleFavorite(recipe.id)}
+                      ></i>
+                    </td>
+                  )}
+                  <td>
+                    <div className="dropdown">
                       <button
-                        onClick={() => {
-                          setEditedRecipeId(recipe.id);
-                          setModalType("edit");
-                          setModalShow(true);
-                          reset({
-                            name: recipe.name,
-                            price: recipe.price,
-                            tagId: recipe.tag.id,
-                            categoriesIds: recipe.category?.[0]?.id,
-                            description: recipe.description,
-                            image: null,
-                          });
-                          if (!tags.length || !categoriesList.length) {
-                            toast.error("Please wait for data to load...");
-                            return;
-                          }
-                        }}
-                        className="dropdown-item d-flex align-items-center gap-2 text-success"
+                        className="btn  border-0"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
                       >
-                        <i className="bi bi-pencil-square"></i> Edit
+                        <i className="fa-solid fa-ellipsis fa-lg"></i>
                       </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => {
-                          setSelectedRecipeId(recipe.id);
-                          setModalType("delete");
-                          setShowDeleteModal(true);
-                        }}
-                        className="dropdown-item d-flex align-items-center gap-2 text-danger"
-                      >
-                        <i className="bi bi-trash"></i> Delete
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-          ))}
+
+                      <ul className="dropdown-menu dropdown-menu-end shadow  border-0">
+                        <li>
+                          <button className="dropdown-item d-flex align-items-center gap-2 text-success">
+                            <i className="bi bi-eye"></i> View
+                          </button>
+                        </li>
+                        {!isUser && (
+                          <>
+                            <li>
+                              <button
+                                onClick={() => {
+                                  setEditedRecipeId(recipe.id);
+                                  setModalType("edit");
+                                  setModalShow(true);
+                                  reset({
+                                    name: recipe.name,
+                                    price: recipe.price,
+                                    tagId: recipe.tag.id,
+                                    categoriesIds: recipe.category?.[0]?.id,
+                                    description: recipe.description,
+                                    image: null,
+                                  });
+                                  if (!tags.length || !categoriesList.length) {
+                                    toast.error(
+                                      "Please wait for data to load..."
+                                    );
+                                    return;
+                                  }
+                                }}
+                                className="dropdown-item d-flex align-items-center gap-2 text-success"
+                              >
+                                <i className="bi bi-pencil-square"></i> Edit
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                onClick={() => {
+                                  setSelectedRecipeId(recipe.id);
+                                  setModalType("delete");
+                                  setShowDeleteModal(true);
+                                }}
+                                className="dropdown-item d-flex align-items-center gap-2 text-danger"
+                              >
+                                <i className="bi bi-trash"></i> Delete
+                              </button>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </>
+          )}
         </tbody>
       </table>
 
@@ -598,7 +659,11 @@ export default function RecipeList({ loginData }) {
                       id="uploadImage"
                       {...register("image", { required: "Image is required" })}
                     />
-                    <label htmlFor="uploadImage" className="text-success">
+                    <label
+                      style={{ cursor: "pointer" }}
+                      htmlFor="uploadImage"
+                      className="text-success"
+                    >
                       <div>
                         <i className="bi bi-upload fa-2x"></i>
                       </div>

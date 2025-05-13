@@ -21,6 +21,7 @@ export default function CategoriesList() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
   const [searchName, setSearchName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -29,8 +30,9 @@ export default function CategoriesList() {
     reset,
   } = useForm();
 
-  // ====== Fetch Categories List ======
+  // ====== get all Categories List ======
   const getCategories = async () => {
+    setIsLoading(true);
     const params = {
       pageSize: 1000,
       pageNumber: 1,
@@ -48,6 +50,8 @@ export default function CategoriesList() {
       toast.error(
         error.response?.data?.message || "Failed to fetch categories."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -171,57 +175,103 @@ export default function CategoriesList() {
             </tr>
           </thead>
           <tbody className="mt-4">
-            {categoriesList.map((category) => (
-              <tr key={category.id}>
-                <td className="text-capitalize">{category.name}</td>
-                <td>
-                  <img
-                    className="cat-img"
-                    src={category.img || "/pizza.png"}
-                    alt="category"
-                  />
-                </td>
-                <td>
-                  {new Date(category.creationDate).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </td>
-                <td>
-                  {new Date(category.modificationDate).toLocaleDateString(
-                    "en-GB",
-                    {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    }
-                  )}
-                </td>
-                <td className="d-flex gap-2 justify-content-center">
-                  <ActionBtn
-                    onClick={() => {
-                      setEditedCategoryId(category.id);
-                      setModalType("edit");
-                      setShowFormModal(true);
-                      reset();
-                    }}
-                    btnColor={"warning"}
-                    icon={"bi bi-pencil-square"}
-                    title={"Edit"}
-                  />
-                  <ActionBtn
-                    onClick={() => {
-                      setSelectedCategoryId(category.id);
-                      setShowDeleteModal(true);
-                    }}
-                    btnColor={"danger"}
-                    icon={"bi bi-trash"}
-                    title={"Delete"}
-                  />
-                </td>
-              </tr>
-            ))}
+            {isLoading
+              ? [...Array(5)].map((_, idx) => (
+                  <tr key={idx} className="placeholder-glow">
+                    <td>
+                      <span className="placeholder col-6"></span>
+                    </td>
+                    <td>
+                      <span
+                        className="placeholder rounded"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          display: "inline-block",
+                        }}
+                      ></span>
+                    </td>
+                    <td>
+                      <span className="placeholder col-5"></span>
+                    </td>
+                    <td>
+                      <span className="placeholder col-5"></span>
+                    </td>
+                    <td>
+                      <span className="placeholder col-3"></span>
+                    </td>
+                  </tr>
+                ))
+              : categoriesList.map((category) => (
+                  <tr key={category.id}>
+                    <td className="text-capitalize">{category.name}</td>
+                    <td>
+                      <img
+                        className="cat-img"
+                        src={category.img || "/pizza.png"}
+                        alt="category"
+                      />
+                    </td>
+                    <td>
+                      {new Date(category.creationDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )}
+                    </td>
+                    <td>
+                      {new Date(category.modificationDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )}
+                    </td>
+                    <td>
+                      <div className="dropdown">
+                        <button
+                          className="btn border-0"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          <i className="fa-solid fa-ellipsis fa-lg"></i>
+                        </button>
+                        <ul className="dropdown-menu dropdown-menu-end shadow border-0">
+                          <li>
+                            <button
+                              onClick={() => {
+                                setEditedCategoryId(category.id);
+                                setModalType("edit");
+                                setShowFormModal(true);
+                                reset();
+                              }}
+                              className="dropdown-item d-flex align-items-center gap-2 text-warning"
+                            >
+                              <i className="bi bi-pencil-square"></i> Edit
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              onClick={() => {
+                                setSelectedCategoryId(category.id);
+                                setShowDeleteModal(true);
+                              }}
+                              className="dropdown-item d-flex align-items-center gap-2 text-danger"
+                            >
+                              <i className="bi bi-trash"></i> Delete
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>

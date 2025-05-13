@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 
 export default function SideBar({ setLoginData, loginData }) {
   const location = useLocation();
-  const [isCollapse, setIsCollapse] = useState(true);
+  const [isCollapse, setIsCollapse] = useState(false);
   let toggleCollpase = () => {
     setIsCollapse(!isCollapse);
   };
@@ -28,17 +28,15 @@ export default function SideBar({ setLoginData, loginData }) {
             <img src="/fivicon.png" className="img-fluid w-50" alt="logo" />{" "}
           </div>
 
+          <MenuItem
+            className={location.pathname === "dashboard" ? "active-menu" : ""}
+            icon={<i className="bi bi-house-door"></i>}
+            component={<Link to="dashboard" />}
+          >
+            Home
+          </MenuItem>
           {isAdmin && (
             <>
-              <MenuItem
-                className={
-                  location.pathname === "dashboard" ? "active-menu" : ""
-                }
-                icon={<i className="bi bi-house-door"></i>}
-                component={<Link to="dashboard" />}
-              >
-                Home
-              </MenuItem>
               <MenuItem
                 className={location.pathname === "/users" ? "active-menu" : ""}
                 icon={<i className="fa-solid fa-users"></i>}

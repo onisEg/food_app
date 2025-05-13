@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -20,7 +19,7 @@ export default function ForgetPass() {
       let response = await axiosInstance.post(USERS_URL.RESET_REQUEST, data);
       toast.success(response.data.message);
       reset();
-      navigate("/resetpass",{state:data.email});
+      navigate("/resetpass", { state: data.email });
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -57,14 +56,17 @@ export default function ForgetPass() {
         )}
         <div className="mt-3">
           <Link
-            className="text-decoration-none text-dark fw-medium "
+            className=" text-secondary fw-bold text-decoration-none fw-medium"
             to="/login"
           >
             Login ?
           </Link>
         </div>
 
-        <button disabled={isSubmitting} className="btn btn-lg w-100 bg-success text-white mt-4 ">
+        <button
+          disabled={isSubmitting}
+          className="btn btn-lg w-100 bg-success text-white mt-4 "
+        >
           {isSubmitting ? "Submiting" : "Submit"}
         </button>
       </form>

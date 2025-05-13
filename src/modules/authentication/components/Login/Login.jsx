@@ -50,10 +50,10 @@ export default function Login({ saveLoginData }) {
             {...register("email", EMAIL_VALIDATION)}
           />
         </div>
+        <small className="text-muted ">Ex: anasabdo704@gmail.com</small>
         {errors.email && (
           <small className="text-danger ">{errors.email.message}</small>
         )}
-        <small className="text-muted ">Ex: anasabdo704@gmail.com</small>
         <div className="input-group mt-4">
           <span className="input-group-text " id="basic-addon1">
             <i className="bi bi-lock"></i>
@@ -64,7 +64,7 @@ export default function Login({ saveLoginData }) {
             placeholder="Enter your password"
             aria-label="password"
             aria-describedby="basic-addon1"
-            {...register("password")}
+            {...register("password",PASSWORD_VALIDATION)}
           />
         </div>
         {errors.password && (
