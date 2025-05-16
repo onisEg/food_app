@@ -32,10 +32,13 @@ function App() {
 
     try {
       const res = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
-      setLoginData({
-        ...decodedToken,
-        imagePath: res.data.imagePath,
-      });
+      console.log(res.data);
+      setLoginData(res.data);
+      // setLoginData({
+      //   ...decodedToken,
+      //   imagePath: res.data.imagePath,
+
+      // });
     } catch (err) {
       console.error("Failed to fetch user image", err);
     }
@@ -45,7 +48,6 @@ function App() {
     if (localStorage.getItem("token")) {
       saveLoginData();
     }
-
   }, []);
 
   const routes = createBrowserRouter([

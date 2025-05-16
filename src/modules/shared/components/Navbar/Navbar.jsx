@@ -3,6 +3,11 @@ import { imgBaseURL } from "../../../../services/api/urls";
 
 export default function Navbar({ loginData }) {
   const navigate = useNavigate();
+  console.log(loginData?.group.name);
+
+  const isAdmin = loginData?.group.name === "SuperAdmin";
+  const isUser = loginData?.group.name === "SystemUser";
+
   return (
     <>
       <div className="navbar-container d-flex justify-content-between align-items-center px-4 py-3 bg-light rounded-3 gap-3 shadow-sm">
@@ -23,8 +28,12 @@ export default function Navbar({ loginData }) {
         <div
           className="d-flex align-items-center justify-content-end gap-3 w-25 cursor-pointer"
           style={{ cursor: "pointer" }}
-          onClick={() => navigate("/profile")} // ← التوجيه
+          onClick={() => navigate("/profile")}
         >
+          <i className="bi bi-chevron-down fs-5 text-muted"></i>
+          <div className="position-relative">
+            <i className="bi bi-bell fs-5 text-muted"></i>
+          </div>
           <div className="d-flex">
             <img
               src={
@@ -37,18 +46,16 @@ export default function Navbar({ loginData }) {
               width="40"
               height="40"
             />
-
-            <span className="fw-medium text-capitalize p-2">
-              {loginData?.userName
-                ? loginData.userName
-                    .replace(/[0-9]/g, "")
-                    .replace(/^\w/, (c) => c.toUpperCase())
-                : "UserName"}
-            </span>
-          </div>
-          <i className="bi bi-chevron-down fs-5 text-muted"></i>
-          <div className="position-relative">
-            <i className="bi bi-bell fs-5 text-muted"></i>
+            <div className=" mx-3 ">
+              <span className="fw-bold text-capitalize  fs-6 ">
+                {loginData?.userName
+                  ? loginData?.userName
+                      .replace(/[0-9]/g, "")
+                      .replace(/^\w/, (c) => c.toUpperCase())
+                  : "UserName"}
+              </span>
+              <div className="small ">{isAdmin ? "Admin" : "User"}</div>
+            </div>
           </div>
         </div>
       </div>

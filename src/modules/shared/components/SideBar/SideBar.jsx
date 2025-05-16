@@ -9,8 +9,8 @@ export default function SideBar({ setLoginData, loginData }) {
     setIsCollapse(!isCollapse);
   };
 
-  const isAdmin = loginData?.userGroup === "SuperAdmin";
-  const isUser = loginData?.roles?.[0] === "User";
+  const isAdmin = loginData?.group.name === "SuperAdmin";
+  const isUser = loginData?.group.name === "SystemUser";
 
   return (
     <div className="sidebar-container">

@@ -31,8 +31,8 @@ export default function RecipeList({ loginData }) {
   const [searchTagId, setSearchTagId] = useState("");
   const [searchCategoryId, setSearchCategoryId] = useState("");
   const [favorites, setFavorites] = useState([]);
-  const isUser = loginData?.roles?.[0] === "User";
-  const isAdmin = loginData?.roles?.[0] === "Admin";
+  const isAdmin = loginData?.group.name === "SuperAdmin";
+  const isUser = loginData?.group.name === "SystemUser";
   const [isLoading, setIsLoading] = useState(false);
 
   let {
