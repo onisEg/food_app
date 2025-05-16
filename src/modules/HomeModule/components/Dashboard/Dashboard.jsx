@@ -5,7 +5,7 @@ export default function Dashboard({ loginData }) {
   return (
     <>
       <Header
-        username={loginData?.userName || "userName"}
+        username={loginData?.userName || ""}
         description={
           "This is a welcoming screen for the entry of the application , you can now see the options"
         }

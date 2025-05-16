@@ -45,6 +45,7 @@ function App() {
     if (localStorage.getItem("token")) {
       saveLoginData();
     }
+
   }, []);
 
   const routes = createBrowserRouter([

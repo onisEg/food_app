@@ -14,11 +14,11 @@ export default function Header({ title, username, description, headerImg }) {
               ? username
                   .replace(/[0-9]/g, "")
                   .replace(/^\w/, (c) => c.toUpperCase())
-              : "UserName"}
+              : ""}
           </span>
         </div>
 
-        <p className="">{description}</p>
+        <p>{description}</p>
       </div>
       <div className="header-img ">
         <img

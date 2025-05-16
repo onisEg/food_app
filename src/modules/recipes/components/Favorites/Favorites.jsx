@@ -33,8 +33,7 @@ export default function Favorites() {
   return (
     <>
       <Header
-        title={"Favorite "}
-        username={"Recipes"}
+        title={"My Favorite "}
         description={
           "You can now add your items that any user can order it from the Application and you can edit"
         }

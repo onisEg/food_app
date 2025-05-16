@@ -41,7 +41,7 @@ export default function ChangePassword() {
     <>
       <Header
         title={"Change Your Password"}
-        username={" "}
+        
         headerImg={"/resipes.svg"}
       />
 
