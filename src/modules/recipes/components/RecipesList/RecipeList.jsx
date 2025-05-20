@@ -238,7 +238,6 @@ export default function RecipeList({ loginData }) {
     <>
       <Header
         title={"Recipes"}
-        
         description={
           "You can now add your items that any user can order it from the Application and you can edit"
         }
@@ -686,7 +685,13 @@ export default function RecipeList({ loginData }) {
                     modalType === "edit" ? "btn-warning" : "btn-success"
                   }`}
                 >
-                  {modalType === "edit" ? "Update" : "Add Recipe"}
+                  {isSubmitting ? (
+                    <i className="fa-solid fa-spinner fa-spin-pulse"></i>
+                  ) : modalType === "edit" ? (
+                    "Update"
+                  ) : (
+                    "Add Recipe"
+                  )}
                 </button>
               </form>
             </Modal.Body>

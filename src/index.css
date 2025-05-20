@@ -76,3 +76,11 @@ select {
 button {
   transition: all 0.3s ease-in-out;
 }
+
+
+.sidebar-divider {
+  height: 1px;
+  background-color: #ccc;
+  opacity: 0.4;
+  margin: 1rem 1.5rem;
+}

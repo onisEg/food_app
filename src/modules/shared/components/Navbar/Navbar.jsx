@@ -12,7 +12,7 @@ export default function Navbar({ loginData }) {
     <>
       <div className="navbar-container d-flex justify-content-between align-items-center px-4 py-3 bg-light rounded-3 gap-3 shadow-sm">
         {/* Search Bar */}
-        <div className="input-group w-100 shadow-sm">
+        {/* <div className="input-group w-100 shadow-sm">
           <span className="input-group-text bg-white border-end-0">
             <i className="bi bi-search text-muted"></i>
           </span>
@@ -22,11 +22,13 @@ export default function Navbar({ loginData }) {
             placeholder="Search..."
             aria-label="Search"
           />
-        </div>
+        </div> */}
 
+        
+        <h4 > </h4>
         {/* User Info */}
         <div
-          className="d-flex align-items-center justify-content-end gap-3 w-25 cursor-pointer"
+          className="d-flex align-items-center justify-content-end gap-4 w-25 cursor-pointer"
           style={{ cursor: "pointer" }}
           onClick={() => navigate("/profile")}
         >

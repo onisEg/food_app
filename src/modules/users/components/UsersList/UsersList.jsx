@@ -156,7 +156,7 @@ export default function UsersList() {
             <th>id</th>
             <th>role</th>
             <th>phoneNumber</th>
-            <th>modificationDate</th>
+            <th>creation Date</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -248,16 +248,17 @@ export default function UsersList() {
 
                   {/* modificationDate */}
                   <td>
-                    {new Date(user.modificationDate).toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      }
-                    )}
+                    {new Date(user.creationDate).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                    {" - "}
+                    {new Date(user.creationDate).toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </td>
-
                   {/* Actions */}
                   <td>
                     <div className="dropdown">

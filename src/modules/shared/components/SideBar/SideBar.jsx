@@ -29,7 +29,7 @@ export default function SideBar({ setLoginData, loginData }) {
           </div>
 
           <MenuItem
-            className={location.pathname === "dashboard" ? "active-menu" : ""}
+            className={location.pathname === "/dashboard" ? "active-menu" : ""}
             icon={<i className="bi bi-house-door"></i>}
             component={<Link to="dashboard" />}
           >
@@ -86,6 +86,9 @@ export default function SideBar({ setLoginData, loginData }) {
               </MenuItem>
             </>
           )}
+
+          <div className="sidebar-divider my-2"></div>
+
           <MenuItem
             component={<Link to="/ChangePassword" />}
             icon={<i className="fa-solid fa-key"></i>}
