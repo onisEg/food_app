@@ -9,7 +9,6 @@ import toast from "react-hot-toast";
 import "./categoriesList.css";
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 
-import ActionBtn from "../../../shared/components/ActionBtn/ActionBtn";
 import NoData from "../../../shared/components/noData/NoData";
 
 // ===== COMPONENT =====
@@ -122,7 +121,6 @@ export default function CategoriesList() {
     <>
       <Header
         title="Categories"
-       
         description="You can now add your items that any user can order it from the Application and you can edit"
         headerImg="/resipes.svg"
       />
@@ -245,6 +243,7 @@ export default function CategoriesList() {
                         <ul className="dropdown-menu dropdown-menu-end shadow border-0">
                           <li>
                             <button
+                              disabled={isSubmitting}
                               onClick={() => {
                                 setEditedCategoryId(category.id);
                                 setModalType("edit");
@@ -258,6 +257,7 @@ export default function CategoriesList() {
                           </li>
                           <li>
                             <button
+                              disabled={isSubmitting}
                               onClick={() => {
                                 setSelectedCategoryId(category.id);
                                 setShowDeleteModal(true);
@@ -290,8 +290,8 @@ export default function CategoriesList() {
         title="Delete Category"
       />
 
+      {/* =========================================== */}
       {/* Modal add & edit Logic */}
-
       <Modal
         show={showFormModal}
         onHide={() => setShowFormModal(false)}

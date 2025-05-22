@@ -184,7 +184,7 @@ export default function ResetPass() {
             </ul>
           </div>
         )}
-        <button className="btn btn-lg w-100 bg-success text-white mt-4 ">
+        <button disabled={isSubmitting} className="btn btn-lg w-100 bg-success text-white mt-4 ">
           {isSubmitting ? "Submit..." : "Submit"}
         </button>
       </form>

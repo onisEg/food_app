@@ -12,7 +12,7 @@ export default function ChangePassword() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors,isSubmitting },
     watch,
     reset,
   } = useForm();
@@ -39,29 +39,39 @@ export default function ChangePassword() {
 
   return (
     <>
-      <Header
-        title={"Change Your Password"}
-        
-        headerImg={"/resipes.svg"}
-      />
+      <Header title={"Change Your Password"} headerImg={"/resipes.svg"} />
 
-      <div className="container mt-5 d-flex justify-content-center">
+      <div className="container mt-5 d-flex justify-content-center align-items-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="shadow-lg p-5 rounded"
-          style={{ width: "100%", maxWidth: "600px", background: "white" }}
+          className="shadow p-5 rounded-4"
+          style={{
+            width: "100%",
+            maxWidth: "900px",
+            background: "white",
+            border: "1px solid #eee",
+          }}
         >
-          <div className=" text-center mb-4">
-            <img style={{ width: "60%" }} src="/logofood.png" alt="foodApp" />
+          {/* Logo */}
+          <div className="text-center mb-4">
+            <img
+              src="/logofood.png"
+              alt="FoodApp Logo"
+              style={{ width: "80px" }}
+            />
+            <h4 className="mt-3 fw-bold text-success">Change Password</h4>
+            <small className="text-muted">
+              Ensure your new password is secure
+            </small>
           </div>
-          {/* <h2 className="mb-3 text-center pb-3">Change Your Password</h2> */}
 
           {/* Old Password */}
-          <div className="mb-3">
+          <div className="form-group mb-4">
+            <label className="form-label fw-medium">Old Password</label>
             <input
               type="password"
               className="form-control form-control-lg"
-              placeholder="Old Password"
+              placeholder="Enter your old password"
               {...register("oldPassword", {
                 required: "Old password is required",
               })}
@@ -74,11 +84,12 @@ export default function ChangePassword() {
           </div>
 
           {/* New Password */}
-          <div className="mb-3">
+          <div className="form-group mb-4">
+            <label className="form-label fw-medium">New Password</label>
             <input
               type="password"
               className="form-control form-control-lg"
-              placeholder="New Password"
+              placeholder="Enter new password"
               {...register("newPassword", PASSWORD_VALIDATION)}
             />
             {errors.newPassword && (
@@ -89,11 +100,12 @@ export default function ChangePassword() {
           </div>
 
           {/* Confirm New Password */}
-          <div className="mb-3">
+          <div className="form-group mb-4">
+            <label className="form-label fw-medium">Confirm New Password</label>
             <input
               type="password"
-              className="form-control form-control-lg "
-              placeholder="Confirm New Password"
+              className="form-control form-control-lg"
+              placeholder="Confirm new password"
               {...register("confirmNewPassword", {
                 required: "Please confirm your new password",
                 validate: (value) =>
@@ -107,8 +119,17 @@ export default function ChangePassword() {
             )}
           </div>
 
-          <button type="submit" className="btn btn-success w-100 btn-lg mt-3">
-            Change Password
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="btn btn-success btn-lg w-100 mt-2"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <i className="fa fa-spinner fa-spin"></i>
+            ) : (
+              "Change Password"
+            )}
           </button>
         </form>
       </div>

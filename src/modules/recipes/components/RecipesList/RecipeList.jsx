@@ -31,8 +31,8 @@ export default function RecipeList({ loginData }) {
   const [searchTagId, setSearchTagId] = useState("");
   const [searchCategoryId, setSearchCategoryId] = useState("");
   const [favorites, setFavorites] = useState([]);
-  const isAdmin = loginData?.group.name === "SuperAdmin";
-  const isUser = loginData?.group.name === "SystemUser";
+  const isAdmin = loginData?.userGroup === "SuperAdmin";
+  const isUser = loginData?.userGroup === "SystemUser";
   const [isLoading, setIsLoading] = useState(false);
 
   let {
@@ -43,7 +43,7 @@ export default function RecipeList({ loginData }) {
     reset,
   } = useForm();
 
-  //========== toggle favorite
+  //========== toggle favorite ==============
   const toggleFavorite = async (recipeId) => {
     const existing = Array.isArray(favorites)
       ? favorites.find((fav) => fav.recipe?.id === recipeId)
@@ -74,18 +74,21 @@ export default function RecipeList({ loginData }) {
     }
   };
 
-  //=======  get all favorite
+  //=======  get all favorite ==============
   const getFavorites = async () => {
     try {
       const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
       setFavorites(res.data.data);
       console.log(`favorites: `, favorites);
     } catch (error) {
-      toast.error("Failed to load favorites");
+      const status = error.response?.status;
+      if (status !== 403 || recipesList.length > 0) {
+        toast.error("Failed to load favorites");
+      }
       setFavorites([]);
     }
   };
-  // ============ get all Recipes
+  // ============ get all Recipes  ===============
   const getRecipes = async () => {
     setIsLoading(true);
     const params = {
@@ -109,7 +112,7 @@ export default function RecipeList({ loginData }) {
     }
   };
 
-  // ====== Fetch Categories List ======
+  // ====== Fetch Categories List ========
   const getCategories = async () => {
     try {
       let response = await axiosInstance.get(
@@ -125,7 +128,7 @@ export default function RecipeList({ loginData }) {
       );
     }
   };
-  // =========== Fetch Tags  ======
+  // =========== Fetch Tags  ===========
   const getTags = async () => {
     try {
       let response = await axiosInstance.get(`${TAG.ALL_TAGS}`);
@@ -137,6 +140,7 @@ export default function RecipeList({ loginData }) {
     }
   };
 
+  // ===========  on add recipe ===============
   const onAddRecipe = async (data) => {
     const formData = new FormData();
 
@@ -172,7 +176,7 @@ export default function RecipeList({ loginData }) {
     }
   };
 
-  //=========== Edit Recipe
+  //=========== Edit Recipe ==============
   const onEditRecipe = async (data) => {
     const formData = new FormData();
 
@@ -224,15 +228,13 @@ export default function RecipeList({ loginData }) {
     getRecipes();
     getTags();
     getCategories();
-    if (isUser) {
+  }, [searchName, searchTagId, searchCategoryId]);
+
+  useEffect(() => {
+    if (isUser && recipesList.length > 0) {
       getFavorites();
     }
-
-    // const delayDebounce = setTimeout(() => {
-    //   getRecipes();
-    // }, 400);
-    // return () => clearTimeout(delayDebounce);
-  }, [searchName, searchTagId, searchCategoryId, isUser]);
+  }, [isUser, recipesList]);
 
   return (
     <>
@@ -681,6 +683,7 @@ export default function RecipeList({ loginData }) {
 
                 {/* Submit Button */}
                 <button
+                  disabled={isSubmitting}
                   className={`btn btn-lg w-100 mt-5 ${
                     modalType === "edit" ? "btn-warning" : "btn-success"
                   }`}

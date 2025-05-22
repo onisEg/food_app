@@ -72,10 +72,10 @@ export default function UsersList() {
   useEffect(() => {
     getUsers();
 
-    const delayDebounce = setTimeout(() => {
-      getUsers();
-    }, 500);
-    return () => clearTimeout(delayDebounce);
+    // const delayDebounce = setTimeout(() => {
+    //   getUsers();
+    // }, 500);
+    // return () => clearTimeout(delayDebounce);
   }, [searchUserName, searchEmail, searchCountry, searchGroup, pageNumber]);
 
   return (

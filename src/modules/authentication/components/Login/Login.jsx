@@ -20,7 +20,7 @@ export default function Login({ saveLoginData }) {
     try {
       let response = await axiosInstance.post(USERS_URL.LOGIN, data);
       localStorage.setItem("token", response.data.token);
-      saveLoginData();
+       saveLoginData();
       toast.success("login success!");
       navigate("/dashboard", { replace: true });
     } catch (error) {
@@ -64,7 +64,7 @@ export default function Login({ saveLoginData }) {
             placeholder="Enter your password"
             aria-label="password"
             aria-describedby="basic-addon1"
-            {...register("password",PASSWORD_VALIDATION)}
+            {...register("password")}
           />
         </div>
         {errors.password && (

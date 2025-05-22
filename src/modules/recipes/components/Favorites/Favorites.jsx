@@ -3,6 +3,7 @@ import { axiosInstance } from "../../../../services/api";
 import { USER_RECIPE_URLS, imgBaseURL } from "../../../../services/api/urls";
 import toast from "react-hot-toast";
 import Header from "../../../shared/components/Header/Header";
+import NoData from "../../../shared/components/noData/NoData";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -41,7 +42,10 @@ export default function Favorites() {
       />
       <div className=" mt-4">
         {favorites.length === 0 ? (
-          <p className="text-muted">No favorite recipes yet.</p>
+          <>
+            <p className="text-muted">No favorite recipes yet.</p>
+            <NoData />
+          </>
         ) : (
           <table className="table table-striped-reversed">
             <thead>

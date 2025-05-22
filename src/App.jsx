@@ -29,25 +29,14 @@ function App() {
 
   let saveLoginData = async () => {
     const decodedToken = jwtDecode(localStorage.getItem("token"));
-
-    try {
-      const res = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
-      console.log(res.data);
-      setLoginData(res.data);
-      // setLoginData({
-      //   ...decodedToken,
-      //   imagePath: res.data.imagePath,
-
-      // });
-    } catch (err) {
-      console.error("Failed to fetch user image", err);
-    }
+    setLoginData(decodedToken);
   };
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
       saveLoginData();
     }
+    console.log("logindata : ", loginData);
   }, []);
 
   const routes = createBrowserRouter([

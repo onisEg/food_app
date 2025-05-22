@@ -22,16 +22,16 @@ export default function Dashboard({ loginData }) {
   const [totalTags, setTotalTags] = useState(0);
   const [totalCategories, setTotalCategories] = useState(0);
 
-  const isAdmin = loginData?.group.name === "SuperAdmin";
-  const isUser = loginData?.group.name === "SystemUser";
+  const isAdmin = loginData?.userGroup === "SuperAdmin";
+  const isUser = loginData?.userGroup === "SystemUser";
 
   const getUsers = async () => {
     try {
       const res = await axiosInstance.get(USERS_URL.GET_ALL_USERS, {
-        params: { pageSize: 1000, pageNumber: 1 },
+        params: { pageSize: 2000, pageNumber: 1 },
       });
       const users = res.data.data;
-      setTotalUsers(users.length);
+      setTotalUsers(res.data.totalNumberOfRecords);
       setAdminCount(users.filter((u) => u.group?.id === 1).length);
       setUserCount(users.filter((u) => u.group?.id === 2).length);
     } catch (err) {
@@ -75,11 +75,14 @@ export default function Dashboard({ loginData }) {
   };
 
   useEffect(() => {
+    if (!loginData) return;
     getUsers();
     getRecipesStats();
-    getFavoritesStats();
     getTagsAndCategoriesStats();
-  }, []);
+    if (isUser) {
+      getFavoritesStats(); // ✅ فقط لو المستخدم عادي
+    }
+  }, [loginData]);
 
   return (
     <>

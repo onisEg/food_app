@@ -1,12 +1,29 @@
 import { useNavigate } from "react-router-dom";
-import { imgBaseURL } from "../../../../services/api/urls";
+import { imgBaseURL, USERS_URL } from "../../../../services/api/urls";
+import { useEffect, useState } from "react";
+import { axiosInstance } from "../../../../services/api";
 
 export default function Navbar({ loginData }) {
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
-  console.log(loginData?.group.name);
 
-  const isAdmin = loginData?.group.name === "SuperAdmin";
-  const isUser = loginData?.group.name === "SystemUser";
+  //=============== fetch current user ==============
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
+      setUserData(res.data);
+    } catch (error) {
+      console.error("Failed to fetch current user", error);
+    }
+  };
+  const isAdmin = loginData?.userGroup === "SuperAdmin";
+  const isUser = loginData?.userGroup === "SystemUser";
+
+  console.log(userData?.imagePath);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
   return (
     <>
@@ -24,8 +41,7 @@ export default function Navbar({ loginData }) {
           />
         </div> */}
 
-        
-        <h4 > </h4>
+        <h4> </h4>
         {/* User Info */}
         <div
           className="d-flex align-items-center justify-content-end gap-4 w-25 cursor-pointer"
@@ -39,9 +55,11 @@ export default function Navbar({ loginData }) {
           <div className="d-flex">
             <img
               src={
-                loginData?.imagePath
-                  ? `${imgBaseURL}/${loginData?.imagePath}`
-                  : "https://ui-avatars.com/api/?name=User&background=random&size=60"
+                userData?.imagePath
+                  ? `${imgBaseURL}/${userData.imagePath}`
+                  : `https://ui-avatars.com/api/?name=${
+                      userData?.userName || "User"
+                    }&length=2&background=0D8ABC&color=fff`
               }
               alt="User"
               className="rounded-circle"
