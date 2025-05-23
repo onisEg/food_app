@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import Header from "../../../shared/components/Header/Header";
 import { useForm } from "react-hook-form";
 
-export default function Profile() {
+export default function Profile({loginData}) {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,6 +16,9 @@ export default function Profile() {
     formState: { errors, isSubmitting },
     setError,
   } = useForm({});
+
+
+  // =========== get profile =============
   const getProfile = async () => {
     setIsLoading(true);
     try {
@@ -101,7 +104,7 @@ export default function Profile() {
                 src={
                   profile.imagePath
                     ? `${imgBaseURL}/${profile.imagePath}`
-                    : "https://ui-avatars.com/api/?name=User&background=random&size=60"
+                    : `https://ui-avatars.com/api/?name=${profile.userName}&background=random&size=60`
                 }
                 alt="Profile"
                 className="rounded-circle border"

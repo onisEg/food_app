@@ -57,9 +57,7 @@ export default function Navbar({ loginData }) {
               src={
                 userData?.imagePath
                   ? `${imgBaseURL}/${userData.imagePath}`
-                  : `https://ui-avatars.com/api/?name=${
-                      userData?.userName || "User"
-                    }&length=2&background=0D8ABC&color=fff`
+                  : `https://i.pravatar.cc/48`
               }
               alt="User"
               className="rounded-circle"

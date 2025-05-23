@@ -24,8 +24,10 @@ export default function Dashboard({ loginData }) {
 
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
+  console.log("userGroup:", loginData?.userGroup);
 
   const getUsers = async () => {
+    if (isUser) return;
     try {
       const res = await axiosInstance.get(USERS_URL.GET_ALL_USERS, {
         params: { pageSize: 2000, pageNumber: 1 },
@@ -35,7 +37,7 @@ export default function Dashboard({ loginData }) {
       setAdminCount(users.filter((u) => u.group?.id === 1).length);
       setUserCount(users.filter((u) => u.group?.id === 2).length);
     } catch (err) {
-      console.error("Failed to fetch user stats", err);
+      console.error("Failed to fetch users stats", err);
     }
   };
 
@@ -51,6 +53,7 @@ export default function Dashboard({ loginData }) {
   };
 
   const getFavoritesStats = async () => {
+    if (isAdmin || totalRecipes == 0) return;
     try {
       const favRes = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
       setFavoriteRecipesCount(favRes.data.data.length);
@@ -79,9 +82,7 @@ export default function Dashboard({ loginData }) {
     getUsers();
     getRecipesStats();
     getTagsAndCategoriesStats();
-    if (isUser) {
-      getFavoritesStats(); // ✅ فقط لو المستخدم عادي
-    }
+    getFavoritesStats();
   }, [loginData]);
 
   return (

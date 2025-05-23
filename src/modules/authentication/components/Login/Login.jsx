@@ -16,11 +16,15 @@ export default function Login({ saveLoginData }) {
     handleSubmit,
     reset,
   } = useForm();
+
+
+  
+  // =========== submit login ========
   const onSubmit = async (data) => {
     try {
       let response = await axiosInstance.post(USERS_URL.LOGIN, data);
       localStorage.setItem("token", response.data.token);
-       saveLoginData();
+      await saveLoginData();
       toast.success("login success!");
       navigate("/dashboard", { replace: true });
     } catch (error) {
@@ -28,6 +32,9 @@ export default function Login({ saveLoginData }) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
+
+
+
   return (
     <>
       <div className="title  d-flex flex-column align-items-start">

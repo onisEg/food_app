@@ -20,8 +20,7 @@ import Profile from "./modules/users/components/Profile/Profile";
 import AuthLayout from "./modules/shared/layouts/AuthLayout/AuthLayout";
 import ChangePassword from "./modules/authentication/components/ChangePassword/ChangePassword";
 import MasterLayout from "./modules/shared/layouts/MasterLayout/MasterLayout";
-import { axiosInstance } from "./services/api";
-import { USERS_URL } from "./services/api/urls";
+
 import VerifyEmail from "./modules/authentication/components/VerifyEmail/VerifyEmail";
 import Favorites from "./modules/recipes/components/Favorites/Favorites";
 function App() {
@@ -30,6 +29,8 @@ function App() {
   let saveLoginData = async () => {
     const decodedToken = jwtDecode(localStorage.getItem("token"));
     setLoginData(decodedToken);
+    console.log(decodedToken);
+    
   };
 
   useEffect(() => {
