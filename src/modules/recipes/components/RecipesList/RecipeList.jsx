@@ -38,7 +38,7 @@ export default function RecipeList() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(2);
+  const [pageSize, setPageSize] = useState(5);
 
   const {
     categoriesList,
@@ -198,7 +198,9 @@ export default function RecipeList() {
           />
         </div>
         <div className="col-md-1 d-flex align-items-center">
-          <span className="m-0">Total : {totalNumberOfRecords}</span>
+          <span className="d-flex align-items-center">
+            Total : {totalNumberOfRecords}
+          </span>
         </div>
       </div>
 
@@ -281,7 +283,7 @@ export default function RecipeList() {
                       src={
                         recipe.imagePath
                           ? `${imgBaseURL}/${recipe.imagePath}`
-                          : "/public/food.jpg"
+                          : "/food.jpg"
                       }
                       alt={recipe.name}
                     />
