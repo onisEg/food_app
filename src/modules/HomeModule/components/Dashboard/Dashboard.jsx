@@ -2,88 +2,55 @@ import { Link } from "react-router-dom";
 import Header from "../../../shared/components/Header/Header";
 
 import { useEffect, useState } from "react";
-import { axiosInstance } from "../../../../services/api";
-import {
-  USERS_URL,
-  RECIPE_URLS,
-  USER_RECIPE_URLS,
-  TAG,
-  CATEGORY_URLS,
-} from "../../../../services/api/urls";
-import Card from "../Card/Card";
 
-export default function Dashboard({ loginData }) {
-  const [totalUsers, setTotalUsers] = useState(0);
+import Card from "../Card/Card";
+import { useAuth } from "../../../../context/AuthContext";
+import { useData } from "../../../../context/DataContext";
+export default function Dashboard() {
+  const { loginData } = useAuth();
+  const {
+    favorites,
+    getFavorites,
+    getRecipes,
+    recipesList,
+    categoriesList,
+    getCategories,
+    tags,
+    getTags,
+    usersList,
+    getUsers,
+    totalUsers,
+    totalRecipes,
+  } = useData();
+
+  console.log(usersList.length);
+
   const [adminCount, setAdminCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-
-  const [totalRecipes, setTotalRecipes] = useState(0);
-  const [favoriteRecipesCount, setFavoriteRecipesCount] = useState(0);
-  const [totalTags, setTotalTags] = useState(0);
-  const [totalCategories, setTotalCategories] = useState(0);
-
+  const [pageSize, setPageSize] = useState(2000);
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
-  console.log("userGroup:", loginData?.userGroup);
-
-  const getUsers = async () => {
-    if (isUser) return;
-    try {
-      const res = await axiosInstance.get(USERS_URL.GET_ALL_USERS, {
-        params: { pageSize: 2000, pageNumber: 1 },
-      });
-      const users = res.data.data;
-      setTotalUsers(res.data.totalNumberOfRecords);
-      setAdminCount(users.filter((u) => u.group?.id === 1).length);
-      setUserCount(users.filter((u) => u.group?.id === 2).length);
-    } catch (err) {
-      console.error("Failed to fetch users stats", err);
-    }
-  };
-
-  const getRecipesStats = async () => {
-    try {
-      const recipesRes = await axiosInstance.get(RECIPE_URLS.GET_RECIPES, {
-        params: { pageSize: 1000, pageNumber: 1 },
-      });
-      setTotalRecipes(recipesRes.data.data.length);
-    } catch (err) {
-      console.error("Failed to fetch recipes", err);
-    }
-  };
-
-  const getFavoritesStats = async () => {
-    if (isAdmin || totalRecipes == 0) return;
-    try {
-      const favRes = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
-      setFavoriteRecipesCount(favRes.data.data.length);
-    } catch (err) {
-      console.error("Failed to fetch favorites", err);
-    }
-  };
-
-  const getTagsAndCategoriesStats = async () => {
-    try {
-      const [tagsRes, categoriesRes] = await Promise.all([
-        axiosInstance.get(TAG.ALL_TAGS),
-        axiosInstance.get(CATEGORY_URLS.GET_CATEGORIES, {
-          params: { pageSize: 1000, pageNumber: 1 },
-        }),
-      ]);
-      setTotalTags(tagsRes.data.length);
-      setTotalCategories(categoriesRes.data.data.length);
-    } catch (err) {
-      console.error("Failed to fetch tags or categories", err);
-    }
-  };
+  // console.log("userGroup:", loginData?.userGroup);
 
   useEffect(() => {
     if (!loginData) return;
-    getUsers();
-    getRecipesStats();
-    getTagsAndCategoriesStats();
-    getFavoritesStats();
-  }, [loginData]);
+    getUsers({ pageSize: 2000 });
+    getRecipes({}, 1000);
+    getCategories();
+    getTags();
+
+    if (isUser) {
+      getFavorites();
+    }
+  }, [loginData, pageSize]);
+
+  useEffect(() => {
+    const admins = usersList.filter((u) => u.group?.id === 1).length;
+    const users = usersList.filter((u) => u.group?.id === 2).length;
+
+    setAdminCount(admins);
+    setUserCount(users);
+  }, [usersList]);
 
   return (
     <>
@@ -121,7 +88,11 @@ export default function Dashboard({ loginData }) {
           <Card
             cardTitle="Users overviwe"
             stats={[
-              { icon: "bi-list-ul", value: totalUsers, label: "Total" },
+              {
+                icon: "bi-list-ul",
+                value: usersList.length,
+                label: "Total",
+              },
               {
                 icon: "bi-person-fill-gear",
                 value: adminCount,
@@ -136,21 +107,25 @@ export default function Dashboard({ loginData }) {
           stats={[
             {
               icon: "bi-egg-fried",
-              value: totalRecipes,
+              value: recipesList.length,
               label: "Total Recipes",
             },
             ...(isUser
               ? [
                   {
                     icon: "bi-heart-fill",
-                    value: favoriteRecipesCount,
+                    value: favorites.length,
                     label: "Favorites",
                   },
                 ]
               : []),
 
-            { icon: "bi-tags", value: totalTags, label: "Tags" },
-            { icon: "bi-layers", value: totalCategories, label: "Categories" },
+            { icon: "bi-tags", value: tags.length, label: "Tags" },
+            {
+              icon: "bi-layers",
+              value: categoriesList.length,
+              label: "Categories",
+            },
           ]}
         />
       </div>

@@ -4,20 +4,17 @@ import { Outlet, useNavigate } from "react-router-dom";
 import SideBar from "../../components/SideBar/SideBar";
 import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
-export default function MasterLayout({
-  loginData,
-  setLoginData,
-  saveLoginData 
-}) {
+export default function MasterLayout() {
+  
   return (
     <>
       <div className=" d-flex ">
         <div className=" position-sticky top-0  vh-100 ">
-          <SideBar loginData={loginData} setLoginData={setLoginData} />
+          <SideBar />
         </div>
-        <div className="w-100 bg-white p-4">
+        <div className="w-100 bg-white p-4 ">
           <div className="container-fluid mb-3 px-0">
-            <Navbar loginData={loginData} saveLoginData={saveLoginData} />
+            <Navbar />
           </div>
           <div className="">
             <Outlet />

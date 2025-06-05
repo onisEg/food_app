@@ -6,7 +6,7 @@ import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
 import { EMAIL_VALIDATION } from "../../../../services/validations";
 
-export default function ForgetPass() {
+export default function ForgetPassword() {
   let navigate = useNavigate();
   let {
     register,
@@ -19,7 +19,7 @@ export default function ForgetPass() {
       let response = await axiosInstance.post(USERS_URL.RESET_REQUEST, data);
       toast.success(response.data.message);
       reset();
-      navigate("/resetpass", { state: data.email });
+      navigate("/reset-password", { state: data.email });
       console.log(response);
     } catch (error) {
       console.log(error);

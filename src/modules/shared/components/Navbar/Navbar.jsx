@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { imgBaseURL, USERS_URL } from "../../../../services/api/urls";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../../../../services/api";
+import { useAuth } from "../../../../context/AuthContext";
 
-export default function Navbar({ loginData }) {
+export default function Navbar() {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
-
+  const { loginData } = useAuth();
   //=============== fetch current user ==============
   const fetchCurrentUser = async () => {
     try {
@@ -19,7 +20,7 @@ export default function Navbar({ loginData }) {
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
 
-  console.log(userData?.imagePath);
+  // console.log(userData?.imagePath);
 
   useEffect(() => {
     fetchCurrentUser();
@@ -29,7 +30,7 @@ export default function Navbar({ loginData }) {
     <>
       <div className="navbar-container d-flex justify-content-between align-items-center px-4 py-3 bg-light rounded-3 gap-3 shadow-sm">
         {/* Search Bar */}
-        {/* <div className="input-group w-100 shadow-sm">
+        <div className="input-group w-100 shadow-sm">
           <span className="input-group-text bg-white border-end-0">
             <i className="bi bi-search text-muted"></i>
           </span>
@@ -39,7 +40,7 @@ export default function Navbar({ loginData }) {
             placeholder="Search..."
             aria-label="Search"
           />
-        </div> */}
+        </div>
 
         <h4> </h4>
         {/* User Info */}

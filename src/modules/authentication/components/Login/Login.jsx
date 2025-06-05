@@ -1,15 +1,14 @@
-import "./login.css";
+
 import { Link, replace, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
 import toast from "react-hot-toast";
-import {
-  EMAIL_VALIDATION,
-  PASSWORD_VALIDATION,
-} from "../../../../services/validations";
-export default function Login({ saveLoginData }) {
-  let navigate = useNavigate();
+import { EMAIL_VALIDATION } from "../../../../services/validations";
+import { useAuth } from "../../../../context/AuthContext";
+export default function Login() {
+  const navigate = useNavigate();
+  const { saveLoginData } = useAuth();
   let {
     register,
     formState: { errors, isSubmitting },
@@ -17,8 +16,6 @@ export default function Login({ saveLoginData }) {
     reset,
   } = useForm();
 
-
-  
   // =========== submit login ========
   const onSubmit = async (data) => {
     try {
@@ -32,8 +29,6 @@ export default function Login({ saveLoginData }) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
-
-
 
   return (
     <>
@@ -102,7 +97,10 @@ export default function Login({ saveLoginData }) {
           >
             Register Now?
           </Link>
-          <Link className="text-success text-decoration-none " to="/forgetpass">
+          <Link
+            className="text-success text-decoration-none "
+            to="/forget-password"
+          >
             Forgot Password?
           </Link>
         </div>

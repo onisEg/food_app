@@ -5,10 +5,17 @@ import toast from "react-hot-toast";
 
 import Header from "../../../shared/components/Header/Header";
 import { useForm } from "react-hook-form";
+import { useData } from "../../../../context/DataContext";
+import { useAuth } from "../../../../context/AuthContext";
 
-export default function Profile({loginData}) {
-  const [profile, setProfile] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+export default function Profile() {
+  const { loginData } = useAuth();
+  const { profile, isProfileLoading, getProfile, updateProfileImage } =
+    useData();
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [passwordForImage, setPasswordForImage] = useState("");
 
   const {
     register,
@@ -17,19 +24,20 @@ export default function Profile({loginData}) {
     setError,
   } = useForm({});
 
+  console.log(profile);
 
-  // =========== get profile =============
-  const getProfile = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
-      setProfile(response.data);
-    } catch (error) {
-      toast.error("Failed to fetch profile.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // // =========== get profile =============
+  // const getProfile = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
+  //     setProfile(response.data);
+  //   } catch (error) {
+  //     toast.error("Failed to fetch profile.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const onSubmit = async (data) => {
     try {
@@ -73,7 +81,7 @@ export default function Profile({loginData}) {
     getProfile();
   }, []);
 
-  if (isLoading) {
+  if (isProfileLoading) {
     return (
       <div className="text-center mt-5">
         <div className="spinner-border text-success"></div>
@@ -117,40 +125,93 @@ export default function Profile({loginData}) {
                   id="profileImageInput"
                   className="d-none"
                   accept="image/*"
-                  onChange={async (e) => {
+                  onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      const formData = new FormData();
-                      formData.append("profileImage", file);
-
-                      // default valus
-                      formData.append("userName", profile.userName);
-                      formData.append("email", profile.email);
-                      formData.append("phoneNumber", profile.phoneNumber);
-                      formData.append("country", profile.country);
-
-                      // prompent for update image
-                      const password = prompt(
-                        "Please confirm your password to update image:"
-                      );
-                      if (!password)
-                        return toast.error("Password confirmation is required");
-                      formData.append("confirmPassword", password);
-
-                      try {
-                        const res = await axiosInstance.put(
-                          USERS_URL.UPDATE_PROFILE,
-                          formData
-                        );
-                        toast.success("Profile image updated!");
-                        getProfile();
-                      } catch (err) {
-                        toast.error("Failed to update image");
-                        console.error(err);
-                      }
+                      setSelectedImage(file);
+                      setShowPasswordModal(true);
                     }
                   }}
                 />
+                {showPasswordModal && (
+                  <div
+                    className="modal fade show"
+                    style={{
+                      display: "block",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                    }}
+                    tabIndex="-1"
+                  >
+                    <div className="modal-dialog modal-dialog-centered">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <h5 className="modal-title">Confirm Password</h5>
+                          <button
+                            type="button"
+                            className="btn-close"
+                            onClick={() => {
+                              setShowPasswordModal(false);
+                              setPasswordForImage("");
+                              setSelectedImage(null);
+                            }}
+                          ></button>
+                        </div>
+                        <div className="modal-body">
+                          <input
+                            type="password"
+                            className="form-control"
+                            placeholder="Enter your password"
+                            value={passwordForImage}
+                            onChange={(e) =>
+                              setPasswordForImage(e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="modal-footer">
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => {
+                              setShowPasswordModal(false);
+                              setPasswordForImage("");
+                              setSelectedImage(null);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-success"
+                            onClick={async () => {
+                              if (!selectedImage) {
+                                toast.error("Please select an image");
+                                return;
+                              }
+                              if (!passwordForImage) {
+                                toast.error("Password is required");
+                                return;
+                              }
+
+                              await updateProfileImage(
+                                {
+                                  file: selectedImage,
+                                  password: passwordForImage,
+                                },
+                                () => {
+                                  setShowPasswordModal(false);
+                                  setPasswordForImage("");
+                                  setSelectedImage(null);
+                                }
+                              );
+                            }}
+                          >
+                            Confirm
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <label
                   htmlFor="profileImageInput"

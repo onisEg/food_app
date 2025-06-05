@@ -5,22 +5,34 @@ import { CATEGORY_URLS } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api";
 import Modal from "react-bootstrap/Modal";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
+
 import "./categoriesList.css";
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 
 import NoData from "../../../shared/components/noData/NoData";
+import { useData } from "../../../../context/DataContext";
 
 // ===== COMPONENT =====
 export default function CategoriesList() {
-  const [categoriesList, setCategoriesList] = useState([]);
+  const {
+    categoriesList,
+    isLoading,
+    getCategories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    totalPages,
+  } = useData();
+
+
   const [editedCategoryId, setEditedCategoryId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [modalType, setModalType] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
   const [searchName, setSearchName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
 
   const {
     register,
@@ -29,92 +41,33 @@ export default function CategoriesList() {
     reset,
   } = useForm();
 
-  // ====== get all Categories List ======
-  const getCategories = async () => {
-    setIsLoading(true);
-    const params = {
-      pageSize: 1000,
-      pageNumber: 1,
-    };
-
-    if (searchName) params.name = searchName;
-
-    try {
-      let response = await axiosInstance.get(CATEGORY_URLS.GET_CATEGORIES, {
-        params,
-      });
-      setCategoriesList(response.data.data);
-    } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to fetch categories."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // ====== Add New Category ======
-  const onAddCategory = async (data) => {
-    try {
-      const response = await axiosInstance.post(
-        CATEGORY_URLS.ADD_CATEGORY,
-        data
-      );
-      toast.success(`${response.data.name} Category Added`);
-      setShowFormModal(false);
-      getCategories();
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to add category.");
-    }
-  };
-
-  // ====== Edit Existing Category ======
-  const onEditCategory = async (data) => {
-    try {
-      const response = await axiosInstance.put(
-        CATEGORY_URLS.UPDATE_CATEGORY(editedCategoryId),
-        data
-      );
-      toast.success(`${response.data.name} Category Updated`);
+  // // ====== Add New Category ======
+  const handleAdd = (data) => {
+    addCategory(data, () => {
       setShowFormModal(false);
       reset();
-      getCategories();
-    } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to update category."
-      );
-    }
+    });
   };
 
-  // ====== Delete Category ======
-  const onDeleteCategory = async () => {
-    try {
-      await axiosInstance.delete(
-        CATEGORY_URLS.DELETE_CATEGORY(selectedCategoryId)
-      );
+  // // ====== Edit Category ======
+  const handleEdit = (data) => {
+    updateCategory(editedCategoryId, data, () => {
+      setShowFormModal(false);
+      reset();
+    });
+  };
+
+  // // ====== Delete Category ======
+  const handleDelete = () => {
+    deleteCategory(selectedCategoryId, () => {
       setShowDeleteModal(false);
-      toast.success("Category Deleted Successfully");
-      getCategories();
-    } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to delete category."
-      );
-    }
+    });
   };
 
   // ====== Lifecycle: Fetch Categories Once on Mount ======
   useEffect(() => {
-    getCategories();
-    const delayDebounce = setTimeout(() => {
-      getCategories();
-    }, 500);
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchName]);
+    getCategories(searchName, pageNumber, pageSize);
+  }, [searchName, pageNumber, pageSize]);
 
   // ====== Render UI ======
   return (
@@ -143,10 +96,23 @@ export default function CategoriesList() {
 
           <i
             onClick={() => setSearchName("")}
-            className="fa-solid fa-circle-xmark fa-2x pe-auto"
+            className="fa-solid fa-circle-xmark fa-2x pe-auto text-danger"
           ></i>
         </div>
 
+        {/* ========= show input ======= */}
+        <div className="d-flex gap-2 align-items-center">
+          <label className="mb-0 fw-medium">Show :</label>
+          <input
+            type="number"
+            className="form-control"
+            value={pageSize}
+            min={1}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+            style={{ width: "80px" }}
+          />
+        </div>
+        <span className="m-0">Total : {categoriesList.length}</span>
         <div
           onClick={() => {
             setModalType("add");
@@ -276,6 +242,46 @@ export default function CategoriesList() {
         </table>
       </div>
 
+      {/* =========================== */}
+      {/* {/* Users pagination */}
+      <div className="d-flex justify-content-center align-items-center gap-2 my-4">
+        <button
+          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
+          className="btn btn-outline-success d-flex justify-content-center align-items-center"
+          disabled={pageNumber === 1}
+          onClick={() => setPageNumber(1)}
+        >
+          «
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            disabled={isLoading}
+            style={{ borderRadius: "50%", width: "40px", height: "40px" }}
+            key={page}
+            className={` d-flex justify-content-center align-items-center btn ${
+              page === pageNumber ? "btn-success" : "btn-outline-success"
+            }`}
+            onClick={() => setPageNumber(page)}
+          >
+            {isLoading && page === pageNumber ? (
+              <div className="spinner-border spinner-border-sm text-white"></div>
+            ) : (
+              page
+            )}
+          </button>
+        ))}
+
+        <button
+          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
+          className="btn btn-outline-success d-flex justify-content-center align-items-center"
+          disabled={pageNumber === totalPages}
+          onClick={() => setPageNumber((prev) => prev + 1)}
+        >
+          »
+        </button>
+      </div>
+
       {/* Empty Data Message */}
       {!categoriesList && <NoData />}
 
@@ -283,7 +289,7 @@ export default function CategoriesList() {
       <DeleteModal
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={onDeleteCategory}
+        onConfirm={handleDelete}
         itemName={
           categoriesList.find((cat) => cat.id === selectedCategoryId)?.name
         }
@@ -306,7 +312,7 @@ export default function CategoriesList() {
         <Modal.Body>
           <form
             onSubmit={handleSubmit(
-              modalType === "add" ? onAddCategory : onEditCategory
+              modalType === "add" ? handleAdd : handleEdit
             )}
           >
             <div className="input-group icon-input ">

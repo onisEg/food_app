@@ -6,8 +6,14 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./index.css";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { DataProvider } from "./context/DataContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <DataProvider>
+        <App />
+      </DataProvider>
+    </AuthProvider>
   </StrictMode>
 );

@@ -6,6 +6,7 @@ export default function DeleteModal({
   onConfirm,
   itemName = "this item",
   title = "Delete Item",
+  isSubmitting,
 }) {
   return (
     <Modal show={show} onHide={onClose} size="lg" centered>

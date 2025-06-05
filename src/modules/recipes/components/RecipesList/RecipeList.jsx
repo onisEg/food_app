@@ -8,20 +8,21 @@ import {
   USER_RECIPE_URLS,
 } from "../../../../services/api/urls";
 import { useEffect, useState } from "react";
-import { axiosInstance } from "../../../../services/api";
 
 import Modal from "react-bootstrap/Modal";
-import "./RecipesList.css";
+
 import toast from "react-hot-toast";
 
 import NoData from "../../../shared/components/noData/NoData";
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
+import { useData } from "../../../../context/DataContext";
+import { useAuth } from "../../../../context/AuthContext";
 
-export default function RecipeList({ loginData }) {
-  const [recipesList, setRecipesList] = useState([]);
-  const [categoriesList, setCategoriesList] = useState([]);
+export default function RecipeList() {
+  const { loginData } = useAuth();
+
   const [editedRecipeId, setEditedRecipeId] = useState(null);
-  const [tags, setTags] = useState([]);
+
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [modalShow, setModalShow] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -30,209 +31,59 @@ export default function RecipeList({ loginData }) {
   const [searchName, setSearchName] = useState("");
   const [searchTagId, setSearchTagId] = useState("");
   const [searchCategoryId, setSearchCategoryId] = useState("");
-  const [favorites, setFavorites] = useState([]);
+
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
+
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(2);
+
+  const {
+    categoriesList,
+    getCategories,
+    tags,
+    getTags,
+    favorites,
+    getFavorites,
+    toggleFavorite,
+    getRecipes,
+    recipesList,
+    onDeleteRecipe,
+    onAddRecipe,
+    onEditRecipe,
+    totalNumberOfRecords,
+    totalPages,
+  } = useData();
 
   let {
     register,
-    setValue,
+    // setValue,
     formState: { errors, isSubmitting },
     handleSubmit,
     reset,
-  } = useForm();
-
-  //========== toggle favorite ==============
-  const toggleFavorite = async (recipeId) => {
-    const existing = Array.isArray(favorites)
-      ? favorites.find((fav) => fav.recipe?.id === recipeId)
-      : null;
-
-    try {
-      if (existing) {
-        await axiosInstance.delete(
-          USER_RECIPE_URLS.DELETE_FAVORITE(existing.id)
-        );
-        await getFavorites(); // هذا يكفي
-        toast.success("Removed from favorites");
-      } else {
-        const res = await axiosInstance.post(USER_RECIPE_URLS.ADD_FAVORITE, {
-          recipeId,
-        });
-
-        if (res?.data?.id && res?.data?.recipe?.id) {
-          await getFavorites(); // هذا يكفي
-          toast.success("Added to favorites");
-        } else {
-          toast.error("Invalid response when adding to favorites");
-        }
-      }
-    } catch (err) {
-      toast.error("Favorite update failed");
-      console.error(err);
-    }
-  };
-
-  //=======  get all favorite ==============
-  const getFavorites = async () => {
-    try {
-      const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
-      setFavorites(res.data.data);
-      console.log(`favorites: `, favorites);
-    } catch (error) {
-      const status = error.response?.status;
-      if (status !== 403 || recipesList.length > 0) {
-        toast.error("Failed to load favorites");
-      }
-      setFavorites([]);
-    }
-  };
-  // ============ get all Recipes  ===============
-  const getRecipes = async () => {
-    setIsLoading(true);
-    const params = {
-      pageSize: 1000,
-      pageNumber: 1,
-    };
-
-    if (searchName) params.name = searchName;
-    if (searchTagId) params.tagId = searchTagId;
-    if (searchCategoryId) params.categoryId = searchCategoryId;
-
-    try {
-      const response = await axiosInstance.get(RECIPE_URLS.GET_RECIPES, {
-        params,
-      });
-      setRecipesList(response.data.data);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch recipes.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // ====== Fetch Categories List ========
-  const getCategories = async () => {
-    try {
-      let response = await axiosInstance.get(
-        `${CATEGORY_URLS.GET_CATEGORIES}?pageSize=1000&pageNumber=1`
-      );
-      console.log(`Categories : `, response.data.data);
-
-      setCategoriesList(response.data.data);
-    } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to fetch categories."
-      );
-    }
-  };
-  // =========== Fetch Tags  ===========
-  const getTags = async () => {
-    try {
-      let response = await axiosInstance.get(`${TAG.ALL_TAGS}`);
-      console.log(`tags : `, response.data);
-      setTags(response.data);
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to fetch tags.");
-    }
-  };
-
-  // ===========  on add recipe ===============
-  const onAddRecipe = async (data) => {
-    const formData = new FormData();
-
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", parseInt(data.price)); // تأكد إنه رقم
-    formData.append("tagId", parseInt(data.tagId)); // قيمة واحدة فقط
-    formData.append("categoriesIds", data.categoriesIds);
-
-    // add image
-    if (data.image && data.image[0]) {
-      formData.append("recipeImage", data.image[0]);
-    }
-    //
-    try {
-      const response = await axiosInstance.post(
-        RECIPE_URLS.ADD_RECIPE,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log(response);
-      toast.success(`${response.data.message}`);
-      setModalShow(false);
-      reset();
-      getRecipes();
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to add recipe.");
-    }
-  };
-
-  //=========== Edit Recipe ==============
-  const onEditRecipe = async (data) => {
-    const formData = new FormData();
-
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", parseInt(data.price));
-    formData.append("tagId", parseInt(data.tagId));
-    formData.append("categoriesIds", data.categoriesIds);
-
-    if (data.image && data.image[0]) {
-      formData.append("recipeImage", data.image[0]);
-    }
-
-    try {
-      const response = await axiosInstance.put(
-        `${RECIPE_URLS.UPDATE_RECIPE(editedRecipeId)}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      toast.success(`${response.data.name} Recipe Updated`);
-      setModalShow(false);
-      reset();
-      getRecipes();
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to update recipe.");
-    }
-  };
-
-  // Delete Recipe
-  const onDeleteRecipe = async () => {
-    try {
-      await axiosInstance.delete(
-        `${RECIPE_URLS.DELETE_RECIPE(selectedRecipeId)}`
-      );
-      toast.success("Recipe Deleted Successfully");
-      setShowDeleteModal(false);
-      getRecipes();
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to delete recipe.");
-    }
-  };
-
+  } = useForm({
+    defaultValues: {
+      imagePath: "", // ✅ مهم علشان تكون موجودة في الداتا
+    },
+  });
   useEffect(() => {
-    getRecipes();
+    getRecipes({
+      name: searchName,
+      tagId: searchTagId,
+      categoryId: searchCategoryId,
+      pageNumber,
+      pageSize,
+    });
     getTags();
     getCategories();
-  }, [searchName, searchTagId, searchCategoryId]);
+  }, [searchName, searchTagId, searchCategoryId, pageNumber, pageSize]);
 
   useEffect(() => {
     if (isUser && recipesList.length > 0) {
       getFavorites();
+      console.log(`recipeList : `, recipesList);
     }
   }, [isUser, recipesList]);
 
@@ -263,7 +114,7 @@ export default function RecipeList({ loginData }) {
                     tagId: "",
                     categoriesIds: "",
                     description: "",
-                    image: null,
+                    imagePath: "",
                   });
                   if (!tags.length || !categoriesList.length) {
                     toast.error("Please wait for data to load...");
@@ -327,8 +178,27 @@ export default function RecipeList({ loginData }) {
               setSearchCategoryId("");
             }}
           >
-            Clear Filter
+            Clear
           </button>
+        </div>
+        <div className="d-flex gap-2 align-items-center">
+          <label className="mb-0 fw-medium">Show :</label>
+          <input
+            type="number"
+            className="form-control"
+            value={pageSize}
+            min={1}
+            onChange={(e) => setPageSize(e.target.value)}
+            style={{ width: "80px" }}
+            onBlur={() => {
+              if (pageSize === "" || parseInt(pageSize) < 1) {
+                setPageSize("1");
+              }
+            }}
+          />
+        </div>
+        <div className="col-md-1 d-flex align-items-center">
+          <span className="m-0">Total : {totalNumberOfRecords}</span>
         </div>
       </div>
 
@@ -350,7 +220,7 @@ export default function RecipeList({ loginData }) {
         <tbody>
           {isLoading ? (
             <>
-              {[...Array(10)].map((_, idx) => (
+              {[...Array(5)].map((_, idx) => (
                 <tr className="placeholder-glow" key={idx}>
                   <td>
                     <span className="placeholder col-6"></span>
@@ -397,7 +267,7 @@ export default function RecipeList({ loginData }) {
                 <tr key={recipe.id}>
                   {/* recipeName  */}
                   <td>
-                    <div className=" d-flex justify-content-between align-content-center">
+                    <div className=" d-flex justify-content-between align-content-center align-items-center">
                       <div>{recipe.name} </div>
                       <span className="badge bg-primary">
                         {recipe.tag.name}
@@ -411,7 +281,7 @@ export default function RecipeList({ loginData }) {
                       src={
                         recipe.imagePath
                           ? `${imgBaseURL}/${recipe.imagePath}`
-                          : ""
+                          : "/public/food.jpg"
                       }
                       alt={recipe.name}
                     />
@@ -448,6 +318,7 @@ export default function RecipeList({ loginData }) {
                       ></i>
                     </td>
                   )}
+
                   <td>
                     <div className="dropdown">
                       <button
@@ -471,6 +342,7 @@ export default function RecipeList({ loginData }) {
                               <button
                                 onClick={() => {
                                   setEditedRecipeId(recipe.id);
+                                  setSelectedRecipe(recipe);
                                   setModalType("edit");
                                   setModalShow(true);
                                   reset({
@@ -479,8 +351,9 @@ export default function RecipeList({ loginData }) {
                                     tagId: recipe.tag.id,
                                     categoriesIds: recipe.category?.[0]?.id,
                                     description: recipe.description,
-                                    image: null,
+                                    imagePath: recipe.imagePath,
                                   });
+                                  console.log(recipe.imagePath);
                                   if (!tags.length || !categoriesList.length) {
                                     toast.error(
                                       "Please wait for data to load..."
@@ -520,11 +393,51 @@ export default function RecipeList({ loginData }) {
       {/* Empty Data Message */}
       {recipesList.length === 0 && <NoData />}
 
+      <div className="d-flex justify-content-center align-items-center gap-2 my-4">
+        <button
+          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
+          className="btn btn-outline-success d-flex justify-content-center align-items-center"
+          disabled={pageNumber === 1}
+          onClick={() => setPageNumber(1)}
+        >
+          «
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            disabled={isLoading}
+            style={{ borderRadius: "50%", width: "40px", height: "40px" }}
+            key={page}
+            className={` d-flex justify-content-center align-items-center btn ${
+              page === pageNumber ? "btn-success" : "btn-outline-success"
+            }`}
+            onClick={() => setPageNumber(page)}
+          >
+            {isLoading && page === pageNumber ? (
+              <div className="spinner-border spinner-border-sm text-white"></div>
+            ) : (
+              page
+            )}
+          </button>
+        ))}
+
+        <button
+          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
+          className="btn btn-outline-success d-flex justify-content-center align-items-center"
+          disabled={pageNumber === totalPages}
+          onClick={() => setPageNumber((prev) => prev + 1)}
+        >
+          »
+        </button>
+      </div>
+
       {/* Modal delete Logic */}
       <DeleteModal
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={onDeleteRecipe}
+        onConfirm={() =>
+          onDeleteRecipe(selectedRecipeId, () => setShowDeleteModal(false))
+        }
         itemName={
           recipesList.find((recipe) => recipe.id === selectedRecipeId)?.name
         }
@@ -553,9 +466,17 @@ export default function RecipeList({ loginData }) {
             </Modal.Header>
             <Modal.Body>
               <form
-                onSubmit={handleSubmit(
-                  modalType === "edit" ? onEditRecipe : onAddRecipe
-                )}
+                onSubmit={handleSubmit(async (data) => {
+                  modalType === "edit"
+                    ? await onEditRecipe(editedRecipeId, data, () => {
+                        setModalShow(false);
+                        reset();
+                      })
+                    : await onAddRecipe(data, () => {
+                        setModalShow(false);
+                        reset();
+                      });
+                })}
               >
                 {/* Recipe Name */}
                 <div className="input-group icon-input  ">
@@ -577,6 +498,7 @@ export default function RecipeList({ loginData }) {
                   <input
                     type="number"
                     step="0.01"
+                    min="0"
                     className="form-control"
                     placeholder="Price"
                     {...register("price", { required: "Price is required" })}
@@ -658,8 +580,41 @@ export default function RecipeList({ loginData }) {
                       type="file"
                       className="form-control d-none"
                       id="uploadImage"
-                      {...register("image", { required: "Image is required" })}
+                      {...register("image", {
+                        validate: (fileList, formValues) => {
+                          const hasNewImage = fileList && fileList.length > 0;
+                          const hasOldImage =
+                            formValues.imagePath && formValues.imagePath !== "";
+
+                          if (modalType === "add" && !hasNewImage) {
+                            return "Image is required";
+                          }
+
+                          if (
+                            modalType === "edit" &&
+                            !hasNewImage &&
+                            !hasOldImage
+                          ) {
+                            return "You must provide a new image or keep the existing one.";
+                          }
+
+                          return true;
+                        },
+                      })}
                     />
+                    <input type="hidden" {...register("imagePath")} />
+                    {modalType === "edit" && selectedRecipe?.imagePath && (
+                      <div className="mt-3 text-center">
+                        <p className="text-muted mb-2">Current Image:</p>
+                        <img
+                          src={`${imgBaseURL}/${selectedRecipe.imagePath}`}
+                          alt="Current"
+                          className="img-thumbnail"
+                          style={{ maxWidth: "200px", height: "auto" }}
+                        />
+                      </div>
+                    )}
+
                     <label
                       style={{ cursor: "pointer" }}
                       htmlFor="uploadImage"
@@ -683,15 +638,21 @@ export default function RecipeList({ loginData }) {
 
                 {/* Submit Button */}
                 <button
+                  style={{
+                    ...(selectedRecipe?.imagePath
+                      ? { marginTop: "9rem" }
+                      : { marginTop: "2rem" }),
+                    ...(isSubmitting && { opacity: 0.7 }),
+                  }}
                   disabled={isSubmitting}
-                  className={`btn btn-lg w-100 mt-5 ${
+                  className={`btn btn-lg w-100  ${
                     modalType === "edit" ? "btn-warning" : "btn-success"
                   }`}
                 >
                   {isSubmitting ? (
                     <i className="fa-solid fa-spinner fa-spin-pulse"></i>
                   ) : modalType === "edit" ? (
-                    "Update"
+                    "Update Recipe"
                   ) : (
                     "Add Recipe"
                   )}

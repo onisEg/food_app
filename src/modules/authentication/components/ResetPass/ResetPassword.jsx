@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -10,9 +10,12 @@ import {
 import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
 
-export default function ResetPass() {
+export default function ResetPassword() {
   let navigate = useNavigate();
   const location = useLocation();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   let {
     register,
@@ -20,7 +23,7 @@ export default function ResetPass() {
     handleSubmit,
     watch,
     reset,
-  } = useForm({ defaultValues: { email: location.state } });
+  } = useForm({ defaultValues: { email: location.state }, mode: "onChange" });
 
   const onSubmit = async (data) => {
     try {
@@ -107,13 +110,21 @@ export default function ResetPass() {
             <i className="bi bi-lock"></i>
           </span>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             className="form-control"
             placeholder="New password"
-            aria-label="password"
+            aria-label="New password"
             aria-describedby="basic-addon1"
             {...register("password", PASSWORD_VALIDATION)}
           />
+          <button
+            type="button"
+            className="btn btn-outline-secondary border"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+          </button>
         </div>
 
         {/* =========== Confirm password ======== */}
@@ -122,10 +133,10 @@ export default function ResetPass() {
             <i className="bi bi-lock"></i>
           </span>
           <input
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             className="form-control"
             placeholder="Confirm New Password"
-            aria-label="password"
+            aria-label="Confirm password"
             aria-describedby="basic-addon1"
             {...register("confirmPassword", {
               required: "Field is required",
@@ -133,6 +144,22 @@ export default function ResetPass() {
                 value === watch("password") || "Passwords do not match",
             })}
           />
+          <button
+            type="button"
+            className="btn btn-outline-secondary border"
+            onClick={() => setShowConfirmPassword((prev) => !prev)}
+            aria-label={
+              showConfirmPassword
+                ? "Hide confirm password"
+                : "Show confirm password"
+            }
+          >
+            <i
+              className={`bi ${
+                showConfirmPassword ? "bi-eye-slash" : "bi-eye"
+              }`}
+            ></i>
+          </button>
         </div>
         {errors.confirmPassword && (
           <small className="text-danger">
@@ -184,7 +211,10 @@ export default function ResetPass() {
             </ul>
           </div>
         )}
-        <button disabled={isSubmitting} className="btn btn-lg w-100 bg-success text-white mt-4 ">
+        <button
+          disabled={isSubmitting}
+          className="btn btn-lg w-100 bg-success text-white mt-4 "
+        >
           {isSubmitting ? "Submit..." : "Submit"}
         </button>
       </form>

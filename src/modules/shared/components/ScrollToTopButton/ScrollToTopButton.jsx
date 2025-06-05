@@ -27,7 +27,7 @@ export default function ScrollToTopButton() {
       className="btn btn-success scroll-to-top"
       style={{
         position: "fixed",
-        bottom: "30px",
+        bottom: "35px",
         right: "30px",
         zIndex: 9999,
         borderRadius: "50%",

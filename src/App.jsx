@@ -2,16 +2,11 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFouned from "./modules/shared/components/NotFound/NotFouned";
 import Login from "./modules/authentication/components/Login/Login";
 import Registeration from "./modules/authentication/components/Registeration/Registeration";
-import ResetPass from "./modules/authentication/components/ResetPass/ResetPass";
-
-import ForgetPass from "./modules/authentication/components/ForgetPass/ForgetPass";
 
 import RecipeList from "./modules/recipes/components/RecipesList/RecipeList";
 import RecipeData from "./modules/recipes/components/RecipeData/RecipeData";
 import CategoriesList from "./modules/categories/components/CategoriesList/CategoriesList";
-import CategoryData from "./modules/categories/components/CategoryData/CategoryData";
-import { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+
 import ProtectedRoute from "./modules/shared/components/ProtectedRoute/ProtectedRoute";
 import UsersList from "./modules/users/components/UsersList/UsersList";
 import Dashboard from "./modules/HomeModule/components/Dashboard/Dashboard";
@@ -23,52 +18,39 @@ import MasterLayout from "./modules/shared/layouts/MasterLayout/MasterLayout";
 
 import VerifyEmail from "./modules/authentication/components/VerifyEmail/VerifyEmail";
 import Favorites from "./modules/recipes/components/Favorites/Favorites";
+import ForgetPassword from "./modules/authentication/components/ForgetPass/ForgetPassword";
+import ResetPassword from "./modules/authentication/components/ResetPass/ResetPassword";
+
 function App() {
-  const [loginData, setLoginData] = useState(null);
-
-  let saveLoginData = async () => {
-    const decodedToken = jwtDecode(localStorage.getItem("token"));
-    setLoginData(decodedToken);
-    console.log(decodedToken);
-    
-  };
-
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      saveLoginData();
-    }
-    console.log("logindata : ", loginData);
-  }, []);
-
   const routes = createBrowserRouter([
     {
       path: "/",
       element: <AuthLayout />,
       errorElement: <NotFouned />,
       children: [
-        { index: true, element: <Login saveLoginData={saveLoginData} /> },
-        { path: "login", element: <Login saveLoginData={saveLoginData} /> },
+        { index: true, element: <Login /> },
+        { path: "login", element: <Login /> },
         { path: "register", element: <Registeration /> },
-        { path: "resetpass", element: <ResetPass /> },
-        { path: "forgetpass", element: <ForgetPass /> },
+        { path: "reset-password", element: <ResetPassword /> },
+        { path: "forget-password", element: <ForgetPassword /> },
         { path: "verify", element: <VerifyEmail /> },
       ],
     },
     {
       path: "",
       element: (
-        <ProtectedRoute loginData={loginData}>
-          <MasterLayout setLoginData={setLoginData} loginData={loginData} />
+        <ProtectedRoute>
+          <MasterLayout />
         </ProtectedRoute>
       ),
       errorElement: <NotFouned />,
       children: [
-        { path: "dashboard", element: <Dashboard loginData={loginData} /> },
-        { path: "recipes", element: <RecipeList loginData={loginData} /> },
+        { path: "dashboard", element: <Dashboard /> },
+        { path: "recipes", element: <RecipeList /> },
         { path: "users", element: <UsersList /> },
         { path: "recipe-data", element: <RecipeData /> },
         { path: "categories", element: <CategoriesList /> },
-        { path: "category-data", element: <CategoryData /> },
+
         { path: "ChangePassword", element: <ChangePassword /> },
         { path: "profile", element: <Profile /> },
         { path: "favorites", element: <Favorites /> },
@@ -78,7 +60,7 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={routes}></RouterProvider>
+      <RouterProvider router={routes} />
       <Toaster />
     </>
   );

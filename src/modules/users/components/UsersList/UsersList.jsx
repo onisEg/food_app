@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import Header from "../../../shared/components/Header/Header";
 import { imgBaseURL, USERS_URL } from "../../../../services/api/urls";
-import { axiosInstance } from "../../../../services/api";
+
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 import toast from "react-hot-toast";
 import NoData from "../../../shared/components/noData/NoData";
+import { useData } from "../../../../context/DataContext";
 
 export default function UsersList() {
-  const [usersList, setUsersList] = useState([]);
+  const {
+    usersList,
+    getUsers,
+    onDeleteUser,
+    totalPages,
+    totalNumberOfRecords,
+  } = useData();
+
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -17,66 +25,44 @@ export default function UsersList() {
   const [searchGroup, setSearchGroup] = useState(""); // 1 or 2
 
   const [pageNumber, setPageNumber] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalNumberOfRecords, setTotalNumberOfRecords] = useState(null);
+  const [pageSize, setPageSize] = useState("10"); // القيمة الافتراضية
+
   const pagesArray = Array.from({ length: totalPages }, (_, i) => i + 1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // ====== on delete User ======
-  const onDeleteUser = async () => {
-    setIsLoading(true);
-    try {
-      await axiosInstance.delete(`${USERS_URL.DELETE(selectedUserId)}`);
-      toast.success("User Deleted Successfully");
-      setShowDeleteModal(false);
-      getUsers();
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Failed to delete user.");
-    }
-  };
+  // // ====== on delete User ======
 
-  // Fetch Users
-  const getUsers = async () => {
-    setIsLoading(true);
-    const params = {
-      pageSize: 10,
-      pageNumber,
-      userName: searchUserName,
-      country: searchCountry,
-      groups: searchGroup ? [parseInt(searchGroup)] : undefined,
-    };
-
-    try {
-      const response = await axiosInstance.get(USERS_URL.GET_ALL_USERS, {
-        params,
+  const handleDelete = async () => {
+    await onDeleteUser(selectedUserId, () => {
+      getUsers({
+        pageSize,
+        pageNumber,
+        searchUserName,
+        searchEmail,
+        searchCountry,
+        searchGroup,
       });
-      let data = response.data.data;
-      setTotalPages(response.data.totalNumberOfPages);
-      if (searchEmail) {
-        const search = searchEmail.toLowerCase();
-        data = data.filter((user) =>
-          user.email?.toLowerCase().includes(search)
-        );
-      }
-      setUsersList(data);
-      console.log(response.data);
-      setTotalNumberOfRecords(response.data.totalNumberOfRecords);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch users");
-    } finally {
-      setIsLoading(false);
-    }
+      setShowDeleteModal(false);
+    });
   };
 
   useEffect(() => {
-    getUsers();
-
-    // const delayDebounce = setTimeout(() => {
-    //   getUsers();
-    // }, 500);
-    // return () => clearTimeout(delayDebounce);
-  }, [searchUserName, searchEmail, searchCountry, searchGroup, pageNumber]);
+    getUsers({
+      pageSize: parseInt(pageSize) || 1,
+      searchUserName,
+      searchEmail,
+      searchCountry,
+      searchGroup,
+      pageNumber,
+    });
+  }, [
+    searchUserName,
+    searchEmail,
+    searchCountry,
+    searchGroup,
+    pageNumber,
+    pageSize,
+  ]);
 
   return (
     <>
@@ -109,16 +95,16 @@ export default function UsersList() {
             onChange={(e) => setSearchEmail(e.target.value)}
           />
         </div>
-        <div className="col-md-3">
+        <div className="col-md-2">
           <input
             type="text"
             className="form-control"
-            placeholder="Search by country"
+            placeholder="country"
             value={searchCountry}
             onChange={(e) => setSearchCountry(e.target.value)}
           />
         </div>
-        <div className="col-md-2">
+        <div className="col-md-1">
           <select
             className="form-select"
             value={searchGroup}
@@ -129,9 +115,9 @@ export default function UsersList() {
             <option value="2">User</option>
           </select>
         </div>
-        <div className="col-md-1">
+        <div className="col-md-1 ">
           <button
-            className="btn btn-outline-danger w-100"
+            className="btn btn-outline-danger w-75 "
             onClick={() => {
               setSearchUserName("");
               setSearchEmail("");
@@ -142,6 +128,28 @@ export default function UsersList() {
             Clear
           </button>
         </div>
+        <div className="col-md-2">
+          <div className="d-flex align-items-center gap-2">
+            <label htmlFor="pageSize" className="mb-0 fw-medium">
+              Show :
+            </label>
+            <input
+              id="pageSize"
+              type="number"
+              className="form-control"
+              style={{ maxWidth: "80px" }}
+              min="1"
+              value={pageSize}
+              onChange={(e) => setPageSize(e.target.value)}
+              onBlur={() => {
+                if (pageSize === "" || parseInt(pageSize) < 1) {
+                  setPageSize("1");
+                }
+              }}
+            />
+          </div>
+        </div>
+
         <div className="col-md-1">Total : {totalNumberOfRecords}</div>
       </div>
 
@@ -260,8 +268,9 @@ export default function UsersList() {
                     })}
                   </td>
                   {/* Actions */}
+
                   <td>
-                    <div className="dropdown">
+                    <div className="dropdown ">
                       <button
                         className="btn border-0"
                         type="button"
@@ -274,12 +283,17 @@ export default function UsersList() {
                         <li>
                           <button
                             onClick={() => {
-                              setSelectedUserId(user.id);
-                              setShowDeleteModal(true);
+                              if (user.group.name == "SystemUser") {
+                                setSelectedUserId(user.id);
+                                setShowDeleteModal(true);
+                              } else {
+                                toast.error("YOU CAN'T DELETE ADMIN!");
+                                return;
+                              }
                             }}
                             className="dropdown-item d-flex align-items-center gap-2 text-danger"
                           >
-                            <i className="bi bi-trash"></i> Delete
+                            <i className="bi bi-trash "></i> Delete
                           </button>
                         </li>
                       </ul>
@@ -294,7 +308,7 @@ export default function UsersList() {
 
       {/* Users pagination */}
       <div
-        className="d-flex justify-content-center my-4 gap-3 "
+        className="d-flex my-4 mb-0 gap-3 bg-success-subtle px-5 mx-4 rounded-4 justify-content-center "
         style={{
           position: "sticky",
           bottom: 0,
@@ -313,10 +327,7 @@ export default function UsersList() {
 
         {pagesArray
           .filter(
-            (page) =>
-              // page === 1 || // أول صفحة
-              // page === totalPages || // آخر صفحة
-              Math.abs(page - pageNumber) <= 2 //
+            (page) => Math.abs(page - pageNumber) <= 2 //
           )
           .map((page) => (
             <button
@@ -353,7 +364,7 @@ export default function UsersList() {
       <DeleteModal
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={onDeleteUser}
+        onConfirm={handleDelete}
         itemName={usersList.find((u) => u.id === selectedUserId)?.userName}
         title="Delete User"
       />

@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../../../context/AuthContext";
 
-export default function SideBar({ setLoginData, loginData }) {
+export default function SideBar() {
   const location = useLocation();
+  const { loginData, logout } = useAuth();
   const [isCollapse, setIsCollapse] = useState(false);
+
+
   let toggleCollpase = () => {
-    setIsCollapse(!isCollapse);
+    setIsCollapse((prev) => {
+      const newState = !prev;
+      localStorage.setItem("sidebarCollapsed", newState);
+      return newState;
+    });
   };
+  // استرجاع القيمة من localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("sidebarCollapsed");
+    if (stored !== null) {
+      setIsCollapse(stored === "true");
+    }
+  }, []);
 
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
@@ -98,10 +113,7 @@ export default function SideBar({ setLoginData, loginData }) {
           <MenuItem
             icon={<i className="fa-solid fa-right-from-bracket"></i>}
             component={<Link to="/login" />}
-            onClick={() => {
-              localStorage.removeItem("token");
-              setLoginData(null);
-            }}
+            onClick={() => logout()}
           >
             Logout
           </MenuItem>
