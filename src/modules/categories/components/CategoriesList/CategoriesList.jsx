@@ -1,8 +1,7 @@
 // ===== IMPORTS =====
 import { useEffect, useState } from "react";
 import Header from "../../../shared/components/Header/Header";
-import { CATEGORY_URLS } from "../../../../services/api/urls";
-import { axiosInstance } from "../../../../services/api";
+
 import Modal from "react-bootstrap/Modal";
 import { useForm } from "react-hook-form";
 
@@ -23,7 +22,6 @@ export default function CategoriesList() {
     deleteCategory,
     totalPages,
   } = useData();
-
 
   const [editedCategoryId, setEditedCategoryId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
@@ -112,7 +110,9 @@ export default function CategoriesList() {
             style={{ width: "80px" }}
           />
         </div>
-        <span className="m-0">Total : {categoriesList.length}</span>
+        <span className="d-flex align-items-center">
+          Total : {categoriesList.length}
+        </span>
         <div
           onClick={() => {
             setModalType("add");
