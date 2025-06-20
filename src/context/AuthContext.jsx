@@ -6,7 +6,9 @@ const AuthContext = createContext();
 // ========== Provider ========================
 export const AuthProvider = ({ children }) => {
   const [loginData, setLoginData] = useState(null);
-  // ----------------------------------
+
+  
+  // ------------- saveLoginData ---------------------
   let saveLoginData = async () => {
     const decodedToken = jwtDecode(localStorage.getItem("token"));
     setLoginData(decodedToken);

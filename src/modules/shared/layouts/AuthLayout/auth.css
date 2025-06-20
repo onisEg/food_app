@@ -1,7 +1,6 @@
 .auth-container {
   background-image: url(/authpic.jpg);
   background-position: center center;
-
   background-size: cover;
 }
 .bgOverlay {

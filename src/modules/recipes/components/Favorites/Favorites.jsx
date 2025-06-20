@@ -68,13 +68,14 @@ export default function Favorites() {
                       src={
                         fav.recipe?.imagePath
                           ? `${imgBaseURL}/${fav.recipe.imagePath}`
-                          : ""
+                          : "/food.jpg"
                       }
                       alt={fav.recipe?.name}
                       className="rounded img-thumbnail"
                       width="70"
                     />
                   </td>
+
                   <td>{fav.recipe?.price} EGP</td>
                   <td>{fav.recipe?.description?.slice(0, 50)}...</td>
                   <td>{fav.recipe?.tag?.name}</td>

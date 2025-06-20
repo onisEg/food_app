@@ -13,6 +13,8 @@ export default function Profile() {
   const { profile, isProfileLoading, getProfile, updateProfileImage } =
     useData();
 
+  console.log(profile);
+
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [passwordForImage, setPasswordForImage] = useState("");
@@ -23,21 +25,6 @@ export default function Profile() {
     formState: { errors, isSubmitting },
     setError,
   } = useForm({});
-
-  console.log(profile);
-
-  // // =========== get profile =============
-  // const getProfile = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
-  //     setProfile(response.data);
-  //   } catch (error) {
-  //     toast.error("Failed to fetch profile.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const onSubmit = async (data) => {
     try {

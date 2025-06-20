@@ -2,8 +2,8 @@ import { useLocation } from "react-router-dom";
 import "./Header.css";
 
 export default function Header({ title, username, description, headerImg }) {
-  const location = useLocation()
-  
+  const location = useLocation();
+
   return (
     <div className="header-container d-flex justify-content-between align-items-center p-md-4">
       <div className="caption text-white ">

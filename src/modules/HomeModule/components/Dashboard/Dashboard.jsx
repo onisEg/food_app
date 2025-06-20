@@ -119,13 +119,17 @@ export default function Dashboard() {
                   },
                 ]
               : []),
-
+                
             { icon: "bi-tags", value: tags.length, label: "Tags" },
-            {
-              icon: "bi-layers",
-              value: categoriesList.length,
-              label: "Categories",
-            },
+            ...(!isUser
+              ? [
+                  {
+                    icon: "bi-layers",
+                    value: categoriesList.length,
+                    label: "Categories",
+                  },
+                ]
+              : []),
           ]}
         />
       </div>
