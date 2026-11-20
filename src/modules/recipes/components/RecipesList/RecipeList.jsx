@@ -1,13 +1,11 @@
-import { useForm } from "react-hook-form";
+import RecipeEditor from "./RecipeEditor";
 import Header from "../../../shared/components/Header/Header";
 import {
   imgBaseURL,
 } from "../../../../services/api/urls";
 import { useEffect, useState } from "react";
 
-import Modal from "react-bootstrap/Modal";
 
-import toast from "react-hot-toast";
 
 import NoData from "../../../shared/components/noData/NoData";
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
@@ -17,12 +15,10 @@ import { useAuth } from "../../../../context/AuthContext";
 export default function RecipeList() {
   const { loginData } = useAuth();
 
-  const [editedRecipeId, setEditedRecipeId] = useState(null);
 
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [modalShow, setModalShow] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [modalType, setModalType] = useState(""); // "add" or "edit" or "delete"
 
   const [searchName, setSearchName] = useState("");
   const [searchTagId, setSearchTagId] = useState("");
@@ -46,24 +42,11 @@ export default function RecipeList() {
     getRecipes,
     recipesList,
     onDeleteRecipe,
-    onAddRecipe,
-    onEditRecipe,
     totalNumberOfRecords,
     isLoading,
     totalPages,
   } = useData();
 
-  let {
-    register,
-    // setValue,
-    formState: { errors, isSubmitting },
-    handleSubmit,
-    reset,
-  } = useForm({
-    defaultValues: {
-      imagePath: "", // ✅ مهم علشان تكون موجودة في الداتا
-    },
-  });
   useEffect(() => {
     getRecipes({
       name: searchName,
@@ -102,20 +85,8 @@ export default function RecipeList() {
             <div>
               <div
                 onClick={() => {
-                  setModalType("add");
+                  setSelectedRecipe(null);
                   setModalShow(true);
-                  reset({
-                    name: "",
-                    price: "",
-                    tagId: "",
-                    categoriesIds: "",
-                    description: "",
-                    imagePath: "",
-                  });
-                  if (!tags.length || !categoriesList.length) {
-                    toast.error("Please wait for data to load...");
-                    return;
-                  }
                 }}
                 style={{ background: "#009247" }}
                 className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
@@ -334,30 +305,13 @@ export default function RecipeList() {
                             <i className="bi bi-eye"></i> View
                           </button>
                         </li>
-                        {!isUser && (
+                        {isAdmin && (
                           <>
                             <li>
                               <button
                                 onClick={() => {
-                                  setEditedRecipeId(recipe.id);
                                   setSelectedRecipe(recipe);
-                                  setModalType("edit");
                                   setModalShow(true);
-                                  reset({
-                                    name: recipe.name,
-                                    price: recipe.price,
-                                    tagId: recipe.tag.id,
-                                    categoriesIds: recipe.category?.[0]?.id,
-                                    description: recipe.description,
-                                    imagePath: recipe.imagePath,
-                                  });
-                                  console.log(recipe.imagePath);
-                                  if (!tags.length || !categoriesList.length) {
-                                    toast.error(
-                                      "Please wait for data to load..."
-                                    );
-                                    return;
-                                  }
                                 }}
                                 className="dropdown-item d-flex align-items-center gap-2 text-success"
                               >
@@ -368,7 +322,6 @@ export default function RecipeList() {
                               <button
                                 onClick={() => {
                                   setSelectedRecipeId(recipe.id);
-                                  setModalType("delete");
                                   setShowDeleteModal(true);
                                 }}
                                 className="dropdown-item d-flex align-items-center gap-2 text-danger"
@@ -442,224 +395,8 @@ export default function RecipeList() {
         title="Delete Recipe"
       />
 
-      {/* Modal for Add/Edit */}
-      <Modal
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        {(modalType === "add" || modalType === "edit") && (
-          <>
-            <Modal.Header closeButton>
-              <div>
-                <Modal.Title
-                  className="fw-light fs-2"
-                  id="contained-modal-title-vcenter"
-                >
-                  {modalType === "edit" ? "Update Recipe" : "Add Recipe"}
-                </Modal.Title>
-              </div>
-            </Modal.Header>
-            <Modal.Body>
-              <form
-                onSubmit={handleSubmit(async (data) => {
-                  modalType === "edit"
-                    ? await onEditRecipe(editedRecipeId, data, () => {
-                        setModalShow(false);
-                        reset();
-                      })
-                    : await onAddRecipe(data, () => {
-                        setModalShow(false);
-                        reset();
-                      });
-                })}
-              >
-                {/* Recipe Name */}
-                <div className="input-group icon-input  ">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Recipe Name"
-                    {...register("name", {
-                      required: "Recipe Name is required",
-                    })}
-                  />
-                </div>
-                {errors.name && (
-                  <small className="text-danger">{errors.name.message}</small>
-                )}
-
-                {/* Price */}
-                <div className="input-group icon-input mt-4">
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    className="form-control"
-                    placeholder="Price"
-                    {...register("price", { required: "Price is required" })}
-                  />
-                  <span className="input-group-text">EGP</span>
-                </div>
-                {errors.price && (
-                  <small className="text-danger">{errors.price.message}</small>
-                )}
-
-                {/* chooce Tag ID */}
-                <div className="mt-4">
-                  <select
-                    className="form-select form-control-lg"
-                    {...register("tagId", { required: "Tag ID is required" })}
-                  >
-                    <option value="">Add Tag</option>
-                    {tags.map((tag) => (
-                      <option key={tag.id} value={tag.id}>
-                        {tag.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.tagId && (
-                    <small className="text-danger">
-                      {errors.tagId.message}
-                    </small>
-                  )}
-                </div>
-
-                {/* choose Categories IDs */}
-                <div className="mt-4">
-                  <select
-                    className="form-select form-control-lg"
-                    {...register("categoriesIds", {
-                      required: "Category is required",
-                    })}
-                  >
-                    <option value="">Add Category</option>
-                    {categoriesList.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.categoriesIds && (
-                    <small className="text-danger">
-                      {errors.categoriesIds.message}
-                    </small>
-                  )}
-                </div>
-
-                {/* write Description */}
-                <div className="input-group icon-input mt-3 mb-4 ">
-                  <textarea
-                    className="form-control"
-                    placeholder="Description"
-                    {...register("description", {
-                      required: "Description is required",
-                    })}
-                  />
-                </div>
-                {errors.description && (
-                  <small className="text-danger">
-                    {errors.description.message}
-                  </small>
-                )}
-
-                {/* upload Recipe Image */}
-                <div className="input-group icon-input mb-5">
-                  <div
-                    className="drag-drop-zone  text-center w-100 "
-                    style={{
-                      backgroundColor: "#f6fff7",
-                      border: "1px dashed green",
-                    }}
-                  >
-                    <input
-                      type="file"
-                      className="form-control d-none"
-                      id="uploadImage"
-                      {...register("image", {
-                        validate: (fileList, formValues) => {
-                          const hasNewImage = fileList && fileList.length > 0;
-                          const hasOldImage =
-                            formValues.imagePath && formValues.imagePath !== "";
-
-                          if (modalType === "add" && !hasNewImage) {
-                            return "Image is required";
-                          }
-
-                          if (
-                            modalType === "edit" &&
-                            !hasNewImage &&
-                            !hasOldImage
-                          ) {
-                            return "You must provide a new image or keep the existing one.";
-                          }
-
-                          return true;
-                        },
-                      })}
-                    />
-                    <input type="hidden" {...register("imagePath")} />
-                    {modalType === "edit" && selectedRecipe?.imagePath && (
-                      <div className="mt-3 text-center">
-                        <p className="text-muted mb-2">Current Image:</p>
-                        <img
-                          src={`${imgBaseURL}/${selectedRecipe.imagePath}`}
-                          alt="Current"
-                          className="img-thumbnail"
-                          style={{ maxWidth: "200px", height: "auto" }}
-                        />
-                      </div>
-                    )}
-
-                    <label
-                      style={{ cursor: "pointer" }}
-                      htmlFor="uploadImage"
-                      className="text-success"
-                    >
-                      <div>
-                        <i className="bi bi-upload fa-2x"></i>
-                      </div>
-                      Drag & Drop or{" "}
-                      <span className="text-primary">
-                        Choose an Item Image to Upload
-                      </span>
-                    </label>
-                  </div>
-                  {errors.image && (
-                    <small className="text-danger">
-                      {errors.image.message}
-                    </small>
-                  )}
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  style={{
-                    ...(selectedRecipe?.imagePath
-                      ? { marginTop: "9rem" }
-                      : { marginTop: "2rem" }),
-                    ...(isSubmitting && { opacity: 0.7 }),
-                  }}
-                  disabled={isSubmitting}
-                  className={`btn btn-lg w-100  ${
-                    modalType === "edit" ? "btn-warning" : "btn-success"
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <i className="fa-solid fa-spinner fa-spin-pulse"></i>
-                  ) : modalType === "edit" ? (
-                    "Update Recipe"
-                  ) : (
-                    "Add Recipe"
-                  )}
-                </button>
-              </form>
-            </Modal.Body>
-          </>
-        )}
-      </Modal>
+      {modalShow && isAdmin && <RecipeEditor selectedRecipe={selectedRecipe} tags={tags} categoriesList={categoriesList}
+        onClose={() => setModalShow(false)} onSaved={() => setModalShow(false)} />}
     </>
   );
 }

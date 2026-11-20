@@ -25,6 +25,7 @@ import ResetPassword from "./modules/authentication/components/ResetPass/ResetPa
 function App() {
   const routes = createBrowserRouter([
     { path: "/", element: localStorage.getItem("token") ? <Navigate to="/dashboard" replace /> : <GuestRecipes /> },
+    { path: "/dashboard", element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
     { path: "/guest", element: <GuestRecipes /> },
     {
       path: "/",
@@ -47,7 +48,6 @@ function App() {
       ),
       errorElement: <NotFouned />,
       children: [
-        { path: "dashboard", element: <Dashboard /> },
         { path: "recipes", element: <RecipeList /> },
         { path: "users", element: <UsersList /> },
         { path: "recipe-data", element: <RecipeData /> },
