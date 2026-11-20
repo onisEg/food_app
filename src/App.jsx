@@ -1,5 +1,5 @@
 import GuestRecipes from "./modules/recipes/components/GuestRecipes";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import NotFouned from "./modules/shared/components/NotFound/NotFouned";
 import Login from "./modules/authentication/components/Login/Login";
 import Registeration from "./modules/authentication/components/Registeration/Registeration";
@@ -24,13 +24,13 @@ import ResetPassword from "./modules/authentication/components/ResetPass/ResetPa
 
 function App() {
   const routes = createBrowserRouter([
+    { path: "/", index: true, element: localStorage.getItem("token") ? <Navigate replace to="/dashboard" /> : <GuestRecipes /> },
     { path: "/guest", element: <GuestRecipes /> },
     {
       path: "/",
       element: <AuthLayout />,
       errorElement: <NotFouned />,
       children: [
-        { index: true, element: <Login /> },
         { path: "login", element: <Login /> },
         { path: "register", element: <Registeration /> },
         { path: "reset-password", element: <ResetPassword /> },

@@ -1,3 +1,4 @@
+import "./kitchen.css";
 import { Link } from "react-router-dom";
 
 const recipes = [
@@ -23,27 +24,32 @@ const recipes = [
 
 export default function GuestRecipes() {
   return (
-    <main className="container py-4 py-md-5">
-      <nav aria-label="Account" className="d-flex justify-content-end align-items-center gap-3 mb-4">
-        <Link to="/login" className="link-success">Log in</Link>
-        <Link to="/register" className="btn btn-outline-success">Register</Link>
-      </nav>
-      <h1>Guest recipes</h1>
-      <p className="text-secondary mb-4">Explore three sample recipes. Sign in to browse the full catalogue and save favourites.</p>
-      <div className="row g-3">
-        {recipes.map(({ name, time, ingredients, steps }) => (
-          <article key={name} className="col-md-4">
-            <div className="card p-4 h-100">
-              <p className="small text-success mb-2">{time}</p>
-              <h2 className="h4">{name}</h2>
-              <p>{ingredients}</p>
-              <details>
-                <summary className="text-success">Cooking instructions</summary>
-                <p className="mt-2 mb-0">{steps}</p>
-              </details>
-            </div>
-          </article>
-        ))}
+    <main className="cookbook">
+      <div className="kitchen-wrap">
+        <header className="kitchen-nav">
+          <Link className="wordmark" to="/guest"><img src="/favicon.svg" alt="" /> Food Recipes</Link>
+          <nav aria-label="Account"><Link to="/login">Log in</Link><Link className="kitchen-button" to="/register">Register</Link></nav>
+        </header>
+        <section className="kitchen-hero" aria-labelledby="featured-dish">
+          <div className="hero-copy">
+            <p className="dish-meta">Pasta <span>·</span> 20 min</p>
+            <h1 id="featured-dish">Tomato &amp;<br/><em>basil pasta</em></h1>
+            <p>Fresh tomatoes, garlic and torn basil tossed with warm pasta.</p>
+            <a className="kitchen-button" href="#tomato-pasta" onClick={() => { document.getElementById("tomato-pasta").open = true; }}>View recipe <span aria-hidden="true">↗</span></a>
+          </div>
+          <img className="hero-photo" src="/tomato-pasta.webp" alt="Penne with tomato sauce and fresh basil" />
+        </section>
+        <section className="recipe-index" aria-labelledby="index-heading">
+          <h2 id="index-heading">The recipe index</h2>
+          <p>Three recipes to cook as a guest. Sign in for the full collection.</p>
+          {recipes.map(({ name, time, ingredients, steps }, i) => (
+            <details className="recipe-row" key={name} id={i === 0 ? "tomato-pasta" : undefined}>
+              <summary><strong>{name}</strong><span>{time}</span><b aria-hidden="true">+</b></summary>
+              <div className="recipe-method"><section><h3>Ingredients</h3><p>{ingredients}</p></section>
+                <section><h3>Method</h3><p>{steps}</p></section></div>
+            </details>
+          ))}
+        </section>
       </div>
     </main>
   );
