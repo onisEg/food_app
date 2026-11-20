@@ -98,7 +98,7 @@ The frontend uses React 18, React Router 6 and Vite 5. Forms use React Hook Form
 
 ## Deployment and troubleshooting
 
-Deploy the contents of `dist/` after building. Configure the host to serve `index.html` for browser routes such as `/login` and `/recipes`. The API base is configured in source as `https://upskilling-egypt.com:3006/api/v1`. Uploaded images use the same origin without `/api/v1`. A local build still depends on the external backend for login and data.
+Deploy the contents of `dist/` after building. The included `vercel.json` sends extensionless paths such as `/login` and `/recipes` to `index.html`. Paths with file extensions, including the tab icon at `/favicon.svg`, are served as static files. The API base is configured in source as `https://upskilling-egypt.com:3006/api/v1`. Uploaded images use the same origin without `/api/v1`. A local build still depends on the external backend for login and data.
 
 | Symptom | Where to look |
 | --- | --- |
