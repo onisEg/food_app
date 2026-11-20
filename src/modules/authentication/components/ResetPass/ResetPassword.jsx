@@ -74,8 +74,9 @@ export default function ResetPassword() {
             <i className="bi bi-envelope-at"></i>
           </span>
           <input
-            disabled={true}
-            type="text"
+            readOnly={Boolean(location.state)}
+            required
+            type="email"
             className="form-control"
             placeholder="Enter your E-mail"
             aria-label="email"

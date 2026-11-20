@@ -13,13 +13,17 @@ export default function VerifyEmail() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state;
+
 
   const {
     register,
     handleSubmit,
+    watch,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: { email: location.state } });
+
+  const email = watch("email", location.state || "");
 
   const onSubmit = async (data) => {
     if (!email) {
@@ -54,7 +58,7 @@ export default function VerifyEmail() {
         <div className="title d-flex flex-column align-items-start">
           <h3 className="text-center fw-bold">Verify Your Email</h3>
           <span className="text-muted">
-            A verification code has been sent to: <strong>{email}</strong>
+            Enter your email and the verification code from your inbox.
           </span>
         </div>
 
@@ -68,8 +72,11 @@ export default function VerifyEmail() {
               <input
                 type="email"
                 className="form-control"
-                value={email || "Email"}
-                readOnly
+                aria-label="Email"
+                autoComplete="email"
+                required
+                readOnly={Boolean(location.state)}
+                {...register("email", { required: true, pattern: /^\S+@\S+\.\S+$/ })}
               />
             </div>
           </div>
@@ -81,6 +88,8 @@ export default function VerifyEmail() {
             <input
               type="text"
               className="form-control"
+              aria-label="Verification code"
+              autoComplete="one-time-code"
               placeholder="Enter verification code"
               {...register("code", { required: "Code is required" })}
             />
@@ -102,6 +111,7 @@ export default function VerifyEmail() {
             type="button"
             className="btn btn-link p-0 text-success"
             onClick={async () => {
+              if (!(await trigger("email"))) { toast.error("Enter a valid email."); return; }
               try {
                 await axiosInstance.post(USERS_URL.VERIFY_ACCOUNT, {
                   email,

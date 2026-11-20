@@ -283,7 +283,7 @@ export default function CategoriesList() {
       </div>
 
       {/* Empty Data Message */}
-      {!categoriesList && <NoData />}
+      {!isLoading && categoriesList.length === 0 && <NoData />}
 
       {/* Modal delete Logic */}
       <DeleteModal

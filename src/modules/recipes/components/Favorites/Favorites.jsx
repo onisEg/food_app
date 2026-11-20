@@ -3,17 +3,20 @@ import { axiosInstance } from "../../../../services/api";
 import { USER_RECIPE_URLS, imgBaseURL } from "../../../../services/api/urls";
 import toast from "react-hot-toast";
 import Header from "../../../shared/components/Header/Header";
-import NoData from "../../../shared/components/noData/NoData";
+import { Link } from "react-router-dom";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
 
+  const [status, setStatus] = useState("loading");
   const getFavorites = async () => {
+    setStatus("loading");
     try {
       const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
       setFavorites(res.data.data || []);
+      setStatus("ready");
     } catch {
-      toast.error("Failed to load favorites");
+      setStatus("error");
     }
   };
 
@@ -34,17 +37,17 @@ export default function Favorites() {
   return (
     <>
       <Header
-        title={"My Favorite "}
+        title="My favourites"
         description={
-          "You can now add your items that any user can order it from the Application and you can edit"
+          "Find the recipes you saved from the catalogue."
         }
         headerImg={"/resipes.svg"}
       />
       <div className=" mt-4">
-        {favorites.length === 0 ? (
+        {status === "loading" ? <p role="status">Loading favourites…</p> : status === "error" ? <p role="alert">Could not load favourites. <button onClick={getFavorites}>Retry</button></p> : favorites.length === 0 ? (
           <>
             <p className="text-muted">No favorite recipes yet.</p>
-            <NoData />
+            <Link to="/recipes">Browse recipes</Link>
           </>
         ) : (
           <table className="table table-striped-reversed">

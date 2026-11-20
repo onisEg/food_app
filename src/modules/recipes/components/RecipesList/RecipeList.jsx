@@ -389,7 +389,7 @@ export default function RecipeList() {
       </table>
 
       {/* Empty Data Message */}
-      {recipesList.length === 0 && <NoData />}
+      {!isLoading && recipesList.length === 0 && <NoData />}
 
       <div className="d-flex justify-content-center align-items-center gap-2 my-4">
         <button

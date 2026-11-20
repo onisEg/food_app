@@ -5,7 +5,7 @@ import Login from "./modules/authentication/components/Login/Login";
 import Registeration from "./modules/authentication/components/Registeration/Registeration";
 
 import RecipeList from "./modules/recipes/components/RecipesList/RecipeList";
-import RecipeData from "./modules/recipes/components/RecipeData/RecipeData";
+
 import CategoriesList from "./modules/categories/components/CategoriesList/CategoriesList";
 
 import ProtectedRoute from "./modules/shared/components/ProtectedRoute/ProtectedRoute";
@@ -27,6 +27,7 @@ function App() {
     { path: "/", index: true, element: localStorage.getItem("token") ? <Navigate replace to="/dashboard" /> : <GuestRecipes /> },
     { path: "/guest", element: <GuestRecipes /> },
     { path: "/preview/users", element: <UsersList demo /> },
+    { path: "*", element: <NotFouned /> },
     {
       path: "/",
       element: <AuthLayout />,
@@ -51,7 +52,7 @@ function App() {
         { path: "dashboard", element: <Dashboard /> },
         { path: "recipes", element: <RecipeList /> },
         { path: "users", element: <UsersList /> },
-        { path: "recipe-data", element: <RecipeData /> },
+        { path: "recipe-data", element: <Navigate to="/recipes" replace /> },
         { path: "categories", element: <CategoriesList /> },
 
         { path: "ChangePassword", element: <ChangePassword /> },
