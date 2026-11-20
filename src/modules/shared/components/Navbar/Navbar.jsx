@@ -18,7 +18,6 @@ export default function Navbar() {
     }
   };
   const isAdmin = loginData?.userGroup === "SuperAdmin";
-  const isUser = loginData?.userGroup === "SystemUser";
 
   // console.log(userData?.imagePath);
 

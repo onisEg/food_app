@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { createContext, useContext, useState } from "react";
 import { axiosInstance } from "../services/api";
 import {
@@ -31,7 +32,7 @@ export const DataProvider = ({ children }) => {
     try {
       const response = await axiosInstance.get(USERS_URL.GET_CURRENT_USER);
       setProfile(response.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch profile.");
     } finally {
       setIsProfileLoading(false);
@@ -253,7 +254,7 @@ export const DataProvider = ({ children }) => {
       setTotalNumberOfRecords(res.data.totalNumberOfRecords);
       setTotalPages(res.data.totalNumberOfPages);
       setRecipesList(res.data.data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch recipes");
     } finally {
       setIsLoading(false);
@@ -374,3 +375,7 @@ export const DataProvider = ({ children }) => {
 };
 
 export const useData = () => useContext(DataContext);
+
+DataProvider.propTypes = {
+  children: PropTypes.node,
+};

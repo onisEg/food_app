@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -104,7 +103,7 @@ export default function VerifyEmail() {
                   email,
                 });
                 toast.success("Verification code resent!");
-              } catch (err) {
+              } catch {
                 toast.error("Failed to resend code.");
               }
             }}

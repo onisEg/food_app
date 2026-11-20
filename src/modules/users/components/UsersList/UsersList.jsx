@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../../../shared/components/Header/Header";
-import { imgBaseURL, USERS_URL } from "../../../../services/api/urls";
+import { imgBaseURL } from "../../../../services/api/urls";
 
 import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
 import toast from "react-hot-toast";
@@ -12,6 +12,7 @@ export default function UsersList() {
     usersList,
     getUsers,
     onDeleteUser,
+    isLoading,
     totalPages,
     totalNumberOfRecords,
   } = useData();
@@ -28,7 +29,6 @@ export default function UsersList() {
   const [pageSize, setPageSize] = useState("10"); // القيمة الافتراضية
 
   const pagesArray = Array.from({ length: totalPages }, (_, i) => i + 1);
-  const [isLoading, setIsLoading] = useState(false);
 
   // // ====== on delete User ======
 

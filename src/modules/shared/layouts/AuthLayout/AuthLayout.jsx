@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import "./auth.css";
 import { useState } from "react";
 export default function AuthLayout() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+  const [isAuthenticated] = useState(() => {
     const token = localStorage.getItem("token");
     if (token) {
       return true;
@@ -17,7 +17,7 @@ export default function AuthLayout() {
     if (isAuthenticated) {
       navigate("/dashboard");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   return (
     <>

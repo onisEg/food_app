@@ -1,8 +1,7 @@
-import { useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 import "./Header.css";
 
 export default function Header({ title, username, description, headerImg }) {
-  const location = useLocation();
 
   return (
     <div className="header-container d-flex justify-content-between align-items-center p-md-4">
@@ -30,3 +29,10 @@ export default function Header({ title, username, description, headerImg }) {
     </div>
   );
 }
+
+Header.propTypes = {
+  title: PropTypes.string,
+  username: PropTypes.string,
+  description: PropTypes.node,
+  headerImg: PropTypes.string,
+};

@@ -19,22 +19,19 @@ export default function Dashboard() {
     getTags,
     usersList,
     getUsers,
-    totalUsers,
-    totalRecipes,
   } = useData();
 
   console.log(usersList.length);
 
   const [adminCount, setAdminCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-  const [pageSize, setPageSize] = useState(2000);
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
   // console.log("userGroup:", loginData?.userGroup);
 
   useEffect(() => {
     if (!loginData) return;
-    getUsers({ pageSize: 2000 });
+    if (isAdmin) getUsers({ pageSize: 2000 });
     getRecipes({}, 1000);
     getCategories();
     getTags();
@@ -42,7 +39,7 @@ export default function Dashboard() {
     if (isUser) {
       getFavorites();
     }
-  }, [loginData, pageSize]);
+  }, [loginData, isAdmin, isUser]);
 
   useEffect(() => {
     const admins = usersList.filter((u) => u.group?.id === 1).length;

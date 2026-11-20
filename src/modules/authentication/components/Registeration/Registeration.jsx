@@ -1,5 +1,4 @@
-import axios from "axios";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,6 +24,8 @@ export default function Registeration() {
 
   const password = watch("password", "");
 
+  const confirmPassword = watch("confirmPassword");
+
   const passwordChecks = {
     lowercase: /[a-z]/.test(password),
     uppercase: /[A-Z]/.test(password),
@@ -35,10 +36,8 @@ export default function Registeration() {
 
   const onSubmit = async (data) => {
     try {
-      let response = await axiosInstance.post(USERS_URL.REGISTER, data);
+      await axiosInstance.post(USERS_URL.REGISTER, data);
 
-      console.log(data);
-      console.log(response);
       toast.success("Account created successfully. Please check your email.");
       reset();
       navigate("/verify", { state: data.email });
@@ -49,10 +48,10 @@ export default function Registeration() {
   };
 
   useEffect(() => {
-    if (watch("confirmPassword")) {
+    if (confirmPassword) {
       trigger("confirmPassword");
     }
-  }, [watch("password"), watch("confirmPassword"), trigger]);
+  }, [password, confirmPassword, trigger]);
 
   return (
     <>

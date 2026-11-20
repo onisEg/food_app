@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -17,6 +18,7 @@ export default function EditProfileModal({
 }) {
   const {
     register,
+    setError,
     handleSubmit,
     formState: { errors, isSubmitting },
    
@@ -39,10 +41,8 @@ export default function EditProfileModal({
           formData.append(key, data[key]);
         }
       }
-      console.log(data);
 
-      const res = await axiosInstance.put(USERS_URL.UPDATE_PROFILE, formData);
-      console.log(res);
+      await axiosInstance.put(USERS_URL.UPDATE_PROFILE, formData);
 
       toast.success("Profile updated successfully!");
       onClose();
@@ -204,3 +204,10 @@ export default function EditProfileModal({
     </Modal>
   );
 }
+
+EditProfileModal.propTypes = {
+  show: PropTypes.bool,
+  onClose: PropTypes.func,
+  refreshProfile: PropTypes.func,
+  profile: PropTypes.shape({ userName: PropTypes.string, email: PropTypes.string, phoneNumber: PropTypes.string, country: PropTypes.string }).isRequired,
+};

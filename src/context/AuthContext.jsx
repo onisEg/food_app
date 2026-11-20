@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { jwtDecode } from "jwt-decode";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -12,14 +13,14 @@ export const AuthProvider = ({ children }) => {
   let saveLoginData = async () => {
     const decodedToken = jwtDecode(localStorage.getItem("token"));
     setLoginData(decodedToken);
-    console.log(decodedToken);
+
   };
   // -------------------------------
   useEffect(() => {
     if (localStorage.getItem("token")) {
       saveLoginData();
     }
-    console.log("logindata : ", loginData);
+
   }, []);
 
   const logout = () => {
@@ -37,3 +38,7 @@ export const AuthProvider = ({ children }) => {
 
 // ========== Custom Hook ==================
 export const useAuth = () => useContext(AuthContext);
+
+AuthProvider.propTypes = {
+  children: PropTypes.node,
+};

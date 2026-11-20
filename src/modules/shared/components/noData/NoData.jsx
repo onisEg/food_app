@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 export default function NoData({ DataName }) {
   const label = DataName || "Data";
@@ -10,3 +10,7 @@ export default function NoData({ DataName }) {
     </div>
   );
 }
+
+NoData.propTypes = {
+  DataName: PropTypes.string,
+};
