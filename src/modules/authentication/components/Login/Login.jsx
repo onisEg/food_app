@@ -116,6 +116,9 @@ export default function Login() {
           )}
         </button>
       </form>
+      <Link to="/guest" className="btn btn-outline-success w-100 mt-2">
+        Continue as guest
+      </Link>
     </>
   );
 }

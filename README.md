@@ -15,7 +15,7 @@ npm ci
 npm run dev
 ```
 
-Open the address Vite prints. A signed-out visit opens the login form. To review the reader experience, register an account with an email address that can receive the verification code. Reviewing the administration screens requires an account assigned the `SuperAdmin` group by the API.
+Open the address Vite prints. Choose **Continue as guest** to open `/guest`, a public collection of three sample recipes with ingredients and cooking instructions. Guests can open or refresh that link directly. This page uses bundled content and never requests account data. A signed-out visit opens the login form. To review the reader experience, register an account with an email address that can receive the verification code. Reviewing the administration screens requires an account assigned the `SuperAdmin` group by the API.
 
 | Command | Purpose |
 | --- | --- |
