@@ -26,6 +26,7 @@ function App() {
   const routes = createBrowserRouter([
     { path: "/", index: true, element: localStorage.getItem("token") ? <Navigate replace to="/dashboard" /> : <GuestRecipes /> },
     { path: "/guest", element: <GuestRecipes /> },
+    { path: "/preview/users", element: <UsersList demo /> },
     {
       path: "/",
       element: <AuthLayout />,
