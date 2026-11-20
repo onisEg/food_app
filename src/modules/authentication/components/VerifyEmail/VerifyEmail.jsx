@@ -1,3 +1,4 @@
+import { recipeQuery } from "../../../recipes/guestRecipes";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -7,6 +8,9 @@ import { USERS_URL } from "../../../../services/api/urls";
 import { ClipLoader } from "react-spinners";
 
 export default function VerifyEmail() {
+  const { search } = useLocation();
+  const query = recipeQuery(new URLSearchParams(search).get("recipe"));
+
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state;
@@ -20,7 +24,7 @@ export default function VerifyEmail() {
   const onSubmit = async (data) => {
     if (!email) {
       toast.error("Email is missing");
-      navigate("/register");
+      navigate("/register" + query);
       return;
     }
 
@@ -30,7 +34,7 @@ export default function VerifyEmail() {
         code: data.code,
       });
       toast.success("Email verified successfully!");
-      navigate("/login");
+      navigate("/login" + query);
     } catch (err) {
       console.error(err);
       const backendErrors = err?.response?.data?.additionalInfo?.errors;

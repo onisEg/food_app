@@ -1,8 +1,11 @@
+import { recipeDestination } from "../../../recipes/guestRecipes";
 import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import "./auth.css";
 import { useState } from "react";
 export default function AuthLayout() {
+  const { search } = useLocation();
+
   const [isAuthenticated] = useState(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -15,9 +18,9 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate(recipeDestination(search), { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, search]);
 
   if (isAuthenticated) return <p role="status">Opening dashboard…</p>;
   return (

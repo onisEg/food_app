@@ -1,11 +1,15 @@
+import { recipeQuery } from "../../../recipes/guestRecipes";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
 import { EMAIL_VALIDATION } from "../../../../services/validations";
 
 export default function ForgetPassword() {
+  const { search } = useLocation();
+  const query = recipeQuery(new URLSearchParams(search).get("recipe"));
+
   let navigate = useNavigate();
   let {
     register,
@@ -18,7 +22,7 @@ export default function ForgetPassword() {
       let response = await axiosInstance.post(USERS_URL.RESET_REQUEST, data);
       toast.success(response.data.message);
       reset();
-      navigate("/reset-password", { state: data.email });
+      navigate("/reset-password" + query, { state: data.email });
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -56,7 +60,7 @@ export default function ForgetPassword() {
         <div className="mt-3">
           <Link
             className=" text-secondary fw-bold text-decoration-none fw-medium"
-            to="/login"
+            to={"/login" + query}
           >
             Login ?
           </Link>

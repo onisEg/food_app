@@ -1,5 +1,6 @@
+import { recipeQuery, recipeDestination } from "../../../recipes/guestRecipes";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
@@ -7,6 +8,9 @@ import toast from "react-hot-toast";
 import { EMAIL_VALIDATION } from "../../../../services/validations";
 import { useAuth } from "../../../../context/AuthContext";
 export default function Login() {
+  const { search } = useLocation();
+  const query = recipeQuery(new URLSearchParams(search).get("recipe"));
+
   const navigate = useNavigate();
   const { saveLoginData } = useAuth();
   let {
@@ -22,7 +26,7 @@ export default function Login() {
       localStorage.setItem("token", response.data.token);
       await saveLoginData();
       toast.success("login success!");
-      navigate("/dashboard", { replace: true });
+      navigate(recipeDestination(search), { replace: true });
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -39,10 +43,10 @@ export default function Login() {
         {errors.email && <small role="alert">{errors.email.message}</small>}
         <label htmlFor="login-password">Password</label>
         <input id="login-password" type="password" autoComplete="current-password" required {...register("password")} />
-        <Link to="/forget-password">Forgot password?</Link>
+        <Link to={"/forget-password" + query}>Forgot password?</Link>
         <button className="kitchen-button" disabled={isSubmitting}>{isSubmitting ? "Signing in…" : "Log in"}</button>
       </form>
-      <div className="account-links"><Link to="/register">Create an account</Link><Link to="/guest">Continue as guest</Link></div>
+      <div className="account-links"><Link to={"/register" + query}>Create an account</Link><Link to={query ? recipeDestination(query) : "/guest"}>Continue as guest</Link></div>
     </>
   );
 }
