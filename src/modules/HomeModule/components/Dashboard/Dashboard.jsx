@@ -1,24 +1,11 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import { useAuth } from "../../../../context/AuthContext";
-import { axiosInstance } from "../../../../services/api";
+import usePage from "../../../../services/api/usePage";
 import { CATEGORY_URLS, RECIPE_URLS, TAG, USERS_URL, USER_RECIPE_URLS, imgBaseURL } from "../../../../services/api/urls";
 import RecipeEditor from "../../../recipes/components/RecipesList/RecipeEditor";
 import "./dashboard.css";
-
-function usePage(url, page = 1, size = 1, name = "", revision = 0) {
-  const [result, setResult] = useState(null);
-  const key = JSON.stringify([url, page, size, name, revision]);
-  useEffect(() => {
-    const controller = new AbortController();
-    axiosInstance.get(url, { params: { pageNumber: page, pageSize: size, name: name || undefined }, signal: controller.signal })
-      .then(({ data }) => setResult({ key, data }))
-      .catch(() => { if (!controller.signal.aborted) setResult({ key, error: true }); });
-    return () => controller.abort();
-  }, [url, page, size, name, key]);
-  return result?.key === key ? result : {};
-}
 
 function photo(recipe) {
   return recipe.imagePath ? imgBaseURL + "/" + recipe.imagePath : "/food.jpg";
@@ -79,17 +66,5 @@ function AdminLibrary() {
 }
 
 export default function Dashboard() {
-  const { loginData, logout } = useAuth();
-  const navigate = useNavigate();
-  const admin = loginData?.userGroup === "SuperAdmin";
-  const links = admin ? [["Dashboard","/dashboard"],["Recipes","/recipes"],["Categories","/categories"],["Users","/users"]] : [["Kitchen","/dashboard"],["Recipes","/recipes"],["Favorites","/favorites"]];
-  return <div className={"kitchen-desk " + (admin ? "admin-desk" : "reader-desk")}>
-    <header className="desk-menu">
-      <Link className="desk-brand" to="/dashboard"><img src="/favicon.svg" alt="" />Food Recipes</Link>
-      {admin && <p>Admin workspace</p>}
-      <nav aria-label="Workspace">{links.map(([label,to]) => <Link key={to} to={to} aria-current={to === "/dashboard" ? "page" : undefined}>{label}</Link>)}</nav>
-      <details className="desk-account"><summary>Account</summary><div><Link to="/profile">Profile</Link><Link to="/ChangePassword">Change password</Link><button onClick={() => { logout(); navigate("/login", { replace: true }); }}>Log out</button></div></details>
-    </header>
-    {admin ? <AdminLibrary /> : <ReaderKitchen />}
-  </div>;
+  return useAuth().loginData?.userGroup === "SuperAdmin" ? <AdminLibrary /> : <ReaderKitchen />;
 }

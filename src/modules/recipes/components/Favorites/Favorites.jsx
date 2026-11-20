@@ -1,99 +1,31 @@
-import { useEffect, useState } from "react";
-import { axiosInstance } from "../../../../services/api";
-import { USER_RECIPE_URLS, imgBaseURL } from "../../../../services/api/urls";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import Header from "../../../shared/components/Header/Header";
-import NoData from "../../../shared/components/noData/NoData";
+import { axiosInstance } from "../../../../services/api";
+import usePage from "../../../../services/api/usePage";
+import { USER_RECIPE_URLS } from "../../../../services/api/urls";
+import RecipeCard from "../RecipeCard";
+import Pager from "../Pager";
 
 export default function Favorites() {
-  const [favorites, setFavorites] = useState([]);
-
-  const getFavorites = async () => {
+  const [page, setPage] = useState(1);
+  const [revision, refresh] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const { data, error } = usePage(USER_RECIPE_URLS.GET_FAVORITES, page, 12, "", revision);
+  async function remove(id) {
+    setBusy(true);
     try {
-      const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
-      setFavorites(res.data.data || []);
-    } catch {
-      toast.error("Failed to load favorites");
-    }
-  };
-
-  const removeFavorite = async (favId) => {
-    try {
-      await axiosInstance.delete(USER_RECIPE_URLS.DELETE_FAVORITE(favId));
-      setFavorites((prev) => prev.filter((f) => f.id !== favId));
-      toast.success("Removed from favorites");
-    } catch {
-      toast.error("Failed to remove favorite");
-    }
-  };
-
-  useEffect(() => {
-    getFavorites();
-  }, []);
-
-  return (
-    <>
-      <Header
-        title={"My Favorite "}
-        description={
-          "You can now add your items that any user can order it from the Application and you can edit"
-        }
-        headerImg={"/resipes.svg"}
-      />
-      <div className=" mt-4">
-        {favorites.length === 0 ? (
-          <>
-            <p className="text-muted">No favorite recipes yet.</p>
-            <NoData />
-          </>
-        ) : (
-          <table className="table table-striped-reversed">
-            <thead>
-              <tr>
-                <th>Item Name</th>
-                <th>Image</th>
-                <th>Price</th>
-                <th>Description</th>
-                <th>Tag</th>
-                <th>Category</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {favorites.map((fav) => (
-                <tr key={fav.id}>
-                  <td>{fav.recipe?.name}</td>
-                  <td>
-                    <img
-                      src={
-                        fav.recipe?.imagePath
-                          ? `${imgBaseURL}/${fav.recipe.imagePath}`
-                          : "/food.jpg"
-                      }
-                      alt={fav.recipe?.name}
-                      className="rounded img-thumbnail"
-                      width="70"
-                    />
-                  </td>
-
-                  <td>{fav.recipe?.price} EGP</td>
-                  <td>{fav.recipe?.description?.slice(0, 50)}...</td>
-                  <td>{fav.recipe?.tag?.name}</td>
-                  <td>{fav.recipe?.category?.[0]?.name}</td>
-                  <td>
-                    <button
-                      className="btn btn-outline-danger btn-sm"
-                      onClick={() => removeFavorite(fav.id)}
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </>
-  );
+      await axiosInstance.delete(USER_RECIPE_URLS.DELETE_FAVORITE(id));
+      if (data.data.length === 1 && page > 1) setPage(page - 1);
+      refresh(n => n + 1); toast.success("Removed from favorites");
+    } catch { toast.error("Couldn’t remove this recipe."); } finally { setBusy(false); }
+  }
+  return <main><h1>My favorites</h1>
+    {error ? <p role="alert">Couldn’t load favorites. <button onClick={() => refresh(n => n + 1)}>Retry</button></p>
+      : !data ? <p role="status">Loading favorites…</p> : data.data.some(f => f.recipe) ?
+        <><div className="catalog-grid">{data.data.filter(f => f.recipe).map(f =>
+          <RecipeCard key={f.id} recipe={f.recipe}><button disabled={busy} onClick={() => remove(f.id)}>Remove from favorites</button></RecipeCard>)}</div>
+          <Pager page={page} pages={data.totalNumberOfPages} change={setPage} /></>
+        : <section className="desk-empty"><p>Save recipes you’d like to cook and find them here.</p><Link to="/recipes">Explore recipes →</Link></section>}
+  </main>;
 }

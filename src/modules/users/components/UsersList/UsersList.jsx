@@ -1,373 +1,96 @@
 import { useEffect, useState } from "react";
-import Header from "../../../shared/components/Header/Header";
-import { imgBaseURL } from "../../../../services/api/urls";
+import Modal from "react-bootstrap/Modal";
+import { axiosInstance } from "../../../../services/api";
+import { USERS_URL, imgBaseURL } from "../../../../services/api/urls";
+import "./directory.css";
 
-import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
-import toast from "react-hot-toast";
-import NoData from "../../../shared/components/noData/NoData";
-import { useData } from "../../../../context/DataContext";
+const blank = { name: "", country: "", role: "", email: "" };
+const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
 export default function UsersList() {
-  const {
-    usersList,
-    getUsers,
-    onDeleteUser,
-    isLoading,
-    totalPages,
-    totalNumberOfRecords,
-  } = useData();
-
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const [searchUserName, setSearchUserName] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
-  const [searchCountry, setSearchCountry] = useState("");
-  const [searchGroup, setSearchGroup] = useState(""); // 1 or 2
-
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState("10"); // القيمة الافتراضية
-
-  const pagesArray = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  // // ====== on delete User ======
-
-  const handleDelete = async () => {
-    await onDeleteUser(selectedUserId, () => {
-      getUsers({
-        pageSize,
-        pageNumber,
-        searchUserName,
-        searchEmail,
-        searchCountry,
-        searchGroup,
-      });
-      setShowDeleteModal(false);
-    });
-  };
+  const [draft, setDraft] = useState(blank);
+  const [filter, setFilter] = useState(blank);
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  const [result, setResult] = useState({ rows: [], pages: 1, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refresh, setRefresh] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   useEffect(() => {
-    getUsers({
-      pageSize: parseInt(pageSize) || 1,
-      searchUserName,
-      searchEmail,
-      searchCountry,
-      searchGroup,
-      pageNumber,
-    });
-  }, [
-    searchUserName,
-    searchEmail,
-    searchCountry,
-    searchGroup,
-    pageNumber,
-    pageSize,
-  ]);
+    const controller = new AbortController();
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        let rows, total, pages;
+        const { data } = await axiosInstance.get(USERS_URL.GET_ALL_USERS, {
+            signal: controller.signal,
+            params: { pageNumber: page, pageSize: size, userName: filter.name, country: filter.country,
+              groups: filter.role ? [Number(filter.role)] : undefined },
+          });
+          rows = data.data; total = data.totalNumberOfRecords; pages = data.totalNumberOfPages;
+        if (controller.signal.aborted) return;
+        pages = Math.max(1, pages || 1);
+        if (page > pages) { setPage(pages); return; }
+        rows = rows.filter(u => !filter.email || u.email?.toLowerCase().includes(filter.email.toLowerCase()));
+        setResult({ rows, total, pages });
+      } catch {
+        if (!controller.signal.aborted) setError("The directory could not be loaded.");
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }
+    load();
+    return () => controller.abort();
+  }, [filter, size, page, refresh]);
 
+  function clear() { setDraft(blank); setFilter(blank); setPage(1); }
+  function close() { if (!busy) { setSelected(null); setConfirm(false); setActionError(""); } }
+  async function remove() {
+    if (!confirm || busy || selected?.group?.name !== "SystemUser") return;
+    setBusy(true); setActionError("");
+    try {
+      await axiosInstance.delete(USERS_URL.DELETE(selected.id));
+      setSelected(null); setConfirm(false); setRefresh(n => n + 1);
+    } catch { setActionError("Deletion failed. The account is still listed."); }
+    finally { setBusy(false); }
+  }
   return (
-    <>
-      <Header
-        title={"Welcome to"}
-        username={"User List !"}
-        description={
-          "We're thrilled to have you here. Explore and enjoy everything we have to offer!"
-        }
-        headerImg={"/resipes.svg"}
-      />
-
-      {/* filter ui */}
-      <div className="row g-3 my-4 align-items-center">
-        <div className="col-md-2">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by username"
-            value={searchUserName}
-            onChange={(e) => setSearchUserName(e.target.value)}
-          />
-        </div>
-        <div className="col-md-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by email"
-            value={searchEmail}
-            onChange={(e) => setSearchEmail(e.target.value)}
-          />
-        </div>
-        <div className="col-md-2">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="country"
-            value={searchCountry}
-            onChange={(e) => setSearchCountry(e.target.value)}
-          />
-        </div>
-        <div className="col-md-1">
-          <select
-            className="form-select"
-            value={searchGroup}
-            onChange={(e) => setSearchGroup(e.target.value)}
-          >
-            <option value="">All Roles</option>
-            <option value="1">Admin</option>
-            <option value="2">User</option>
-          </select>
-        </div>
-        <div className="col-md-1 ">
-          <button
-            className="btn btn-outline-danger w-75 "
-            onClick={() => {
-              setSearchUserName("");
-              setSearchEmail("");
-              setSearchCountry("");
-              setSearchGroup("");
-            }}
-          >
-            Clear
-          </button>
-        </div>
-        <div className="col-md-2">
-          <div className="d-flex align-items-center gap-2">
-            <label htmlFor="pageSize" className="mb-0 fw-medium">
-              Show :
-            </label>
-            <input
-              id="pageSize"
-              type="number"
-              className="form-control"
-              style={{ maxWidth: "80px" }}
-              min="1"
-              value={pageSize}
-              onChange={(e) => setPageSize(e.target.value)}
-              onBlur={() => {
-                if (pageSize === "" || parseInt(pageSize) < 1) {
-                  setPageSize("1");
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="col-md-1">Total : {totalNumberOfRecords}</div>
-      </div>
-
-      {/* Users Table */}
-      <table className="table table-striped-reversed">
-        <thead>
-          <tr>
-            <th>image</th>
-            <th>userName</th>
-            <th>country</th>
-            <th>email</th>
-            <th>id</th>
-            <th>role</th>
-            <th>phoneNumber</th>
-            <th>creation Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {isLoading ? (
-            <>
-              {[...Array(10)].map((_, idx) => (
-                <tr className="placeholder-glow" key={idx}>
-                  <td>
-                    <span
-                      className="placeholder rounded-circle"
-                      style={{ width: 60, height: 60, display: "inline-block" }}
-                    ></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-6"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-5"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-7"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-4"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-3"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-4"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-5"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-2"></span>
-                  </td>
-                </tr>
-              ))}
-            </>
-          ) : (
-            <>
-              {usersList.map((user) => (
-                <tr key={user.id}>
-                  {/* imagePath */}
-                  <td>
-                    <img
-                      className="img-thumbnail rounded-circle "
-                      src={
-                        user.imagePath
-                          ? `${imgBaseURL}/${user.imagePath}`
-                          : "https://ui-avatars.com/api/?name=User&background=random&size=60"
-                      }
-                      alt={user.userName}
-                      style={{
-                        maxWidth: "60px",
-                        height: "60px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </td>
-
-                  {/* userName */}
-                  <td>{user.userName}</td>
-
-                  {/* country */}
-                  <td>{user.country}</td>
-
-                  {/* email */}
-                  <td className="text-start">{user.email}</td>
-
-                  {/* id */}
-                  <td>{user.id}</td>
-
-                  {/* role */}
-                  <td>
-                    {" "}
-                    {user.group?.id === 1
-                      ? "Admin"
-                      : user.group?.id === 2
-                      ? "User"
-                      : "Unknown"}
-                  </td>
-
-                  {/* phoneNumber */}
-                  <td>{user.phoneNumber}</td>
-
-                  {/* modificationDate */}
-                  <td>
-                    {new Date(user.creationDate).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                    {" - "}
-                    {new Date(user.creationDate).toLocaleTimeString("en-GB", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </td>
-                  {/* Actions */}
-
-                  <td>
-                    <div className="dropdown ">
-                      <button
-                        className="btn border-0"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <i className="fa-solid fa-ellipsis fa-lg"></i>
-                      </button>
-                      <ul className="dropdown-menu dropdown-menu-end shadow border-0">
-                        <li>
-                          <button
-                            onClick={() => {
-                              if (user.group.name == "SystemUser") {
-                                setSelectedUserId(user.id);
-                                setShowDeleteModal(true);
-                              } else {
-                                toast.error("YOU CAN'T DELETE ADMIN!");
-                                return;
-                              }
-                            }}
-                            className="dropdown-item d-flex align-items-center gap-2 text-danger"
-                          >
-                            <i className="bi bi-trash "></i> Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </>
-          )}
-        </tbody>
-      </table>
-
-      {/* Users pagination */}
-      <div
-        className="d-flex my-4 mb-0 gap-3 bg-success-subtle px-5 mx-4 rounded-4 justify-content-center "
-        style={{
-          position: "sticky",
-          bottom: 0,
-          padding: "1rem",
-          zIndex: 999,
-        }}
-      >
-        <button
-          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
-          className="btn btn-outline-success d-flex justify-content-center align-items-center"
-          disabled={pageNumber === 1}
-          onClick={() => setPageNumber(1)}
-        >
-          «
-        </button>
-
-        {pagesArray
-          .filter(
-            (page) => Math.abs(page - pageNumber) <= 2 //
-          )
-          .map((page) => (
-            <button
-              disabled={isLoading}
-              style={{ borderRadius: "50%", width: "40px", height: "40px" }}
-              key={page}
-              className={` d-flex justify-content-center align-items-center btn ${
-                page === pageNumber ? "btn-success" : "btn-outline-success"
-              }`}
-              onClick={() => setPageNumber(page)}
-            >
-              {isLoading && page === pageNumber ? (
-                <div className="spinner-border spinner-border-sm text-white"></div>
-              ) : (
-                page
-              )}
-            </button>
-          ))}
-
-        <button
-          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
-          className="btn btn-outline-success d-flex justify-content-center align-items-center"
-          disabled={pageNumber === totalPages}
-          onClick={() => setPageNumber(totalPages)}
-        >
-          »
-        </button>
-      </div>
-
-      {/* Empty Data Message */}
-      {usersList.length === 0 && <NoData />}
-
-      {/* Delete Module */}
-      <DeleteModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleDelete}
-        itemName={usersList.find((u) => u.id === selectedUserId)?.userName}
-        title="Delete User"
-      />
-    </>
+    <main className="member-directory">
+      <h1>User directory</h1>
+      <form className="directory-tools" onSubmit={e => { e.preventDefault(); setFilter({ ...draft }); if (draft.name !== filter.name || draft.country !== filter.country || draft.role !== filter.role) setPage(1); }}>
+        {[["name", "Username"], ["country", "Country"], ["email", "Email on this page"]].map(([key, label]) =>
+          <label key={key}>{label}<input type="search" value={draft[key]} onChange={e => setDraft({ ...draft, [key]: e.target.value })} /></label>)}
+        <label>Role<select value={draft.role} onChange={e => setDraft({ ...draft, role: e.target.value })}><option value="">All roles</option><option value="1">Admin</option><option value="2">Reader</option></select></label>
+        <button className="directory-primary">Apply filters</button><button type="button" onClick={clear}>Clear</button>
+      </form>
+      <div className="directory-heading"><h2>Members</h2><span aria-live="polite">{loading ? "Loading…" : error ? "" : result.total + " accounts"}</span></div>
+      {error ? <p role="alert">{error} <button onClick={() => setRefresh(n => n + 1)}>Retry</button></p> : loading ? <p role="status">Loading members…</p> : !result.rows.length ? <p role="status">No matching members on this page. <button onClick={clear}>Reset filters</button></p> :
+        <ul className="directory-list">{result.rows.map(u => <li key={u.id}>
+          <div className="member-identity"><span className="member-avatar" aria-hidden="true">{u.imagePath ? <img src={imgBaseURL + "/" + u.imagePath} alt="" /> : (u.userName || "?").slice(0, 2).toUpperCase()}</span>
+            <div><strong>{u.userName}</strong><small>{u.email}</small></div></div>
+          <span className="member-country">{u.country || "—"}</span>
+          <span className="member-role">{u.group?.id === 1 ? "Admin" : u.group?.id === 2 ? "Reader" : "Unknown"}</span>
+          <button aria-label={"View details for " + u.userName} onClick={() => setSelected(u)}>Details</button>
+        </li>)}</ul>}
+      {!error && <nav className="directory-pages" aria-label="Member pagination">
+        <label>Per page <select value={size} onChange={e => { setSize(Number(e.target.value)); setPage(1); }}>{[5,10,25,50].map(n => <option key={n}>{n}</option>)}</select></label>
+        <span>Page {page} of {result.pages}</span>
+        <button disabled={loading || page <= 1} onClick={() => setPage(page - 1)}>Previous</button><button disabled={loading || page >= result.pages} onClick={() => setPage(page + 1)}>Next</button>
+      </nav>}
+      <Modal show={!!selected} onHide={close} centered aria-labelledby="member-title">
+        <Modal.Header closeButton={!busy}><Modal.Title id="member-title">{confirm ? "Delete account?" : selected?.userName}</Modal.Title></Modal.Header>
+        <Modal.Body>{confirm ? <p>Remove {selected?.userName} from the directory? This action is permanent.</p> :
+          selected && <dl>{Object.entries({ Email: selected.email, Country: selected.country, Phone: selected.phoneNumber, ID: selected.id, Role: selected.group?.name, Joined: Number.isFinite(Date.parse(selected.creationDate)) ? dateFormat.format(new Date(selected.creationDate)) : null }).map(([k,v]) => <div key={k}><dt>{k}</dt><dd>{v ?? "—"}</dd></div>)}</dl>}
+          {actionError && <p role="alert">{actionError}</p>}</Modal.Body>
+        <Modal.Footer><button className="btn btn-outline-secondary" disabled={busy} onClick={close}>{confirm ? "Cancel" : "Close"}</button>
+          {selected?.group?.name === "SystemUser" && <button className="btn btn-outline-danger" disabled={busy} onClick={confirm ? remove : () => setConfirm(true)}>{busy ? "Deleting…" : confirm ? "Confirm deletion" : "Delete account"}</button>}</Modal.Footer>
+      </Modal>
+    </main>
   );
 }

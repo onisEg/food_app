@@ -1,402 +1,56 @@
-import RecipeEditor from "./RecipeEditor";
-import Header from "../../../shared/components/Header/Header";
-import {
-  imgBaseURL,
-} from "../../../../services/api/urls";
-import { useEffect, useState } from "react";
-
-
-
-import NoData from "../../../shared/components/noData/NoData";
-import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
-import { useData } from "../../../../context/DataContext";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../../../context/AuthContext";
+import { useData } from "../../../../context/DataContext";
+import { CATEGORY_URLS, RECIPE_URLS, TAG } from "../../../../services/api/urls";
+import usePage from "../../../../services/api/usePage";
+import DeleteModal from "../../../shared/components/DeleteModal/DeleteModal";
+import RecipeEditor from "./RecipeEditor";
+import RecipeCard from "../RecipeCard";
+import Pager from "../Pager";
 
 export default function RecipeList() {
-  const { loginData } = useAuth();
-
-
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
-  const [modalShow, setModalShow] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const [searchName, setSearchName] = useState("");
-  const [searchTagId, setSearchTagId] = useState("");
-  const [searchCategoryId, setSearchCategoryId] = useState("");
-
-  const isAdmin = loginData?.userGroup === "SuperAdmin";
-  const isUser = loginData?.userGroup === "SystemUser";
-
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-
-  const {
-    categoriesList,
-    getCategories,
-    tags,
-    getTags,
-    favorites,
-    getFavorites,
-    toggleFavorite,
-    getRecipes,
-    recipesList,
-    onDeleteRecipe,
-    totalNumberOfRecords,
-    isLoading,
-    totalPages,
-  } = useData();
-
-  useEffect(() => {
-    getRecipes({
-      name: searchName,
-      tagId: searchTagId,
-      categoryId: searchCategoryId,
-      pageNumber,
-      pageSize,
-    });
-    getTags();
-    getCategories();
-  }, [searchName, searchTagId, searchCategoryId, pageNumber, pageSize]);
-
-  useEffect(() => {
-    if (isUser && recipesList.length > 0) {
-      getFavorites();
-      console.log(`recipeList : `, recipesList);
-    }
-  }, [isUser, recipesList]);
-
-  return (
-    <>
-      <Header
-        title={"Recipes"}
-        description={
-          "You can now add your items that any user can order it from the Application and you can edit"
-        }
-        headerImg={"/resipes.svg"}
-      />
-      <div className="d-flex justify-content-between align-content-center my-4">
-        <div className="d-flex flex-column ">
-          <span className="fs-3">Recipe Table Details</span>
-          <span>You can check all details</span>
-        </div>
-        {isAdmin && (
-          <>
-            <div>
-              <div
-                onClick={() => {
-                  setSelectedRecipe(null);
-                  setModalShow(true);
-                }}
-                style={{ background: "#009247" }}
-                className="px-5 btn btn-success btn-lg text-white d-flex justify-content-center align-items-center"
-              >
-                Add New Resipe
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* filter ui */}
-      <div className="d-flex gap-3 mb-3">
-        <input
-          type="text"
-          className="form-control form-control"
-          placeholder="Search by name"
-          value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
-          style={{ flex: "5" }}
-        />
-
-        <select
-          className="form-select "
-          style={{ flex: "1" }}
-          value={searchTagId}
-          onChange={(e) => setSearchTagId(e.target.value)}
-        >
-          <option value="">All Tags</option>
-          {tags.map((tag) => (
-            <option key={tag.id} value={tag.id}>
-              {tag.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="form-select "
-          style={{ flex: "1" }}
-          value={searchCategoryId}
-          onChange={(e) => setSearchCategoryId(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categoriesList.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-        <div className="col-auto">
-          <button
-            className="btn  btn-outline-danger"
-            onClick={() => {
-              setSearchName("");
-              setSearchTagId("");
-              setSearchCategoryId("");
-            }}
-          >
-            Clear
-          </button>
-        </div>
-        <div className="d-flex gap-2 align-items-center">
-          <label className="mb-0 fw-medium">Show :</label>
-          <input
-            type="number"
-            className="form-control"
-            value={pageSize}
-            min={1}
-            onChange={(e) => setPageSize(e.target.value)}
-            style={{ width: "80px" }}
-            onBlur={() => {
-              if (pageSize === "" || parseInt(pageSize) < 1) {
-                setPageSize("1");
-              }
-            }}
-          />
-        </div>
-        <div className="col-md-1 d-flex align-items-center">
-          <span className="d-flex align-items-center">
-            Total : {totalNumberOfRecords}
-          </span>
-        </div>
-      </div>
-
-      {/* Recipes Table */}
-      <table className="table table-striped-reversed">
-        <thead className="">
-          <tr>
-            <th>Name</th>
-            <th>Image</th>
-            <th>description</th>
-            <th>price</th>
-            <th>Category</th>
-            <th>Creation Date</th>
-            <th>Modification Date</th>
-            {isUser && <th>Favorite</th>}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            <>
-              {[...Array(5)].map((_, idx) => (
-                <tr className="placeholder-glow" key={idx}>
-                  <td>
-                    <span className="placeholder col-6"></span>
-                  </td>
-                  <td>
-                    <span
-                      className="placeholder rounded"
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        display: "inline-block",
-                      }}
-                    ></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-7"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-3"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-4"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-5"></span>
-                  </td>
-                  <td>
-                    <span className="placeholder col-6"></span>
-                  </td>
-                  {isUser && (
-                    <td>
-                      <span className="placeholder col-2"></span>
-                    </td>
-                  )}
-                  <td>
-                    <span className="placeholder col-2"></span>
-                  </td>
-                </tr>
-              ))}
-            </>
-          ) : (
-            <>
-              {recipesList.map((recipe) => (
-                <tr key={recipe.id}>
-                  {/* recipeName  */}
-                  <td>
-                    <div className=" d-flex justify-content-between align-content-center align-items-center">
-                      <div>{recipe.name} </div>
-                      <span className="badge bg-primary">
-                        {recipe.tag.name}
-                      </span>
-                    </div>
-                  </td>
-                  {/* recipeImg */}
-                  <td>
-                    <img
-                      className=" rounded img-thumbnail "
-                      src={
-                        recipe.imagePath
-                          ? `${imgBaseURL}/${recipe.imagePath}`
-                          : "/food.jpg"
-                      }
-                      alt={recipe.name}
-                    />
-                  </td>
-                  <td className="text-start">
-                    {recipe.description.slice(0, 50)}...
-                  </td>
-                  <td>{recipe.price} EGP</td>
-                  <td>{recipe.category?.[0]?.name}</td>
-
-                  <td>
-                    {new Date(recipe.creationDate).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td>
-                    {new Date(recipe.modificationDate).toLocaleDateString()}
-                  </td>
-
-                  {/* ============= fav icon ========= */}
-                  {isUser && (
-                    <td>
-                      <i
-                        style={{ cursor: "pointer" }}
-                        className={`bi ${
-                          Array.isArray(favorites) &&
-                          favorites.some((fav) => fav.recipe?.id === recipe.id)
-                            ? "bi-heart-fill text-danger"
-                            : "bi-heart"
-                        }`}
-                        onClick={() => toggleFavorite(recipe.id)}
-                      ></i>
-                    </td>
-                  )}
-
-                  <td>
-                    <div className="dropdown">
-                      <button
-                        className="btn  border-0"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <i className="fa-solid fa-ellipsis fa-lg"></i>
-                      </button>
-
-                      <ul className="dropdown-menu dropdown-menu-end shadow  border-0">
-                        <li>
-                          <button className="dropdown-item d-flex align-items-center gap-2 text-success">
-                            <i className="bi bi-eye"></i> View
-                          </button>
-                        </li>
-                        {isAdmin && (
-                          <>
-                            <li>
-                              <button
-                                onClick={() => {
-                                  setSelectedRecipe(recipe);
-                                  setModalShow(true);
-                                }}
-                                className="dropdown-item d-flex align-items-center gap-2 text-success"
-                              >
-                                <i className="bi bi-pencil-square"></i> Edit
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                onClick={() => {
-                                  setSelectedRecipeId(recipe.id);
-                                  setShowDeleteModal(true);
-                                }}
-                                className="dropdown-item d-flex align-items-center gap-2 text-danger"
-                              >
-                                <i className="bi bi-trash"></i> Delete
-                              </button>
-                            </li>
-                          </>
-                        )}
-                      </ul>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </>
-          )}
-        </tbody>
-      </table>
-
-      {/* Empty Data Message */}
-      {recipesList.length === 0 && <NoData />}
-
-      <div className="d-flex justify-content-center align-items-center gap-2 my-4">
-        <button
-          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
-          className="btn btn-outline-success d-flex justify-content-center align-items-center"
-          disabled={pageNumber === 1}
-          onClick={() => setPageNumber(1)}
-        >
-          «
-        </button>
-
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <button
-            disabled={isLoading}
-            style={{ borderRadius: "50%", width: "40px", height: "40px" }}
-            key={page}
-            className={` d-flex justify-content-center align-items-center btn ${
-              page === pageNumber ? "btn-success" : "btn-outline-success"
-            }`}
-            onClick={() => setPageNumber(page)}
-          >
-            {isLoading && page === pageNumber ? (
-              <div className="spinner-border spinner-border-sm text-white"></div>
-            ) : (
-              page
-            )}
-          </button>
-        ))}
-
-        <button
-          style={{ borderRadius: "50%", width: "40px", height: "40px" }}
-          className="btn btn-outline-success d-flex justify-content-center align-items-center"
-          disabled={pageNumber === totalPages}
-          onClick={() => setPageNumber((prev) => prev + 1)}
-        >
-          »
-        </button>
-      </div>
-
-      {/* Modal delete Logic */}
-      <DeleteModal
-        show={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={() =>
-          onDeleteRecipe(selectedRecipeId, () => setShowDeleteModal(false))
-        }
-        itemName={
-          recipesList.find((recipe) => recipe.id === selectedRecipeId)?.name
-        }
-        title="Delete Recipe"
-      />
-
-      {modalShow && isAdmin && <RecipeEditor selectedRecipe={selectedRecipe} tags={tags} categoriesList={categoriesList}
-        onClose={() => setModalShow(false)} onSaved={() => setModalShow(false)} />}
-    </>
-  );
+  const admin = useAuth().loginData?.userGroup === "SuperAdmin";
+  const { getFavorites, favorites, toggleFavorite, onDeleteRecipe } = useData();
+  const [filters, setFilters] = useState({ name: "", tag: "", category: "" });
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(12);
+  const [revision, refresh] = useState(0);
+  const [editor, edit] = useState(null);
+  const [removal, remove] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const { data, error } = usePage(RECIPE_URLS.GET_RECIPES, page, size, filters.name, revision, filters.tag, filters.category);
+  const tags = usePage(TAG.ALL_TAGS);
+  const categories = usePage(CATEGORY_URLS.GET_CATEGORIES, 1, 100);
+  const ready = Array.isArray(tags.data) && Array.isArray(categories.data?.data);
+  useEffect(() => { if (!admin) getFavorites(); }, [admin]); // Load saved status when entering the reader catalogue.
+  function filter(key, value) { setFilters({ ...filters, [key]: value }); setPage(1); }
+  async function favorite(id) { setBusy(true); try { await toggleFavorite(id); } finally { setBusy(false); } }
+  function saved() { edit(null); refresh(n => n + 1); }
+  async function confirmDelete() {
+    setBusy(true);
+    try { await onDeleteRecipe(removal.id, () => {
+      remove(null); if (data.data.length === 1 && page > 1) setPage(page - 1); refresh(n => n + 1);
+    }); } finally { setBusy(false); }
+  }
+  return <main><div className="desk-heading"><h1>Recipes</h1>{admin && <button disabled={!ready} className="desk-primary" onClick={() => edit({})}>+ Add recipe</button>}</div>
+    <div className="tab-tools">
+      <label>Search recipes<input type="search" value={filters.name} onChange={e => filter("name", e.target.value)} /></label>
+      <label>Tag<select value={filters.tag} onChange={e => filter("tag", e.target.value)}><option value="">All tags</option>{tags.data?.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+      <label>Category<select value={filters.category} onChange={e => filter("category", e.target.value)}><option value="">All categories</option>{categories.data?.data?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+      <label>Per page<select value={size} onChange={e => { setSize(Number(e.target.value)); setPage(1); }}>{[6,12,24,48].map(n => <option key={n}>{n}</option>)}</select></label>
+      <button onClick={() => { setPage(1); setFilters({ name:"", tag:"", category:"" }); }}>Clear</button>
+    </div>
+    {error ? <p role="alert">Couldn’t load recipes. <button onClick={() => refresh(n => n + 1)}>Retry</button></p> : !data ? <p role="status">Loading recipes…</p> : <>
+      <p>{data.totalNumberOfRecords ?? data.data.length} recipes</p>
+      {data.data.length === 0 && <p className="desk-empty">No recipes match these filters.</p>}
+      <div className="catalog-grid">{data.data.map(recipe => {
+        const liked = favorites.some(f => f.recipe?.id === recipe.id);
+        return <RecipeCard key={recipe.id} recipe={recipe}>{admin ? <>
+          <button disabled={!ready} onClick={() => edit({ recipe })}>Edit</button><button onClick={() => remove(recipe)}>Delete</button></>
+          : <button disabled={busy} aria-pressed={liked} onClick={() => favorite(recipe.id)}>{liked ? "♥ Saved" : "♡ Save recipe"}</button>}
+        </RecipeCard>;
+      })}</div><Pager page={page} pages={data.totalNumberOfPages} change={setPage} /></>}
+    {editor && admin && <RecipeEditor selectedRecipe={editor.recipe} tags={tags.data} categoriesList={categories.data.data} onClose={() => edit(null)} onSaved={saved} />}
+    {removal && admin && <DeleteModal show title="Delete recipe" itemName={removal.name} onClose={() => !busy && remove(null)} isSubmitting={busy} onConfirm={confirmDelete} />}
+  </main>;
 }

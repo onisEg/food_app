@@ -5,7 +5,6 @@ import Login from "./modules/authentication/components/Login/Login";
 import Registeration from "./modules/authentication/components/Registeration/Registeration";
 
 import RecipeList from "./modules/recipes/components/RecipesList/RecipeList";
-import RecipeData from "./modules/recipes/components/RecipeData/RecipeData";
 import CategoriesList from "./modules/categories/components/CategoriesList/CategoriesList";
 
 import ProtectedRoute from "./modules/shared/components/ProtectedRoute/ProtectedRoute";
@@ -25,7 +24,6 @@ import ResetPassword from "./modules/authentication/components/ResetPass/ResetPa
 function App() {
   const routes = createBrowserRouter([
     { path: "/", element: localStorage.getItem("token") ? <Navigate to="/dashboard" replace /> : <GuestRecipes /> },
-    { path: "/dashboard", element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
     { path: "/guest", element: <GuestRecipes /> },
     {
       path: "/",
@@ -48,9 +46,10 @@ function App() {
       ),
       errorElement: <NotFouned />,
       children: [
+        { path: "dashboard", element: <Dashboard /> },
         { path: "recipes", element: <RecipeList /> },
         { path: "users", element: <UsersList /> },
-        { path: "recipe-data", element: <RecipeData /> },
+        { path: "recipe-data", element: <Navigate replace to="/recipes" /> },
         { path: "categories", element: <CategoriesList /> },
 
         { path: "ChangePassword", element: <ChangePassword /> },

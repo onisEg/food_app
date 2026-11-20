@@ -3,7 +3,7 @@ import { axiosInstance } from "../../../../services/api";
 import { USERS_URL, imgBaseURL } from "../../../../services/api/urls";
 import toast from "react-hot-toast";
 
-import Header from "../../../shared/components/Header/Header";
+
 import { useForm } from "react-hook-form";
 import { useData } from "../../../../context/DataContext";
 
@@ -11,7 +11,7 @@ export default function Profile() {
   const { profile, isProfileLoading, getProfile, updateProfileImage } =
     useData();
 
-  console.log(profile);
+
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -21,7 +21,7 @@ export default function Profile() {
     register,
     handleSubmit,
     formState: { isSubmitting },
-    setError,
+    setError, reset,
   } = useForm({});
 
   const onSubmit = async (data) => {
@@ -64,6 +64,11 @@ export default function Profile() {
     getProfile();
   }, []);
 
+  useEffect(() => {
+    if (profile) reset({ userName: profile.userName, email: profile.email, country: profile.country, phoneNumber: profile.phoneNumber, confirmPassword: "" });
+  }, [profile, reset]);
+
+  if (!isProfileLoading && !profile) return <p role="alert">Couldn’t load your profile. <button onClick={getProfile}>Retry</button></p>;
   if (isProfileLoading) {
     return (
       <div className="text-center mt-5">
@@ -74,20 +79,14 @@ export default function Profile() {
 
   return (
     <>
-      <Header
-        title={"My Profile"}
-        username={profile.userName}
-        description={"You can now edit your data "}
-        headerImg={"/Employee Business Profile.svg"}
-      />
-
-      <div className="d-flex gap-4 my-5">
+      <h1>My profile</h1>
+      <div className="profile-columns">
         {/* My Profile Card */}
         <div
           className="card p-4 rounded-4 border-0 shadow-sm"
           style={{ backgroundColor: "#F9FAFB", flex: "1" }}
         >
-          <h4 className="fw-semibold mb-4">My Profile</h4>
+          <h4 className="fw-semibold mb-4">Account details</h4>
 
           <div className="d-flex align-items-center gap-3 mb-4">
             <div className="position-relative">
@@ -242,7 +241,8 @@ export default function Profile() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="row g-3">
               <div className="col-md-6">
-                <input
+                <label htmlFor="profile-userName">Username</label>
+                <input id="profile-userName"
                   type="text"
                   className="form-control"
                   placeholder="UserName"
@@ -250,7 +250,8 @@ export default function Profile() {
                 />
               </div>
               <div className="col-md-6">
-                <input
+                <label htmlFor="profile-email">Email</label>
+                <input id="profile-email"
                   type="email"
                   className="form-control"
                   placeholder="Email"
@@ -258,7 +259,8 @@ export default function Profile() {
                 />
               </div>
               <div className="col-md-6">
-                <input
+                <label htmlFor="profile-country">Country</label>
+                <input id="profile-country"
                   type="text"
                   className="form-control"
                   placeholder="Country"
@@ -266,7 +268,8 @@ export default function Profile() {
                 />
               </div>
               <div className="col-md-6">
-                <input
+                <label htmlFor="profile-phoneNumber">Phone</label>
+                <input id="profile-phoneNumber"
                   type="text"
                   className="form-control"
                   placeholder="Phone"
@@ -275,7 +278,8 @@ export default function Profile() {
               </div>
 
               <div className="col-md-12">
-                <input
+                <label htmlFor="profile-confirmPassword">Confirm password</label>
+                <input id="profile-confirmPassword"
                   type="password"
                   className="form-control"
                   placeholder="Confirm Password"

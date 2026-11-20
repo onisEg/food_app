@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { axiosInstance } from "../../../../services/api";
 import toast from "react-hot-toast";
-import Header from "../../../shared/components/Header/Header";
+
 
 import { USERS_URL } from "../../../../services/api/urls";
 import { PASSWORD_VALIDATION } from "../../../../services/validations";
@@ -28,7 +28,7 @@ export default function ChangePassword() {
         newPassword: data.newPassword,
         confirmNewPassword: data.confirmNewPassword,
       });
-      console.log(response);
+
       toast.success(response.data.message || "Password changed successfully");
       navigat("/dashboard");
       reset(); // Clear the form
@@ -39,36 +39,13 @@ export default function ChangePassword() {
 
   return (
     <>
-      <Header title={"Change Your Password"} headerImg={"/resipes.svg"} />
-
-      <div className="container mt-5 d-flex justify-content-center align-items-center">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="shadow p-5 rounded-4"
-          style={{
-            width: "100%",
-            maxWidth: "900px",
-            background: "white",
-            border: "1px solid #eee",
-          }}
-        >
-          {/* Logo */}
-          <div className="text-center mb-4">
-            <img
-              src="/logofood.png"
-              alt="FoodApp Logo"
-              style={{ width: "80px" }}
-            />
-            <h4 className="mt-3 fw-bold text-success">Change Password</h4>
-            <small className="text-muted">
-              Ensure your new password is secure
-            </small>
-          </div>
-
+      <h1>Change password</h1>
+      <div className="security-panel">
+        <form onSubmit={handleSubmit(onSubmit)}>
           {/* Old Password */}
           <div className="form-group mb-4">
-            <label className="form-label fw-medium">Old Password</label>
-            <input
+            <label htmlFor="oldPassword" className="form-label fw-medium">Old Password</label>
+            <input id="oldPassword" autoComplete="current-password"
               type="password"
               className="form-control form-control-lg"
               placeholder="Enter your old password"
@@ -85,13 +62,14 @@ export default function ChangePassword() {
 
           {/* New Password */}
           <div className="form-group mb-4">
-            <label className="form-label fw-medium">New Password</label>
-            <input
+            <label htmlFor="newPassword" className="form-label fw-medium">New Password</label>
+            <input id="newPassword" autoComplete="new-password"
               type="password"
               className="form-control form-control-lg"
               placeholder="Enter new password"
               {...register("newPassword", PASSWORD_VALIDATION)}
             />
+            <small>Use at least 6 characters with uppercase, lowercase, a number and a symbol.</small>
             {errors.newPassword && (
               <small className="text-danger">
                 {errors.newPassword.message}
@@ -101,8 +79,8 @@ export default function ChangePassword() {
 
           {/* Confirm New Password */}
           <div className="form-group mb-4">
-            <label className="form-label fw-medium">Confirm New Password</label>
-            <input
+            <label htmlFor="confirmNewPassword" className="form-label fw-medium">Confirm New Password</label>
+            <input id="confirmNewPassword" autoComplete="new-password"
               type="password"
               className="form-control form-control-lg"
               placeholder="Confirm new password"
