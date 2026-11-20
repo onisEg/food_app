@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import CountUp from "react-countup";
 
 export default function Card({ cardTitle, stats }) {
@@ -30,3 +31,8 @@ export default function Card({ cardTitle, stats }) {
     </div>
   );
 }
+
+Card.propTypes = {
+  cardTitle: PropTypes.string,
+  stats: PropTypes.arrayOf(PropTypes.shape({ icon: PropTypes.string, label: PropTypes.string, value: PropTypes.number })).isRequired,
+};

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import SideBar from "../../components/SideBar/SideBar";
 import ScrollToTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 

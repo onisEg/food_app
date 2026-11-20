@@ -1,11 +1,7 @@
 import { useForm } from "react-hook-form";
 import Header from "../../../shared/components/Header/Header";
 import {
-  CATEGORY_URLS,
   imgBaseURL,
-  RECIPE_URLS,
-  TAG,
-  USER_RECIPE_URLS,
 } from "../../../../services/api/urls";
 import { useEffect, useState } from "react";
 
@@ -35,7 +31,6 @@ export default function RecipeList() {
   const isAdmin = loginData?.userGroup === "SuperAdmin";
   const isUser = loginData?.userGroup === "SystemUser";
 
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -54,6 +49,7 @@ export default function RecipeList() {
     onAddRecipe,
     onEditRecipe,
     totalNumberOfRecords,
+    isLoading,
     totalPages,
   } = useData();
 

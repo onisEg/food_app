@@ -1,10 +1,8 @@
-import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  EMAIL_VALIDATION,
   PASSWORD_VALIDATION,
 } from "../../../../services/validations";
 import { axiosInstance } from "../../../../services/api";

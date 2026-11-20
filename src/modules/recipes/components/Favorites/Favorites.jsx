@@ -12,7 +12,7 @@ export default function Favorites() {
     try {
       const res = await axiosInstance.get(USER_RECIPE_URLS.GET_FAVORITES);
       setFavorites(res.data.data || []);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load favorites");
     }
   };
@@ -22,7 +22,7 @@ export default function Favorites() {
       await axiosInstance.delete(USER_RECIPE_URLS.DELETE_FAVORITE(favId));
       setFavorites((prev) => prev.filter((f) => f.id !== favId));
       toast.success("Removed from favorites");
-    } catch (err) {
+    } catch {
       toast.error("Failed to remove favorite");
     }
   };

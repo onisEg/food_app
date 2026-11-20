@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 
 export default function DeleteModal({
@@ -26,6 +27,7 @@ export default function DeleteModal({
           <div className="d-flex justify-content-end">
             <button
               className="btn btn-lg px-5 btn-outline-danger me-2 fw-bold"
+              disabled={isSubmitting}
               onClick={onConfirm}
             >
               {title} {itemName}
@@ -36,3 +38,12 @@ export default function DeleteModal({
     </Modal>
   );
 }
+
+DeleteModal.propTypes = {
+  show: PropTypes.bool,
+  onClose: PropTypes.func,
+  onConfirm: PropTypes.func,
+  itemName: PropTypes.string,
+  title: PropTypes.string,
+  isSubmitting: PropTypes.bool,
+};

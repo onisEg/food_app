@@ -1,6 +1,6 @@
+import PropTypes from "prop-types";
 // this button
 
-import React from "react";
 
 export default function ActionBtn({ onClick, btnColor, icon, title }) {
   return (
@@ -14,3 +14,10 @@ export default function ActionBtn({ onClick, btnColor, icon, title }) {
     </button>
   );
 }
+
+ActionBtn.propTypes = {
+  onClick: PropTypes.func,
+  btnColor: PropTypes.string,
+  icon: PropTypes.string,
+  title: PropTypes.string,
+};

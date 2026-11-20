@@ -8,12 +8,10 @@ export const USERS_URL = {
     REGISTER: `/Users/Register`,   // register user
     CREATE: `/Users/Create`,        //create an admin 
     DELETE: (id) => `/Users/${id}`,
-    GET_USER: (id) => `/Users/${id}`,
     RESET_REQUEST: `/Users/Reset/Request`,
     RESET: `/Users/Reset`,
     GET_USER: (id) => `/Users/${id}`,
     CHANGE_PASSWORD: `/Users/ChangePassword`,
-    GET_CURRENT_USER: `/Users/currentUser`,
     VERIFY_ACCOUNT: `/Users/verify`,
     GET_CURRENT_USER: `/Users/currentUser`,
     GET_ALL_USERS: `/Users`,

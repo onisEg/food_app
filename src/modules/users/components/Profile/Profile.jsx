@@ -6,10 +6,8 @@ import toast from "react-hot-toast";
 import Header from "../../../shared/components/Header/Header";
 import { useForm } from "react-hook-form";
 import { useData } from "../../../../context/DataContext";
-import { useAuth } from "../../../../context/AuthContext";
 
 export default function Profile() {
-  const { loginData } = useAuth();
   const { profile, isProfileLoading, getProfile, updateProfileImage } =
     useData();
 
@@ -22,7 +20,7 @@ export default function Profile() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     setError,
   } = useForm({});
 
@@ -36,10 +34,8 @@ export default function Profile() {
           formData.append(key, data[key]);
         }
       }
-      console.log(data);
 
-      const res = await axiosInstance.put(USERS_URL.UPDATE_PROFILE, formData);
-      console.log(res);
+      await axiosInstance.put(USERS_URL.UPDATE_PROFILE, formData);
 
       toast.success("Profile updated successfully!");
 

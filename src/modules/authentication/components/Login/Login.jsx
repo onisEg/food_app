@@ -1,5 +1,5 @@
 
-import { Link, replace, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
@@ -13,7 +13,6 @@ export default function Login() {
     register,
     formState: { errors, isSubmitting },
     handleSubmit,
-    reset,
   } = useForm();
 
   // =========== submit login ========
