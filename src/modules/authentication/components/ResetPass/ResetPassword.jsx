@@ -1,3 +1,4 @@
+import { recipeQuery } from "../../../recipes/guestRecipes";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -9,6 +10,9 @@ import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
 
 export default function ResetPassword() {
+  const { search } = useLocation();
+  const query = recipeQuery(new URLSearchParams(search).get("recipe"));
+
   let navigate = useNavigate();
   const location = useLocation();
 
@@ -30,7 +34,7 @@ export default function ResetPassword() {
       toast.success(response.data.message);
 
       reset();
-      navigate("/login");
+      navigate("/login" + query);
     } catch (error) {
       const errors = error?.response?.data?.additionalInfo?.errors;
 
@@ -70,8 +74,9 @@ export default function ResetPassword() {
             <i className="bi bi-envelope-at"></i>
           </span>
           <input
-            disabled={true}
-            type="text"
+            readOnly={Boolean(location.state)}
+            required
+            type="email"
             className="form-control"
             placeholder="Enter your E-mail"
             aria-label="email"

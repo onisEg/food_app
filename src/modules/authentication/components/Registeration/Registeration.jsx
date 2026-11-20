@@ -1,7 +1,8 @@
+import { recipeQuery } from "../../../recipes/guestRecipes";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../../../services/api";
 import { USERS_URL } from "../../../../services/api/urls";
 import {
@@ -12,6 +13,9 @@ import {
 } from "../../../../services/validations";
 
 export default function Registeration() {
+  const { search } = useLocation();
+  const query = recipeQuery(new URLSearchParams(search).get("recipe"));
+
   let navigate = useNavigate();
   let {
     register,
@@ -40,7 +44,7 @@ export default function Registeration() {
 
       toast.success("Account created successfully. Please check your email.");
       reset();
-      navigate("/verify", { state: data.email });
+      navigate("/verify" + query, { state: data.email });
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -225,7 +229,7 @@ export default function Registeration() {
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <Link to="/login" className="text-decoration-none text-success">
+          <Link to={"/login" + query} className="text-decoration-none text-success">
             Login Now?
           </Link>
         </div>

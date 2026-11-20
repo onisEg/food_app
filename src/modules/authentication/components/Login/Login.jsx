@@ -1,5 +1,6 @@
+import { recipeQuery, recipeDestination } from "../../../recipes/guestRecipes";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { USERS_URL } from "../../../../services/api/urls";
 import { axiosInstance } from "../../../../services/api/index";
@@ -7,6 +8,9 @@ import toast from "react-hot-toast";
 import { EMAIL_VALIDATION } from "../../../../services/validations";
 import { useAuth } from "../../../../context/AuthContext";
 export default function Login() {
+  const { search } = useLocation();
+  const query = recipeQuery(new URLSearchParams(search).get("recipe"));
+
   const navigate = useNavigate();
   const { saveLoginData } = useAuth();
   let {
@@ -22,7 +26,7 @@ export default function Login() {
       localStorage.setItem("token", response.data.token);
       await saveLoginData();
       toast.success("login success!");
-      navigate("/dashboard", { replace: true });
+      navigate(recipeDestination(search), { replace: true });
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -31,94 +35,18 @@ export default function Login() {
 
   return (
     <>
-      <div className="title  d-flex flex-column align-items-start">
-        <h3 className="text-center fw-bold">Login</h3>
-        <span className="text-muted ">
-          Welcome Back! please enter your details
-        </span>
-      </div>
-      <form className="py-3" onSubmit={handleSubmit(onSubmit)}>
-        <div className="input-group mt-4 ">
-          <span className="input-group-text" id="basic-addon1">
-            <i className="bi bi-envelope-at"></i>
-          </span>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter your E-mail"
-            aria-label="email"
-            aria-describedby="basic-addon1"
-            {...register("email", EMAIL_VALIDATION)}
-          />
-        </div>
-        <small className="text-muted ">Ex: anasabdo704@gmail.com</small>
-        {errors.email && (
-          <small className="text-danger ">{errors.email.message}</small>
-        )}
-        <div className="input-group mt-4">
-          <span className="input-group-text " id="basic-addon1">
-            <i className="bi bi-lock"></i>
-          </span>
-          <input
-            type="password"
-            className="form-control "
-            placeholder="Enter your password"
-            aria-label="password"
-            aria-describedby="basic-addon1"
-            {...register("password")}
-          />
-        </div>
-        {errors.password && (
-          <>
-            <small className="text-danger ">{errors.password.message}</small>
-            <div
-              className="alert alert-danger mt-3 p-2"
-              style={{ fontSize: "12px", lineHeight: "1.4" }}
-            >
-              <div className="small">
-                <strong>Password must include:</strong>
-                <ul className="mb-0 ms-3">
-                  <li>a lowercase letter</li>
-                  <li>an uppercase letter</li>
-                  <li>a number</li>
-                  <li>a special character</li>
-                  <li>at least 6 characters</li>
-                </ul>
-              </div>
-            </div>
-          </>
-        )}
-        <small className="text-muted">Ex password: Anas@123</small>
-        <div className="links d-flex justify-content-between mt-4  ">
-          <Link
-            className=" text-secondary fw-bold text-decoration-none fw-medium"
-            to="/register"
-          >
-            Register Now?
-          </Link>
-          <Link
-            className="text-success text-decoration-none "
-            to="/forget-password"
-          >
-            Forgot Password?
-          </Link>
-        </div>
-        <button
-          disabled={isSubmitting}
-          className="btn btn-lg w-100 bg-success text-white mt-4 "
-        >
-          {isSubmitting ? (
-            <>
-              <i className="fa-solid fa-spinner fa-spin-pulse"></i>
-            </>
-          ) : (
-            "Login"
-          )}
-        </button>
+      <h1 className="account-title">Welcome back</h1>
+      <p>Sign in to browse the full collection and save your favourites.</p>
+      <form className="kitchen-form" onSubmit={handleSubmit(onSubmit)}>
+        <label htmlFor="login-email">Email</label>
+        <input id="login-email" type="email" autoComplete="email" required {...register("email", EMAIL_VALIDATION)} />
+        {errors.email && <small role="alert">{errors.email.message}</small>}
+        <label htmlFor="login-password">Password</label>
+        <input id="login-password" type="password" autoComplete="current-password" required {...register("password")} />
+        <Link to={"/forget-password" + query}>Forgot password?</Link>
+        <button className="kitchen-button" disabled={isSubmitting}>{isSubmitting ? "Signing in…" : "Log in"}</button>
       </form>
-      <Link to="/guest" className="btn btn-outline-success w-100 mt-2">
-        Continue as guest
-      </Link>
+      <div className="account-links"><Link to={"/register" + query}>Create an account</Link><Link to={query ? recipeDestination(query) : "/guest"}>Continue as guest</Link></div>
     </>
   );
 }

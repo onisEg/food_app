@@ -1,49 +1,58 @@
-import { Link } from "react-router-dom";
-
-const recipes = [
-  {
-    name: "Tomato and basil pasta",
-    time: "20 min",
-    ingredients: "180 g pasta, 2 tomatoes, 1 garlic clove, olive oil and fresh basil",
-    steps: "Cook the pasta in salted water. Soften the sliced garlic in olive oil, add the chopped tomatoes and simmer for 8 minutes. Toss with the pasta, a splash of cooking water and torn basil.",
-  },
-  {
-    name: "Lemon chickpea salad",
-    time: "10 min",
-    ingredients: "1 can cooked chickpeas, 1 cucumber, 1 tomato, parsley, lemon and olive oil",
-    steps: "Drain and rinse the chickpeas. Dice the cucumber and tomato, chop the parsley and toss everything together with lemon juice and olive oil.",
-  },
-  {
-    name: "Red lentil soup",
-    time: "30 min",
-    ingredients: "150 g red lentils, 1 carrot, 1 onion, cumin, olive oil and 750 ml vegetable stock",
-    steps: "Soften the chopped onion and carrot in olive oil. Stir in cumin and rinsed lentils, pour in the stock and simmer until the lentils are tender. Blend for a smoother texture.",
-  },
-];
+import "./kitchen.css";
+import { useEffect } from "react";
+import { recipes, recipeQuery } from "../guestRecipes";
+import { useAuth } from "../../../context/AuthContext";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function GuestRecipes() {
+  const { pathname, hash } = useLocation();
+  const navigate = useNavigate();
+  const { loginData } = useAuth();
+  const active = hash.slice(1);
+  const query = recipeQuery(active);
+  useEffect(() => {
+    if (query) document.getElementById(active)?.scrollIntoView?.({ block: "nearest" });
+  }, [active, query]);
+
+  function selectRecipe(id) {
+    navigate({ pathname, hash: id }, { replace: true });
+  }
   return (
-    <main className="container py-4 py-md-5">
-      <nav aria-label="Account" className="d-flex justify-content-end align-items-center gap-3 mb-4">
-        <Link to="/login" className="link-success">Log in</Link>
-        <Link to="/register" className="btn btn-outline-success">Register</Link>
-      </nav>
-      <h1>Guest recipes</h1>
-      <p className="text-secondary mb-4">Explore three sample recipes. Sign in to browse the full catalogue and save favourites.</p>
-      <div className="row g-3">
-        {recipes.map(({ name, time, ingredients, steps }) => (
-          <article key={name} className="col-md-4">
-            <div className="card p-4 h-100">
-              <p className="small text-success mb-2">{time}</p>
-              <h2 className="h4">{name}</h2>
-              <p>{ingredients}</p>
-              <details>
-                <summary className="text-success">Cooking instructions</summary>
-                <p className="mt-2 mb-0">{steps}</p>
-              </details>
-            </div>
-          </article>
-        ))}
+    <main className="cookbook">
+      <div className="kitchen-wrap">
+        <header className="kitchen-nav">
+          <Link className="wordmark" to="/guest"><img src="/favicon.svg" alt="" /> Food Recipes</Link>
+          <nav aria-label="Account">{loginData ? <Link to="/dashboard">My dashboard</Link> : <><Link to={"/login" + query}>Log in</Link><Link className="kitchen-button" to={"/register" + query}>Register</Link></>}</nav>
+        </header>
+        <section className="kitchen-hero" aria-labelledby="featured-dish">
+          <div className="hero-copy">
+            <p className="dish-meta">Pasta <span>·</span> 20 min</p>
+            <h1 id="featured-dish">Tomato &amp;<br/><em>basil pasta</em></h1>
+            <p>Fresh tomatoes, garlic and torn basil tossed with warm pasta.</p>
+            <a className="kitchen-button" href="#tomato-pasta" onClick={event => { event.preventDefault(); selectRecipe("tomato-pasta"); }}>View recipe <span aria-hidden="true">↗</span></a>
+          </div>
+          <img className="hero-photo" src="/tomato-pasta.webp" alt="Penne with tomato sauce and fresh basil" />
+        </section>
+        <section className="recipe-index" aria-labelledby="index-heading">
+          <h2 id="index-heading">The recipe index</h2>
+          <p>{loginData ? "Open your dashboard for the full collection." : "Three recipes to cook as a guest. Sign in for the full collection."}</p>
+          {recipes.map(({ id, name, time, ingredients, steps }, index) => (
+            <details className="recipe-row" key={id} id={id} open={active === id}>
+              <summary onClick={event => { event.preventDefault(); selectRecipe(active === id ? "" : id); }}><strong>{name}</strong><span>{time}</span><b aria-hidden="true">+</b></summary>
+              <div className="recipe-method"><section><h3>Ingredients</h3><p>{ingredients}</p></section>
+                <section><h3>Method</h3><p>{steps}</p></section></div>
+              <nav className="d-flex flex-wrap align-items-center gap-3 pb-4" aria-label={`After reading ${name}`}>
+                <Link className="kitchen-button" to={{ pathname, hash: recipes[(index + 1) % recipes.length].id }}>
+                  Read another recipe
+                </Link>
+                {!loginData && <>
+                  <Link to={"/login" + recipeQuery(id)}>Log in</Link>
+                  <Link to={"/register" + recipeQuery(id)}>Create an account</Link>
+                </>}
+              </nav>
+            </details>
+          ))}
+        </section>
       </div>
     </main>
   );

@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import CountUp from "react-countup";
 
 export default function Card({ cardTitle, stats }) {
   return (
@@ -22,7 +21,7 @@ export default function Card({ cardTitle, stats }) {
           >
             <i className={`bi ${item.icon} fs-4 text-success`}></i>
             <h3 className="fw-bold mt-2">
-              <CountUp end={item.value} duration={1.5} delay={idx * 0.3} />
+              {item.value}
             </h3>
             <div className="text-muted">{item.label}</div>
           </div>

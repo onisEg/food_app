@@ -1,8 +1,11 @@
+import { recipeDestination } from "../../../recipes/guestRecipes";
 import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import "./auth.css";
 import { useState } from "react";
 export default function AuthLayout() {
+  const { search } = useLocation();
+
   const [isAuthenticated] = useState(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -15,31 +18,17 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate(recipeDestination(search), { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, search]);
 
+  if (isAuthenticated) return <p role="status">Opening dashboard…</p>;
   return (
-    <>
-      {isAuthenticated && (
-        <i className="fa-solid fa-spinner fa-spin-pulse fa-xl"></i>
-      )}
-      {!isAuthenticated && (
-        <div className="auth-container w-100 vh-100 bg-info">
-          <div className="container-fluid bgOverlay ">
-            <div className="row vh-100 justify-content-center align-items-center">
-              <div className=" col-md-10 col-lg-6 px-sm-4  px-md-5 py-4   bg-white rounded">
-                <div className="">
-                  <div className="log-container text-center">
-                    <img src="/foodapplogo.png" alt="foodlogo" />
-                  </div>
-                </div>
-                <Outlet />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <main className="account-shell">
+      <div className="account-panel">
+        <a className="wordmark" href="/guest"><img src="/favicon.svg" alt="" /> Food Recipes</a>
+        <Outlet />
+      </div>
+    </main>
   );
 }
