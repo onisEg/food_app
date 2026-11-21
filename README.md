@@ -1,174 +1,174 @@
 # Food Recipes
 
-تطبيق React لتصفّح الوصفات وحفظ المفضلة وإدارة كتالوج الطعام. يبدأ الزائر القراءة فور فتح الموقع. بعد تسجيل الدخول، يرى القارئ مطبخه الشخصي، ويرى المسؤول مساحة إدارة الوصفات والتصنيفات والمستخدمين. هذا المستودع يحتوي على الواجهة الأمامية. خدمة خارجية تتولى الحسابات والتخزين وإرسال أكواد البريد.
+Food Recipes is a React application for reading recipes, saving favorites, and managing a food catalog. Guests can start cooking from the home page. After sign-in, readers get a personal kitchen and administrators get a workspace for managing recipes, categories, and users. This repository contains the frontend. An external API handles accounts, persistent data, and verification emails.
 
-[فتح الموقع](https://food-app-six-sepia.vercel.app/) · [تجربة وصفة كضيف](https://food-app-six-sepia.vercel.app/guest#lentil-soup) · [فتح الداشبورد](https://food-app-six-sepia.vercel.app/dashboard)
+[Open the app](https://food-app-six-sepia.vercel.app/) · [Read a recipe as a guest](https://food-app-six-sepia.vercel.app/guest#lentil-soup) · [Open the dashboard](https://food-app-six-sepia.vercel.app/dashboard)
 
-## 1. الأدوار والتنقل
+## 1. Roles and navigation
 
-| الدور | أول شاشة | المهام الأساسية |
+| Role | Landing screen | Main tasks |
 | --- | --- | --- |
-| ضيف | وصفة مميزة وفهرس ثلاث وصفات محلية | فتح المقادير والخطوات، الانتقال لوصفة أخرى، أو بدء التسجيل من الوصفة |
-| قارئ «SystemUser» | My kitchen | تصفح كتالوج الـAPI، فتح التفاصيل، حفظ المفضلة وإزالتها، وإدارة حسابه |
-| مسؤول «SuperAdmin» | Recipe library | البحث والإضافة والتعديل من الداشبورد، إدارة الوصفات والتصنيفات، وفحص حسابات المستخدمين |
+| Guest | Featured dish and an index of three local recipes | Read ingredients and instructions, open another recipe, or create an account from the current recipe |
+| Reader (`SystemUser`) | My kitchen | Browse the API catalog, open recipe details, save or remove favorites, and manage a personal account |
+| Administrator (`SuperAdmin`) | Recipe library | Search, add, and edit recipes from the dashboard, maintain categories, and review user accounts |
 
-القائمة العلوية للقارئ والقائمة الجانبية للمسؤول تستخدمان نفس مسارات التطبيق. على الشاشات الصغيرة ينتقل تنقل المسؤول إلى أعلى الصفحة. التبويب النشط يتحدد من الرابط، وقائمة **Account** تجمع الملف الشخصي وتغيير كلمة المرور والخروج.
+Readers use a top navigation bar. Administrators use a sidebar that moves above the content on smaller screens. The current URL determines the active tab. The **Account** menu includes profile settings, password changes, and logout.
 
-### خريطة المسارات
+### Route map
 
-| المسار | من يستطيع استخدامه؟ | السلوك عند فتحه |
+| Route | Audience | Behavior |
 | --- | --- | --- |
-| `/` | الجميع | يفتح كتاب الوصفات للضيف، ويوجّه صاحب الجلسة إلى الداشبورد |
-| `/guest` | الجميع | يفتح الوصفات المحلية، حتى أثناء تسجيل الدخول |
-| `/login`، `/register`، `/verify` | زائر | تسجيل الدخول، إنشاء الحساب، ثم التحقق بالبريد |
-| `/forget-password`، `/reset-password` | زائر | طلب كود استعادة ثم تعيين كلمة مرور جديدة |
-| `/dashboard` | قارئ أو مسؤول | يختار الواجهة حسب الدور |
-| `/recipes` | قارئ أو مسؤول | الكتالوج والفلاتر للجميع، مع إجراءات خاصة بالدور |
-| `/favorites` | قارئ | قائمة الوصفات المحفوظة |
-| `/categories`، `/users` | مسؤول | إدارة التصنيفات ودليل المستخدمين |
-| `/profile`، `/ChangePassword` | قارئ أو مسؤول | تعديل البيانات والصورة أو تغيير كلمة المرور |
-| `/recipe-data` | مستخدم مسجّل | رابط قديم يحوّل إلى الكتالوج. محرّر الوصفة يفتح داخل نافذة |
+| `/` | Everyone | Opens the guest cookbook for visitors and sends signed-in users to their dashboard |
+| `/guest` | Everyone | Opens the local cookbook, including during a signed-in session |
+| `/login`, `/register`, `/verify` | Signed-out visitors | Sign in, create an account, and verify an email address |
+| `/forget-password`, `/reset-password` | Signed-out visitors | Request a reset code and set a new password |
+| `/dashboard` | Reader or administrator | Selects the workspace for the account’s role |
+| `/recipes` | Reader or administrator | Displays the catalog and filters with role-specific actions |
+| `/favorites` | Reader | Displays the account’s saved recipes |
+| `/categories`, `/users` | Administrator | Opens category management or the user directory |
+| `/profile`, `/ChangePassword` | Reader or administrator | Updates account details, the profile picture, or the current password |
+| `/recipe-data` | Signed-in users | Redirects this legacy URL to the catalog. The recipe editor opens in a dialog |
 
-فتح مسار داخلي كضيف ينقل الزائر إلى تسجيل الدخول. فتح القارئ لرابط المستخدمين أو التصنيفات يعيده للداشبورد، وكذلك فتح المسؤول لرابط المفضلة. إخفاء الأزرار وتحويل المسارات مسؤولية الواجهة، والتحقق النهائي من صلاحية كل عملية مسؤولية الـAPI.
+Opening a protected route as a guest leads to sign-in. A reader who follows a direct link to Users or Categories returns to the dashboard. The same happens when an administrator opens Favorites. The frontend controls navigation and visible actions. The external API is responsible for authorizing each request.
 
-## 2. رحلة الضيف والتسجيل والعودة للوصفة
+## 2. Guest journey and account lifecycle
 
 ```mermaid
 flowchart TD
-    A["الرئيسية أو رابط وصفة"] --> B["قراءة المقادير والخطوات"]
-    B --> C{"الخطوة التالية"}
-    C -->|الاستمرار كضيف| D["فتح وصفة أخرى"]
+    A["Home or recipe link"] --> B["Read ingredients and method"]
+    B --> C{"What next?"}
+    C -->|Continue as guest| D["Open another recipe"]
     D --> B
-    C -->|حساب موجود| E["تسجيل الدخول"]
-    C -->|حساب جديد| F["التسجيل"]
-    F --> G["تأكيد البريد بالكود"]
+    C -->|Existing account| E["Sign in"]
+    C -->|New account| F["Register"]
+    F --> G["Verify email with code"]
     G --> E
-    E -->|نجاح| H["العودة إلى الوصفة المفتوحة"]
+    E -->|Success| H["Return to the open recipe"]
 ```
 
-**مثال قابل للتجربة.** افتح `/guest#lentil-soup` ثم اضغط **Create an account** أسفل الوصفة. رابط التسجيل يحمل `?recipe=lentil-soup`. تحتفظ شاشات التحقق والدخول بهذه القيمة، وبعد النجاح يعود القارئ إلى `/guest#lentil-soup` مع فتح الوصفة والتمرير إليها. نفس المبدأ يعمل عند اختيار الدخول مباشرة، أو المرور باستعادة كلمة المرور. الدخول العادي يصل إلى الداشبورد. يطابق التطبيق القيمة مع معرّفات الوصفات المحلية المعروفة.
+**Try the return flow.** Open `/guest#lentil-soup` and select **Create an account** below the recipe. The registration link carries `?recipe=lentil-soup`. Verification and sign-in preserve this value. After sign-in, the app opens `/guest#lentil-soup`, expands the recipe, and scrolls it into view. Direct sign-in from a recipe and password recovery also preserve this destination. Ordinary sign-in opens the dashboard. The app accepts recipe identifiers from its local cookbook.
 
-**مصدر المحتوى.** الباستا وسلطة الحمص وشوربة العدس محفوظة داخل المشروع. تتضمن كل وصفة وقت التحضير والمقادير والخطوات. الوصفات المسجّلة في الكتالوج تأتي من الخادم ولها معرّفات مستقلة ووصف وسعر وتصنيف وصورة. الاسم المتشابه بين المصدرين لا يربط سجلَّيهما تلقائيًا.
+**Recipe sources.** The pasta, chickpea salad, and lentil soup recipes ship with the frontend. Each has a cooking time, ingredients, and method. Catalog recipes come from the API and have their own IDs, descriptions, prices, classifications, and images. A matching dish name does not establish a relationship between these two data sources.
 
-### الحساب والجلسة
+### Accounts and sessions
 
-1. **التسجيل.** يُدخل المستخدم اسم الحساب والبريد والدولة والهاتف وكلمة المرور وتأكيدها. قواعد النموذج تشترط اسمًا بحد أقصى ثمانية أحرف، يبدأ بحروف لاتينية وينتهي بأرقام. الهاتف من 10 إلى 15 رقمًا. كلمة المرور ستة محارف على الأقل وتشمل حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.
-2. **التحقق.** يمرر التسجيل البريد في حالة التنقل. تعرض شاشة التحقق البريد والكود وتتيح إعادة الإرسال. عند الدخول المباشر للشاشة يمكن إدخال البريد يدويًا. نجاح التحقق ينقل المستخدم إلى الدخول.
-3. **الدخول واستعادة الجلسة.** يحفظ التطبيق الـJWT تحت المفتاح `token` في التخزين المحلي. يقرأه AuthContext عند بدء التطبيق ويفكّ ترميزه، ويتخلص من التوكن غير القابل للقراءة أو المنتهي وفق حقل `exp` عند الاستعادة. يقرأ Axios التوكن عند كل طلب ويرسله في ترويسة `Authorization: Bearer …`.
-4. **استعادة كلمة المرور.** يبدأ المستخدم ببريده، ثم يرسل البريد وكود إعادة التعيين وكلمة المرور الجديدة وتأكيدها. يستطيع إدخال البريد عند فتح صفحة التعيين مباشرة. بعد النجاح يعود إلى الدخول.
-5. **الخروج.** يمسح التطبيق التوكن وحالة الجلسة وينقل المستخدم إلى الدخول. لا يوجد مسار لتسجيل حساب مسؤول من نموذج التسجيل العام.
+1. **Register.** Enter a username, email, country, phone number, password, and password confirmation. A username contains up to eight characters, starts with Latin letters, and ends with digits. Phone numbers contain 10–15 digits. Passwords require at least six characters, including uppercase and lowercase letters, a digit, and a symbol.
+2. **Verify the email address.** Registration passes the email address in router state. The verification screen accepts the code and can resend it. Visitors who open the screen directly can enter their email manually. Successful verification opens sign-in.
+3. **Sign in and restore a session.** The app stores the JWT under `token` in local storage. On startup, `AuthContext` decodes the saved token and discards unreadable tokens and tokens that have expired according to their `exp` claim. Axios reads the token before each request and adds the `Authorization: Bearer …` header when one is present.
+4. **Recover a password.** Request a code by email, then submit the email address, reset code, new password, and confirmation. The reset screen also accepts an email address when opened directly. Success returns the user to sign-in.
+5. **Log out.** Logout clears the stored token and in-memory session, then opens sign-in. Public registration does not provide a way to create an administrator account.
 
-## 3. داشبورد القارئ — My kitchen
+## 3. Reader dashboard — My kitchen
 
-| العنصر | ما يراه القارئ | ماذا يحدث عند التفاعل؟ |
+| Element | What the reader sees | Action |
 | --- | --- | --- |
-| الوصفة المميزة | صورة باستا الطماطم والريحان ووقت التحضير | يفتح **View recipe** الوصفة المحلية مباشرة، وتظل جلسة القارئ متاحة |
-| My favorites | معاينة تطلب أول أربع مفضلات للحساب | الضغط على البطاقة يفتح الصورة والاسم والوصف في نافذة داخل الداشبورد |
-| View all | رابط أعلى قسم المفضلة | يفتح القائمة الكاملة على `/favorites` |
-| حساب جديد أو مفضلة فارغة | دعوة لحفظ أول وصفة | يفتح **Explore recipes** الكتالوج |
-| أثناء الطلب أو فشله | رسالة تحميل أو خطأ | يتيح **Try again** إعادة تحميل المفضلة |
+| Featured meal | Tomato and basil pasta with a photograph and cooking time | **View recipe** opens the local recipe and preserves the reader’s session |
+| My favorites | A preview requesting the first four saved items | Select a card to open its image, name, and description in a dashboard dialog |
+| View all | A link beside the favorites heading | Opens the complete collection at `/favorites` |
+| Empty collection | An invitation to save the first recipe | **Explore recipes** opens the catalog |
+| Loading or failed request | A loading message or an error | **Try again** requests the favorites again |
 
-**مسار الحفظ.** من **Recipes** ابحث بالاسم أو اختر وسمًا وتصنيفًا، ثم افتح البطاقة لمراجعة التفاصيل. اضغط **Save recipe** من البطاقة. افتح **Favorites** لمراجعة المجموعة أو إزالة وصفة منها. الإزالة تستهدف سجل المفضلة الخاص بالحساب وتبقى الوصفة متاحة في الكتالوج. تعرض صفحة المفضلة 12 عنصرًا في الصفحة، وتعود للصفحة السابقة عند إزالة آخر عنصر من صفحة لاحقة.
+**Save a recipe.** In **Recipes**, search by name or narrow the catalog by tag and category. Open a card to read the details, then select **Save recipe** on the card. Open **Favorites** to review the collection or remove an item. Removal deletes the account’s favorite record. The catalog recipe remains available. Favorites shows 12 items per page and returns to the previous page when the reader removes the last item from a later page.
 
-## 4. داشبورد المسؤول — Recipe library
+## 4. Administrator dashboard — Recipe library
 
-يعرض رأس الصفحة زر **Add recipe** وثلاثة مؤشرات للوصفات والتصنيفات والمستخدمين. تستعمل المؤشرات إجمالي السجلات الذي يرجعه الخادم. مؤشر الوصفات يطلب الإجمالي بصورة مستقلة عن البحث، لذلك يظل إجمالي المكتبة ظاهرًا عند تضييق النتائج. الشرطة في مكان الرقم تعني أن الإجمالي غير متاح.
+The dashboard header provides **Add recipe** and three counts for recipes, categories, and users. Each count uses the total record count returned by the API. The recipe total is fetched separately from the search results, so filtering the table preserves the library-wide count. A dash indicates an unavailable total.
 
-جدول الداشبورد يطلب ست وصفات في الصفحة. البحث بالاسم يعيد العرض إلى الصفحة الأولى. كل صف يعرض الصورة والاسم والتصنيف وزر **Edit**. يفتح زرا الإضافة والتعديل المحرّر نفسه المستخدم في الكتالوج، ويتاحان بعد تحميل خيارات الوسوم والتصنيفات. عند نجاح الحفظ تُغلق النافذة ويُعاد جلب بيانات الجدول والإجماليات. حذف وصفة متاح في تبويب **Recipes**.
+The dashboard requests six recipes per page. Searching by name returns the table to page one. Each row shows the image, name, category, and **Edit** action. Add and edit use the catalog’s shared recipe editor and become available when the tag and category options have loaded. A successful save closes the dialog and refreshes dashboard data. Administrators can delete a recipe from the **Recipes** tab.
 
 ```mermaid
 flowchart TD
-    A["مكتبة المسؤول"] --> B{"المهمة"}
-    B -->|إضافة| C["نموذج فارغ"]
-    B -->|تعديل| D["بحث ثم اختيار وصفة"]
-    D --> E["نموذج بالقيم الحالية"]
-    C --> F["التحقق من الحقول والصورة"]
+    A["Recipe library"] --> B{"Choose a task"}
+    B -->|Add| C["Open blank form"]
+    B -->|Edit| D["Find and select a recipe"]
+    D --> E["Open prefilled form"]
+    C --> F["Validate fields and image"]
     E --> F
-    F --> G["إرسال النموذج إلى API"]
-    G -->|نجاح| H["إغلاق النافذة وتحديث المكتبة"]
-    G -->|خطأ| I["رسالة خطأ والنموذج يظل مفتوحًا"]
+    F --> G["Submit to the API"]
+    G -->|Success| H["Close editor and refresh library"]
+    G -->|Error| I["Show error and keep editor open"]
 ```
 
-## 5. تفاصيل التبويبات الداخلية
+## 5. Workspace tabs
 
 ### Recipes
 
-- يعرض الكتالوج بطاقات بها الصورة والاسم والتصنيف والوسم والسعر بالجنيه المصري إذا توفرت البيانات. تفتح البطاقة نافذة التفاصيل. تستخدم الصورة الاحتياطية المحلية عندما يغيب مسار الصورة.
-- يدعم البحث بالاسم وفلاتر الوسم والتصنيف، ومسح الفلاتر وتغيير حجم الصفحة إلى 6 أو 12 أو 24 أو 48. البداية عند 12. تغيير الفلاتر يعيد التصفح إلى الصفحة الأولى.
-- يستطيع القارئ حفظ وصفة أو إلغاء حفظها. يستطيع المسؤول إضافة وصفة أو تعديلها أو طلب حذفها. الحذف يمر بنافذة تأكيد.
-- يجمع المحرّر الاسم والوصف والسعر والوسم والتصنيف والصورة. الإضافة تتطلب صورة. عند التعديل يمكن الاحتفاظ بالصورة الحالية أو رفع بديل. انظر تفاصيل الحقول في عقد الـAPI أدناه.
+- Each card shows the recipe image, name, category, tag, and price in EGP when available. Selecting the card opens the details dialog. A local fallback image is used when the record has no image path.
+- Search by name, filter by tag and category, clear the filters, or select 6, 12, 24, or 48 items per page. The default is 12. Changing filters returns to page one.
+- Readers can save recipes and remove them from their favorites. Administrators can create and edit recipes. Deletion opens a confirmation dialog before sending the request.
+- The editor collects the name, description, price, tag, category, and image. Creating a recipe requires an image. Editing can retain the current image or upload a replacement. Section 7 lists the submitted fields.
 
 ### Categories
 
-تعرض الصفحة إجمالي النتائج وأسماء التصنيفات وتاريخ الإنشاء وآخر تعديل. يمكن البحث بالاسم وتغيير عدد الصفوف. يبدأ العرض بعشرة تصنيفات. يفتح **Add category** نموذجًا فارغًا، ويفتح **Edit** الاسم الحالي للتعديل. يمنع النموذج حفظ اسم فارغ أو مكوّن من مسافات فقط. يؤكد المسؤول الحذف قبل الإرسال. تعاد قراءة الصفحة بعد نجاح التغيير.
+The category list shows the result count, category names, creation dates, and last update dates. Search by name or change the page size. The default is ten categories per page. **Add category** opens a blank form. **Edit** opens the selected name for editing. The form rejects empty and whitespace-only names. Deletion requires confirmation. A successful change refreshes the listing.
 
 ### Users
 
-يفصل دليل المستخدمين بين كتابة الفلاتر وتطبيقها بزر **Apply filters**. يرسل اسم الحساب والدولة والمجموعة ورقم الصفحة وحجمها للخادم. يعمل حقل **Email on this page** على صفوف الصفحة المستلمة فقط، لذلك قد تجد البريد المطلوب في صفحة أخرى. يبدأ الدليل بعشرة حسابات في الصفحة، ويمكن اختيار 5 أو 10 أو 25 أو 50.
+Enter directory filters, then select **Apply filters**. The frontend sends the username, country, group, page number, and page size to the server. **Email on this page** filters only the records returned for the current page. An account with the desired email may appear on another page. The default page size is ten, with options for 5, 10, 25, or 50 accounts.
 
-تفتح **Details** بيانات الحساب، بما فيها البريد والهاتف والدولة والدور والمعرّف وتاريخ الانضمام عند توفرها. يظهر إجراء الحذف لحساب القارئ من نوع `SystemUser`، ويتطلب تأكيدًا ثانيًا. عند فشل الحذف تعرض النافذة الخطأ. سجلات هذا التبويب تأتي من الـAPI الإداري.
+**Details** opens the selected account’s email, phone, country, role, ID, and join date when available. A reader account with the `SystemUser` role has a delete action that requires a second confirmation. The dialog displays a failure if deletion is unsuccessful. This tab reads its records from the administrative API.
 
-### Profile وChange password
+### Profile and Change password
 
-تعرض صفحة الملف تفاصيل الحساب ونموذجًا مُعبّأً بالقيم الحالية. يستطيع المستخدم تعديل الاسم والبريد والدولة والهاتف وتقديم كلمة المرور للتأكيد. تغيير الصورة له إجراء مستقل يطلب ملفًا وتأكيد كلمة المرور، ثم يعيد جلب الملف الشخصي بعد النجاح. إذا تعذر تحميل الملف تظهر إعادة المحاولة.
+Profile displays account details and a form prefilled with the current values. Users can edit their username, email, country, and phone number and provide their password to confirm. Updating a profile image uses a separate file selection and password-confirmation flow. Success reloads the profile. A failed profile load offers a retry.
 
-تطلب صفحة تغيير كلمة المرور القيمة الحالية والجديدة وتأكيد الجديدة، وتتحقق من التطابق. نجاح الطلب يعيد المستخدم إلى الداشبورد. مسار استعادة الحساب من شاشة الدخول منفصل ويعتمد على كود يصل بالبريد.
+Change password asks for the current password, new password, and confirmation, and validates that the new values match. Success opens the dashboard. Signed-out account recovery uses a separate email-code flow.
 
-## 6. بنية البرنامج ومسؤوليات الملفات
+## 6. Architecture and source map
 
-| نقطة الدخول أو المجلد | المسؤولية |
+| Entry point or directory | Responsibility |
 | --- | --- |
-| [main.jsx](src/main.jsx) و[App.jsx](src/App.jsx) | تركيب React وموفّري الحالة وتعريف شجرة المسارات |
-| [AuthContext](src/context/AuthContext.jsx) و[ProtectedRoute](src/modules/shared/components/ProtectedRoute/ProtectedRoute.jsx) | استعادة الجلسة وتحديثها والخروج وحراسة المسارات الداخلية |
-| [MasterLayout](src/modules/shared/layouts/MasterLayout/MasterLayout.jsx) | اختيار تنقل القارئ أو المسؤول، تمييز التبويب، قائمة الحساب وتحويل المسارات الخاصة بالدور |
-| [Dashboard](src/modules/HomeModule/components/Dashboard/Dashboard.jsx) | اختيار لوحة القارئ أو المسؤول وتنسيق الطلبات والإجراءات لكل منهما |
-| [guestRecipes](src/modules/recipes/guestRecipes.js) و[GuestRecipes](src/modules/recipes/components/GuestRecipes.jsx) | المحتوى المحلي وفهرس الوصفات وروابط الرجوع بعد الدخول |
-| [مكوّنات الوصفات](src/modules/recipes/components/) | الكتالوج، نافذة التحرير المشتركة، البطاقة، المفضلة والتنقل بين الصفحات |
-| [التصنيفات](src/modules/categories/) و[المستخدمون](src/modules/users/) | إدارة التصنيفات، دليل الحسابات والملف الشخصي |
-| [نماذج الحساب](src/modules/authentication/) و[قواعد التحقق](src/services/validations.js) | التسجيل والتحقق والدخول والاستعادة وتغيير كلمة المرور |
-| [DataContext](src/context/DataContext.jsx) | عمليات الكتابة، تحديث الملف والصورة، جلب المفضلة وتبديل حالة الحفظ |
-| [usePage](src/services/api/usePage.js) | قراءة القوائم والعدادات وربط الاستجابة بالطلب الحالي وإلغاء الطلب عند تغير المعاملات |
-| [Axios](src/services/api/index.js) و[عناوين الخدمات](src/services/api/urls.js) | عنوان الـAPI وترويسة الجلسة ومسارات الموارد وأصل الصور |
+| [main.jsx](src/main.jsx) and [App.jsx](src/App.jsx) | Mount React, install the context providers, and define the route tree |
+| [AuthContext](src/context/AuthContext.jsx) and [ProtectedRoute](src/modules/shared/components/ProtectedRoute/ProtectedRoute.jsx) | Restore and update sessions, handle logout, and guard signed-in routes |
+| [MasterLayout](src/modules/shared/layouts/MasterLayout/MasterLayout.jsx) | Select role-specific navigation, highlight the active tab, display account controls, and redirect role-restricted routes |
+| [Dashboard](src/modules/HomeModule/components/Dashboard/Dashboard.jsx) | Render the reader or administrator workspace and coordinate its requests and actions |
+| [Guest recipe data](src/modules/recipes/guestRecipes.js) and [GuestRecipes](src/modules/recipes/components/GuestRecipes.jsx) | Provide local content, the recipe index, and return links for sign-in |
+| [Recipe components](src/modules/recipes/components/) | Implement the catalog, shared editor, recipe cards, favorites, and pagination |
+| [Categories](src/modules/categories/) and [Users](src/modules/users/) | Implement category management, the user directory, and profile controls |
+| [Account forms](src/modules/authentication/) and [validation rules](src/services/validations.js) | Handle registration, verification, sign-in, recovery, and password changes |
+| [DataContext](src/context/DataContext.jsx) | Coordinate write operations, profile and image updates, favorites retrieval, and save toggles |
+| [usePage](src/services/api/usePage.js) | Fetch lists and counts, associate responses with the current query, and cancel superseded requests |
+| [Axios client](src/services/api/index.js) and [service URLs](src/services/api/urls.js) | Configure the API origin, authorization header, resource paths, and image origin |
 
-**كيف يصل صف البحث إلى الشاشة؟** يعدّل إدخال المستخدم حالة الفلاتر. يبني `usePage` مفتاحًا من المورد ورقم الصفحة وحجمها والفلاتر ورقم التحديث، ثم يرسل GET. عند تغيّر المفتاح يُلغى الطلب السابق وتُعرض نتيجة المفتاح الحالي فقط. بعد الكتابة الناجحة تزيد الشاشة رقم التحديث لإعادة القراءة. يستخدم دليل المستخدمين طلبًا مستقلًا لأن فلاتره وبياناته تختلف عن الكتالوج.
+**Tracing a catalog search.** Input changes the screen’s filter state. The `usePage` hook builds a key from the resource, page number, page size, filters, and refresh revision, then issues a GET request. When these inputs change, it cancels the previous request and exposes only a result matching the current key. After a successful write, the screen increments the revision to fetch updated data. The user directory has a separate request because it uses account-specific filters and response fields.
 
-## 7. عقد الواجهة مع الـAPI
+## 7. Frontend API contract
 
-عنوان الخدمة المعرّف في المصدر هو `https://upskilling-egypt.com:3006/api/v1`. لعرض صورة مرفوعة، تجمع الواجهة بين `https://upskilling-egypt.com:3006` و`imagePath`. المسارات في الجدول نسبية إلى عنوان الخدمة، وهي توثّق استدعاءات هذا التطبيق.
+The configured API base is `https://upskilling-egypt.com:3006/api/v1`. Uploaded image URLs combine `https://upskilling-egypt.com:3006` with the record’s `imagePath`. The paths below are relative to the API base and describe calls made by this frontend.
 
-| الوظيفة | الطلب | البيانات أو النتيجة المستخدمة |
+| Operation | Request | Payload or response used |
 | --- | --- | --- |
-| تسجيل ودخول | `POST /Users/Register`، `POST /Users/Login` | بيانات الحساب عند التسجيل، والبريد وكلمة المرور عند الدخول. تستعمل الواجهة الحقل `token` من نتيجة الدخول |
-| تحقق وإعادة إرسال | `PUT /Users/verify`، `POST /Users/verify` | التحقق يرسل البريد والكود، وإعادة الإرسال ترسل البريد |
-| استعادة الحساب | `POST /Users/Reset/Request`، `POST /Users/Reset` | طلب الكود بالبريد ثم تعيين كلمة مرور جديدة. اسم حقل الكود في نموذج التعيين هو `seed` |
-| ملف الحساب | `GET /Users/currentUser`، `PUT /Users` | قراءة بيانات الحساب وتحديثها باستخدام FormData |
-| تغيير كلمة المرور | `PUT /Users/ChangePassword` | `oldPassword` و`newPassword` و`confirmNewPassword` |
-| كتالوج الوصفات | `GET /Recipe` | `pageNumber` و`pageSize`، مع `name` و`tagId` و`categoryId` عند الاختيار |
-| إدارة وصفة | `POST /Recipe`، `PUT /Recipe/{id}`، `DELETE /Recipe/{id}` | الإضافة والتعديل يستخدمان multipart. الحذف يستخدم معرّف الوصفة |
-| تصنيفات ووسوم | `GET /Category`، `GET /tag` | التصنيفات ترجع في صفحة بيانات. يُستخدم رد الوسوم كمصفوفة |
-| إدارة تصنيف | `POST /Category`، `PUT /Category/{id}`، `DELETE /Category/{id}` | الإضافة والتعديل يرسلان كائنًا يحتوي على `name` |
-| المفضلة | `GET /userRecipe`، `POST /userRecipe`، `DELETE /userRecipe/{id}` | الإضافة ترسل `recipeId`. الحذف يستعمل معرّف سجل المفضلة |
-| دليل الحسابات | `GET /Users`، `DELETE /Users/{id}` | قراءة الحسابات بفلاتر وترقيم صفحات، وحذف الحساب المحدد بعد التأكيد |
+| Register and sign in | `POST /Users/Register`, `POST /Users/Login` | Registration sends account details. Sign-in sends the email and password and reads the returned `token` |
+| Verify or resend | `PUT /Users/verify`, `POST /Users/verify` | Verification sends the email and code. Resending sends the email |
+| Recover account | `POST /Users/Reset/Request`, `POST /Users/Reset` | Request the code by email, then submit the replacement password. The reset form calls the code field `seed` |
+| Read and update profile | `GET /Users/currentUser`, `PUT /Users` | Read account details and submit updates as FormData |
+| Change password | `PUT /Users/ChangePassword` | Send `oldPassword`, `newPassword`, and `confirmNewPassword` |
+| Browse recipes | `GET /Recipe` | Send `pageNumber` and `pageSize`, plus `name`, `tagId`, and `categoryId` when selected |
+| Manage recipes | `POST /Recipe`, `PUT /Recipe/{id}`, `DELETE /Recipe/{id}` | Create and update use multipart form data. Deletion targets the recipe ID |
+| Read categories and tags | `GET /Category`, `GET /tag` | Categories use a paginated result. The tag response is consumed as an array |
+| Manage categories | `POST /Category`, `PUT /Category/{id}`, `DELETE /Category/{id}` | Create and update send an object containing `name` |
+| Manage favorites | `GET /userRecipe`, `POST /userRecipe`, `DELETE /userRecipe/{id}` | Creation sends `recipeId`. Deletion targets the favorite record ID |
+| Manage directory | `GET /Users`, `DELETE /Users/{id}` | Read filtered and paginated accounts or delete the confirmed selection |
 
-**أمثلة للمطوّر**
+### Request and record examples
 
 ```http
 GET /api/v1/Recipe?name=soup&pageNumber=1&pageSize=12
 ```
 
-تقرأ الواجهة صفوف القوائم من `data`، وإجمالي الصفحات من `totalNumberOfPages`، وعدد السجلات من `totalNumberOfRecords`. مثال توضيحي لسجل مفضلة:
+Paginated screens read rows from `data`, the page count from `totalNumberOfPages`, and the record count from `totalNumberOfRecords`. A favorite wraps a recipe in a separate record. For example:
 
 ```json
 {"id": 9, "recipe": {"id": 42, "name": "Red lentil soup"}}
 ```
 
-لإضافة هذه الوصفة يُرسل `{"recipeId":42}`، ولإزالة الحفظ يُستخدم `DELETE /userRecipe/9`. الخلط بين المعرّفين يوجّه الطلب إلى سجل آخر.
+To save this recipe, send `{"recipeId":42}`. To remove that favorite, call `DELETE /userRecipe/9`. Using the nested recipe ID for deletion would target the wrong favorite record.
 
-**حمولة محرّر الوصفة.** الحقول النصية هي `name` و`description`. يرسل `price` و`tagId` بعد تحويلهما إلى عدد صحيح، و`categoriesIds` بقيمة التصنيف المختار. يُرسل الملف الجديد باسم `recipeImage`، أو مسار الصورة القديمة في `imagePath` عند الاحتفاظ بها.
+**Recipe editor payload.** The text fields are `name` and `description`. The provider converts `price` and `tagId` to integers and sends the selected category as `categoriesIds`. A new file is sent as `recipeImage`. An edit that keeps the current image can send its existing `imagePath`.
 
-## 8. التشغيل والنشر
+## 8. Local setup and deployment
 
-المشروع يستخدم React 18 وReact Router 6 وVite 5، مع Axios وReact Hook Form وBootstrap وReact Bootstrap. استخدم Node.js 24 وnpm من جذر المستودع.
+The app uses React 18, React Router 6, Vite 5, Axios, React Hook Form, Bootstrap, and React Bootstrap. Use Node.js 24 and npm.
 
 ```sh
 git clone https://github.com/onisEg/food_app.git
@@ -177,49 +177,49 @@ npm ci
 npm run dev
 ```
 
-افتح العنوان الذي يطبعه Vite. يمكن مراجعة صفحات الضيف فورًا. لاختبار التسجيل ستحتاج بريدًا يستقبل الأكواد، ولاختبار الإدارة ستحتاج حسابًا يحمل دور المسؤول لدى الخدمة.
+Open the local URL printed by Vite. Guest pages work immediately. Registration testing requires an inbox that can receive verification codes. Administration testing requires an account assigned the administrator role by the external service.
 
-| الأمر | النتيجة |
+| Command | Result |
 | --- | --- |
-| `npm run lint` | فحص المصدر باستخدام ESLint |
-| `npm run build` | إنشاء حزمة الإنتاج في `dist/` |
-| `npm run preview` | تشغيل الحزمة المبنية محليًا |
- 
-يُنشر مشروع Vite على Vercel من فرع `main`، ومجلد المخرجات هو `dist`. يعيد [vercel.json](vercel.json) كتابة المسارات الخالية من امتدادات الملفات إلى `index.html` ليعمل التحديث المباشر داخل التابات. تمر طلبات الصور والأصول ذات الامتداد إلى ملفاتها. نشر الواجهة لا ينشر خدمة الحسابات أو البريد أو قاعدة البيانات.
+| `npm run lint` | Check the source with ESLint |
+| `npm run build` | Generate the production bundle in `dist/` |
+| `npm run preview` | Serve the built bundle locally |
 
-## 9. خطة القبول وإعادة الاختبار
+Vercel deploys the Vite project from `main` using `dist` as its output directory. The [Vercel configuration](vercel.json) rewrites extensionless routes to `index.html` so a direct visit or refresh works inside a tab. Assets with file extensions are served from their own paths. The account service, email delivery, and database are hosted separately from this frontend.
 
-استخدم بيانات قابلة للتخلص منها عند اختبار الإنشاء والتعديل والحذف. اختبارات الواجهة بردود API محاكية تثبت انتقالات الواجهة وشكل الطلب. استخدم حسابات الاختبار الفعلية للتحقق من تسليم البريد، وصلاحيات الخادم، وبقاء التغيير بعد إعادة التحميل.
+## 9. Acceptance and regression testing
 
-| السيناريو | خطوات المراجعة | النتيجة المتوقعة |
+Use disposable records for create, edit, and delete scenarios. Mocked API responses let reviewers verify navigation and outgoing request shapes. Test accounts against a real service are needed to verify email delivery, backend permissions, and persistence after reload.
+
+| Scenario | Steps | Expected result |
 | --- | --- | --- |
-| ضيف جديد | افتح الرئيسية في نافذة خاصة ثم افتح شوربة العدس وانتقل إلى وصفة أخرى | المقادير والخطوات متاحة دون حساب |
-| العودة بعد التسجيل | سجّل من وصفة مفتوحة، تحقّق بالكود ثم سجّل الدخول | تظهر نفس الوصفة مفتوحة. الدخول من رابط الدخول العام يفتح الداشبورد |
-| استعادة الحساب | اطلب الكود ثم عيّن كلمة مرور وجرّب الدخول | يقبل الخادم الجديدة وتكتمل وجهة الرجوع |
-| قارئ | ابحث واحفظ وصفة ثم افتح الداشبورد والمفضلة وأزلها وأعد التحميل | تظهر المفضلة للحساب وتُزال بعد النجاح وتبقى الوصفة في الكتالوج |
-| مسؤول | أنشئ تصنيفًا ووصفة تجريبية، عدّل الوصفة مع الاحتفاظ بالصورة ثم احذف الوصفة قبل التصنيف | تُعرض القيم المحفوظة وتُحدّث القوائم |
-| دليل المستخدمين | طبّق فلتر دور، افتح التفاصيل، ثم افتح تأكيد الحذف وألغِه | تظهر بيانات الحساب المحدد ويبقى الحساب بعد الإلغاء |
-| حدود التنقل | افتح رابطًا داخليًا دون جلسة، ثم افتح رابط المستخدمين كقارئ | الأولى تصل إلى الدخول، والثانية إلى داشبورد القارئ |
-| الملف والأمان | عدّل بيانات حساب اختبار، ثم جرّب تغيير كلمة المرور مع تأكيد غير مطابق | تعكس القراءة التالية القيم المحفوظة ويمنع النموذج إرسال التأكيد المخالف |
-| حالات الفشل والموبايل | عطّل الشبكة أثناء تحميل قائمة، ثم استعد الاتصال وأعد المحاولة. افتح التابات بعرض هاتف | تظهر حالة خطأ قابلة للفهم، وتبقى عناصر التنقل والإجراءات قابلة للاستخدام |
-| إصدار الإنتاج | افتح رابط تاب مباشرة ثم حدّث الصفحة وتحقق من تحميل الصورة المميزة | يعمل توجيه التطبيق بعد التحديث وتُخدم الأصول من مساراتها |
+| New guest | Open Home in a private window, expand lentil soup, then open another recipe | Ingredients and instructions are available before sign-in |
+| Return after registration | Register from an open recipe, verify the code, and sign in | The same recipe reopens. Ordinary sign-in from the general login page opens the dashboard |
+| Account recovery | Request a code, set a new password, and sign in | The service accepts the new password and the intended return flow completes |
+| Reader favorites | Search, save a recipe, check the dashboard and Favorites, remove it, then reload | The saved item belongs to the account. Removal persists and the catalog recipe remains |
+| Administrator editing | Create a disposable category and recipe, edit the recipe while keeping its image, then delete the recipe before its category | Saved values appear in subsequent reads and the affected lists refresh |
+| User directory | Apply a role filter, open details, start deletion, and cancel | The dialog displays the selected account and cancellation preserves it |
+| Navigation boundaries | Open a protected link while signed out, then open Users as a reader | The first visit opens sign-in and the second returns to the reader dashboard |
+| Profile and password | Update a test profile and try submitting mismatched password confirmation | A subsequent read shows the saved profile. The password form rejects the mismatch |
+| Failure and mobile layouts | Interrupt a list request, restore connectivity, and retry. Open the tabs at phone width | The failed request shows a readable error. Navigation and actions remain usable at the smaller width |
+| Production routing | Open a tab directly, refresh it, and check the featured image | The host serves the application on refresh and loads static assets from their configured paths |
 
-**حالة التحقق.** شُغّل بناء الإنتاج وESLint. شملت اختبارات التفاعل ببيانات محاكية أدوار الضيف والقارئ والمسؤول، والرجوع للوصفة بعد الدخول والتسجيل، والبحث، وفتح محرّر الوصفة وتعديلها، وتعديل تصنيف، وإزالة مفضلة، وفتح تفاصيل مستخدم. هذه الاختبارات استُخدمت أثناء التطوير خارج المستودع. لا يعرّف المشروع حاليًا أمر `npm test`. لم يتم التحقق من وصول بريد حقيقي أو تنفيذ عمليات كتابة بحساب إنتاج ضمن هذه المراجعة.
+**Verification status.** The production build and ESLint ran during the implementation review. Interaction checks with mocked responses covered guest, reader, and administrator roles, recipe return after sign-in and registration, search, opening and editing recipes, category edits, removing a favorite, and viewing user details. Those development checks ran outside the repository. The package currently defines no `npm test` command. Real email delivery and write operations against production accounts were not verified in that review.
 
-## 10. تشخيص المشكلات والتحسينات
+## 10. Troubleshooting and next improvements
 
-| العرض | ما الذي تفحصه؟ |
+| Symptom | What to check |
 | --- | --- |
-| الضيف يرى الوصفات لكن الدخول أو الكتالوج يفشل | المحتوى العام محلي. افحص حالة طلب الحساب أو الكتالوج في Network، وعنوان الخدمة واستجابة الخادم |
-| المستخدم يعود إلى الداشبورد عند فتح رابط | تحقق من الدور المطلوب للتاب. للرجوع إلى وصفة عامة بعد الدخول يجب أن يبدأ المسار من وصفة معروفة تحمل معامل `recipe` |
-| زر إضافة وصفة معطّل | افحص تحميل `/tag` و`/Category`. يحتاج المحرّر إلى خياراتهما |
-| نتيجة البحث عن بريد تبدو ناقصة | فلتر البريد محلي على الصفحة الحالية. استخدم فلتر الاسم أو انتقل للصفحة المناسبة |
-| صورة مرفوعة لا تظهر | افحص عنوان الصورة الناتج من أصل الصور و`imagePath`، ثم حالة طلب الملف |
-| تحديث رابط داخلي يعرض 404 من المضيف | تحقق من إعادة الكتابة في Vercel ومن نشر `dist` الصحيح |
+| Guest recipes work but sign-in or the catalog fails | Guest content is bundled. Inspect the account or catalog request in the browser’s Network panel, including the service URL and response status |
+| A link returns the user to the dashboard | Check the tab’s required role. A return to a public recipe after sign-in requires a recognized `recipe` parameter from the guest flow |
+| Add recipe is disabled | Inspect the `/tag` and `/Category` requests. The editor needs their results to populate its choices |
+| Directory email results appear incomplete | The email filter applies to the current page. Try the username filter or navigate to the relevant page |
+| An uploaded image is missing | Check the image origin, the record’s `imagePath`, and the resulting image request |
+| Refreshing an internal link produces a host 404 | Check Vercel’s single-page rewrite and the deployed `dist` output |
 
-**أولويات التطوير التالية**
+### Development priorities
 
-1. تثبيت اختبارات الداشبورد والعودة للوصفة في المستودع وربطها بفحص تلقائي قبل الدمج، مع اختبار منفصل للبريد وعمليات الكتابة في بيئة تجريبية.
-2. حسم دقة السعر مع خدمة الوصفات. يسمح النموذج بالقيم العشرية بينما يحولها مزوّد البيانات إلى أعداد صحيحة. ينبغي أن يحفظ اختبار الرجوع القيمة بعد فتح المحرّر مجددًا.
-3. مراجعة الحسابات ذات البيانات الكبيرة. قوائم اختيار التصنيفات تطلب أول 100 عنصر، وبحث البريد يغطي صفحة واحدة. اختبر تصنيفًا وبريدًا بعد حدود الصفحة قبل تغيير عقد الـAPI.
-4. مراجعة انتهاء الجلسة أثناء الاستخدام. فحص انتهاء التوكن يجري عند استعادته، وعميل Axios يحتوي على معترض للطلب. معالجة موحّدة لاستجابة انتهاء الجلسة ستجعل العودة للدخول أوضح عبر التابات.
+1. **Make regression checks repeatable.** Commit dashboard and recipe-return tests, run them before merging, and verify email and write operations separately in a test environment.
+2. **Agree on price precision with the API.** The form accepts decimal input, while the provider converts the value to an integer. Add a test that saves a fractional price and checks the value after reopening the editor.
+3. **Test larger datasets.** Category selectors request the first 100 entries, and directory email search covers one page. Test a category beyond the first 100 and an email on a later page before revising the API contract.
+4. **Handle sessions that expire during use.** The app checks expiration when restoring a token, and Axios attaches credentials through a request interceptor. Consistent handling of expired-session responses would give users a predictable route back to sign-in from any tab.
